@@ -2,7 +2,7 @@ import pydicom
 import os
 
 
-class Instance(object):
+class Instance:
 
     def __init__(self, path):
         self.path = path
