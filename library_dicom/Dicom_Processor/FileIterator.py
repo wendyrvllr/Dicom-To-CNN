@@ -1,7 +1,7 @@
 from library_dicom.Dicom_Processor.Series import Series
 import os
 
-#Series path
+#list of Series path
 def getSeriesPath(path):
     seriesPath = []
     for (path, dirs, files) in os.walk(path): #os.walk parcoure tout le repertoire
@@ -12,11 +12,9 @@ def getSeriesPath(path):
 
 seriesPaths = getSeriesPath('/repertoire')
 
-dicom1 = Series(seriesPaths[0]) 
+dicom1 = Series(seriesPaths[0]) #chemin de la premiere série
 seriesInfo= dicom1.getSeriesDetails()
 print(seriesInfo)
-print(dicom1.isSeriesValid())
+print(dicom1.isSeriesValid()) #test
 
-
-#print de seriesInfo
 #Ici on va faire un script

@@ -7,7 +7,7 @@ class Series(object):
     def __init__(self, path):
         self.path = path
         self.fileNames = os.listdir(path) ##ici lister le contenu du repertoire avec os, liste
-        #self.fileNames = glob.glob(path) #liste le chemin de chaque fichier du repertoire 
+     
 
         #stocke la list des fichiers dans une variable fileNames
         #on boucle dessus
@@ -16,7 +16,8 @@ class Series(object):
     #Store commons data of Series in the current object
     def getSeriesDetails(self):
         firstFileName = self.fileNames[0] #on prend le premier fichier/dicom
-        dicomInstance = Instance(firstFileName)
+        #dicomInstance = Instance(firstFileName)
+        dicomInstance = Instance(os.path.join(self.path,firstFileName)) #join chemin série + 1er dicom
         self.patientID = dicomInstance.getPatientID()
         self.patientName = dicomInstance.getPatientName()
         self.studyInstanceUID = dicomInstance.getStudyInstanceUID()
@@ -37,7 +38,8 @@ class Series(object):
     # retour un boolan vrai si tous les tests passent et faux sinon
     def isSeriesValid(self):
         for fileName in self.fileNames:
-            dicomInstance = Instance(fileName)
+            #dicomInstance = Instance(fileName)
+            dicomInstance = Instance(os.path.join(self.path, fileName))
             patientID = dicomInstance.getPatientID()
             patientName = dicomInstance.getPatientName()
             studyInstanceUID = dicomInstance.getStudyInstanceUID()
