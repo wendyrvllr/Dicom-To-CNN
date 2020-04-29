@@ -12,7 +12,7 @@ def getSeriesPath(path):
 
 seriesPaths = getSeriesPath('/repertoire')
 
-dicom1 = Series('/seriesPaths[0]')
+dicom1 = Series(seriesPaths[0]) 
 seriesInfo= dicom1.getSeriesDetails()
 print(seriesInfo)
 print(dicom1.isSeriesValid())
