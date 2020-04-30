@@ -1,13 +1,21 @@
 from library_dicom.Dicom_Processor.Series import Series
 import os
 
-#list of Series path
 def getSeriesPath(path):
+    """Go through all the folder to find every series path
+
+    Arguments:
+        path {[string]} -- [Absolute path where the repertory is located]
+
+    Returns:
+        [list] -- [Path's list of every series]
+    """
+
     seriesPath = []
-    for (path, dirs, files) in os.walk(path): #os.walk parcoure tout le repertoire
-        if not (dirs) :  #si pas de sous dossiers = .dcm
-            seriesPath.append(path) #on récupère le path qu'on range dans la liste
-    return seriesPath #return une liste avec tous les chemins de toute les séries de tout le repertoire
+    for (path, dirs, files) in os.walk(path): 
+        if not (dirs) :
+            seriesPath.append(path) 
+    return seriesPath 
 
 
 seriesPaths = getSeriesPath('/repertoire')

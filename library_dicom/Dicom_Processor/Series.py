@@ -1,7 +1,6 @@
 from library_dicom.Dicom_Processor.Instance import Instance 
 import os
 #import glob
-#SK : Je viens de voir que depuis python 3 y pas besoin d'hériter de object pour chaque class (c'est auto)
 class Series:
     """ A class representing a series Dicom
     """
@@ -16,36 +15,74 @@ class Series:
         self.path = path
         self.fileNames = os.listdir(path) 
 
+
+
     def getSeriesDetails(self):
         """Read the first dicom in the folder and store Patient / Study / Series
         informations
 
         Returns:
-            [type] -- [description]
+            [dict] -- [Return the details of a Serie from the first Dicom]
         """
+        seriesDetails = {}
+        dataPatient = {}
+        dataStudy = {}
+        dataSeries = {}
 
         firstFileName = self.fileNames[0]
-        dicomInstance = Instance(os.path.join(self.path,firstFileName)) #join series path and 1st dicom
-        self.patientID = dicomInstance.getPatientID()
-        self.patientName = dicomInstance.getPatientName()
-        self.studyInstanceUID = dicomInstance.getStudyInstanceUID()
-        self.studyDescription = dicomInstance.getStudyDescription()
-        self.acquisitionDate = dicomInstance.getAcquisitionDate()
-        self.seriesInstanceUID = dicomInstance.getSeriesInstanceUID()
-        self.seriesName = dicomInstance.getSeriesName()
+        dicomInstance = Instance(os.path.join(self.path,firstFileName))
 
-        # SK : Ici a voir si il faut peut etre pas mettre toutes ces infos dans un dictionnaire et ne retourner que le dictionnaire
-        return (self.patientID, self.patientName, self.seriesInstanceUID, self.studyDescription,
-                self.acquisitionDate, self.seriesInstanceUID, self.seriesName)
+        self.numberOfSlices = dicomInstance.getNumberOfSlices()
+        self.sopClassUID = dicomInstance.getSOPClassUID()
+
+        dataPatient["PatientID "] = dicomInstance.getPatientID()
+        dataPatient["PatientName"] = dicomInstance.getPatientName()
+        dataPatient["PatientBirthDate"] = dicomInstance.getPatientBirthDate()
+        dataPatient["PatientSex"] = dicomInstance.getPatientSex()
+        dataPatient["PatientWeight"] = dicomInstance.getPatientWeight()
+        dataPatient["PatientHeight"] = dicomInstance.getPatientHeight()
+
+        dataStudy["AccessionNumber"] = dicomInstance.getAccessionNumber()
+        dataStudy["InstitutionName"] = dicomInstance.getInstitutionName()
+        dataStudy["StudyDate"] = dicomInstance.getStudyDate()
+        dataStudy["StudyDescription"] = dicomInstance.getStudyDescription()
+        dataStudy["StudyID"] = dicomInstance.getStudyID()
+        dataStudy["StudyInstanceUID"] = dicomInstance.getStudyInstanceUID()
+        dataStudy["StudyTime"] = dicomInstance.getStudyTime()
+        dataStudy["AcquisitionDate"] = dicomInstance.getAcquisitionDate()
+        dataStudy["AcquisitionTime"] = dicomInstance.getAcquisitionTime()
+
+        dataSeries["ImageOrientationPatient"] = dicomInstance.getImageOrientationPatient()
+        dataSeries["Manufacturer"] = dicomInstance.getManufacturer()
+        dataSeries["Modality"] = dicomInstance.getModality()
+        dataSeries["SeriesName"] = dicomInstance.getSeriesName()
+        dataSeries["SeriesDate"] = dicomInstance.getSeriesDate()
+        dataSeries["SeriesDescription"] = dicomInstance.getSeriesDescription()
+        dataSeries["SeriesInstanceUID"] = dicomInstance.getSeriesInstanceUID()
+        dataSeries["SeriesNumber"] = dicomInstance.getSeriesNumber()
+        dataSeries["SeriesTime"] = dicomInstance.getSeriesTime()
+
+        seriesDetails["DataPatient"] = dataPatient
+        seriesDetails["DataStudy"] = dataStudy
+        seriesDetails["DataSeries"] = dataSeries
+
+        if self.sopClassUID == '1.2.840.10008.5.1.4.1.1.128' : #TEP
+            radioPharma = {}
+            radioPharma["HalfLife"] = dicomInstance.getHalfLife()
+            radioPharma["TotalDose"] = dicomInstance.getTotalDose()
+            radioPharma["RadiopharmaceuticalStartDateTime"] = dicomInstance.getRadiopharmaceuticalStartDateTime()
+            radioPharma["DecayCorrection"] = dicomInstance.getDecayCorrection()
+            radioPharma["Unit"] = dicomInstance.getUnit()
+            if dataSeries["Manufacturer"] == 'Philips' :
+                radioPharma["ConversionSUV"] = dicomInstance.getConversionSUV()
+                radioPharma["ConversionBQML"] = dicomInstance.getConversionBQML()
+
+            seriesDetails["RadioPharma"] = radioPharma
+
+
+        return (seriesDetails)
         
-        ## ETC  => Patient ID, StudyInstanceUID, StudyDescription etc etc
 
-    #cette methode va faire des check
-    #elle va lire tous les fichier un a un grace à instance et elle va verifier
-    #que tous les fichier ont le meme patientID
-    #que tous les fichier ont la meme studyInstanceUID
-    #que le nombre de fichier correspond au nombre de coupe déclaré dans le 1er dicom
-    # retour un boolan vrai si tous les tests passent et faux sinon
     def isSeriesValid(self):
         """Read all DICOMs in the current folder and check that all dicoms belong to the same series
         and number of instances mathing number of slice
@@ -54,39 +91,63 @@ class Series:
             [bolean] -- [true if valid folder]
         """
 
-        #SK : pour l'algorithmie, ici tu est dans un boucle, si tu fait un return
-        # toute la methode est intérompue, si tu fait "si toute les conditions sont egale return true"
-        # alors tu va tester le 1er fichier de la liste et c'est fini t'a fonction retourne true est c'es tout.
-        #Donc j'ai changé au lieu de l'égalité je cherche une difference, si y a une difference je return false
-        # ce qui me permet de pas avoir à lire tous les fichiers dans ce cas, je sais qu'il y en a un qui ne va pas
-        # donc je retourne false
-        # si la boucle se termine sans avoir rendu de false alors en dehors de la boucle j'ai un return true qui permet 
-        # de renvoyer true quand la boucle s'est bien terminée sans recontrer de soucis
-
-        #SK2 : Ici il nous manque un check sur le nombre de slice, il faut checker que le nombre de slice dans le 1er dicom
-        # est bien égal au nombre de fichier qu'on a dans le repertoire 
-        # donc dans le get series detail il faut stocker dans cet objet le valeur du tag 0054,0081 (number of slice)
-        # y a un utilitaire dans pydicom pour retrouve le nom de l'element a partir du code 
-        #https://pydicom.github.io/pydicom/dev/reference/datadict.html
-        #donc avant la boucle faudrait un if qui check que le nombre de fichier dans le repertoire est égale au nomber of slice
-        # si c'est pas egale on return false sans rentrer dans la boucle
+        firstDicomDetails = self.getSeriesDetails()
+        if self.numberOfSlices != len(self.fileNames):
+            return False
         for fileName in self.fileNames:
             dicomInstance = Instance(os.path.join(self.path, fileName))
+
             patientID = dicomInstance.getPatientID()
             patientName = dicomInstance.getPatientName()
-            studyInstanceUID = dicomInstance.getStudyInstanceUID()
+            patientBirthDate = dicomInstance.getPatientBirthDate()
+            patientSex = dicomInstance.getPatientSex()
+            patientWeight = dicomInstance.getPatientWeight()
+            patientHeight = dicomInstance.getPatientHeight()
+
+            accessionNumber = dicomInstance.getAccessionNumber()
+            institutionName = dicomInstance.getInstitutionName()
+            studyDate = dicomInstance.getStudyDate()
             studyDescription = dicomInstance.getStudyDescription()
+            studyID = dicomInstance.getStudyID()
+            studyInstanceUID = dicomInstance.getStudyInstanceUID()
+            studyTime = dicomInstance.getStudyTime()
             acquisitionDate = dicomInstance.getAcquisitionDate()
-            seriesInstanceUID = dicomInstance.getSeriesInstanceUID()
+            acquisitionTime = dicomInstance.getAcquisitionTime()
+
+            imageOrientationPatient = dicomInstance.getImageOrientationPatient()
+            manufacturer = dicomInstance.getManufacturer()
+            modality = dicomInstance.getModality()
             seriesName = dicomInstance.getSeriesName()
-            if (self.patientID != patientID or
-                self.patientName != patientName or
-                self.studyInstanceUID != studyInstanceUID or
-                self.studyDescription != studyDescription or
-                self.acquisitionDate != acquisitionDate or
-                self.seriesInstanceUID != seriesInstanceUID or
-                self.seriesName != seriesName):
+            seriesDate = dicomInstance.getSeriesDate()
+            seriesDescription = dicomInstance.getSeriesDescription()
+            seriesInstanceUID = dicomInstance.getSeriesInstanceUID()
+            seriesNumber = dicomInstance.getSeriesNumber()
+            seriesTime = dicomInstance.getSeriesTime()
+
+            if (firstDicomDetails["DataPatient"]["PatientID"] != patientID or
+                firstDicomDetails["DataPatient"]["PatientName"] != patientName or
+                firstDicomDetails["DataPatient"]["PatientBirthDate"] != patientBirthDate or
+                firstDicomDetails["DataPatient"]["PatientSex"] != patientSex or
+                firstDicomDetails["DataPatient"]["PatientWeight"] != patientWeight or
+                firstDicomDetails["DataPatient"]["PatientHeight"] != patientHeight or
+                firstDicomDetails["DataStudy"]["AccessionNumber"] != accessionNumber or
+                firstDicomDetails["DataStudy"]["InstitutionName"] != institutionName or
+                firstDicomDetails["DataStudy"]["StudyDate"] != studyDate or
+                firstDicomDetails["DataStudy"]["StudyDescription"] != studyDescription or
+                firstDicomDetails["DataStudy"]["StudyID"] != studyID or
+                firstDicomDetails["DataStudy"]["StudyInstanceUID"] != studyInstanceUID or
+                firstDicomDetails["DataStudy"]["StudyTime"] != studyTime or
+                firstDicomDetails["DataStudy"]["AcquisitionDate"] != acquisitionDate or
+                firstDicomDetails["DataStudy"]["AcquisitionTime"] != acquisitionTime or
+                firstDicomDetails["DataSeries"]["ImageOrientationPatient"] != imageOrientationPatient or
+                firstDicomDetails["DataSeries"]["Manufacturer"] != manufacturer or
+                firstDicomDetails["DataSeries"]["Modality"] != modality or
+                firstDicomDetails["DataSeries"]["SeriesName"] != seriesName or
+                firstDicomDetails["DataSeries"]["SeriesDate"] != seriesDate or
+                firstDicomDetails["DataSeries"]["SeriesDescription"] != seriesDescription or
+                firstDicomDetails["DataSeries"]["SeriesInstanceUID"] != seriesInstanceUID or
+                firstDicomDetails["DataSeries"]["SeriesNumber"] != seriesNumber or
+                firstDicomDetails["DataSeries"]["SeriesTime"] != seriesTime):
                 return False
-        #if loop ended without non mathing element return true 
         return True
 
