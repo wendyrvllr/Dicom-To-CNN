@@ -68,11 +68,11 @@ class Series:
 
         if self.sopClassUID == '1.2.840.10008.5.1.4.1.1.128' : #TEP
             radioPharma = {}
-            radioPharma["HalfLife"] = dicomInstance.getHalfLife()
-            radioPharma["TotalDose"] = dicomInstance.getTotalDose()
+            radioPharma["RadionuclideHalfLife"] = dicomInstance.getRadionuclideHalfLife()
+            radioPharma["RadionuclideTotalDose"] = dicomInstance.getRadionuclideTotalDose()
             radioPharma["RadiopharmaceuticalStartDateTime"] = dicomInstance.getRadiopharmaceuticalStartDateTime()
             radioPharma["DecayCorrection"] = dicomInstance.getDecayCorrection()
-            radioPharma["Unit"] = dicomInstance.getUnit()
+            radioPharma["Units"] = dicomInstance.getUnits()
             if dataSeries["Manufacturer"] == 'Philips' :
                 radioPharma["ConversionSUV"] = dicomInstance.getConversionSUV()
                 radioPharma["ConversionBQML"] = dicomInstance.getConversionBQML()
@@ -92,6 +92,7 @@ class Series:
         """
 
         firstDicomDetails = self.getSeriesDetails()
+
         if self.numberOfSlices != len(self.fileNames):
             return False
         for fileName in self.fileNames:
@@ -148,6 +149,28 @@ class Series:
                 firstDicomDetails["DataSeries"]["SeriesInstanceUID"] != seriesInstanceUID or
                 firstDicomDetails["DataSeries"]["SeriesNumber"] != seriesNumber or
                 firstDicomDetails["DataSeries"]["SeriesTime"] != seriesTime):
+
+                if self.sopClassUID == '1.2.840.10008.5.1.4.1.1.128' : #TEP
+                    radionuclideHalfLife = dicomInstance.getRadionuclideHalfLife()
+                    radionuclideTotalDose = dicomInstance.getRadionuclideTotalDose()
+                    radiopharmaceuticalStartDateTime= dicomInstance.getRadiopharmaceuticalStartDateTime()
+                    decayCorrection = dicomInstance.getDecayCorrection()
+                    units = dicomInstance.getUnits()
+                    if (firstDicomDetails["RadioPharma"]["RadionuclideHalfLife"] != radionuclideHalfLife or
+                        firstDicomDetails["RadioPharma"]["RadionuclideTotalDose"] != radionuclideTotalDose or
+                        firstDicomDetails["RadioPharma"]["RadiopharmaceuticalStartDateTime"] != radiopharmaceuticalStartDateTime or
+                        firstDicomDetails["RadioPharma"]["DecayCorrection"] != decayCorrection or
+                        firstDicomDetails["RadioPharma"]["Units"] != units):
+                        
+                        
+                        if firstDicomDetails["DataSeries"]["Manufacturer"] == 'Philips' :
+                            conversionSUV = dicomInstance.getConversionSUV()
+                            conversionBQML = dicomInstance.getConversionBQML()
+                            if (firstDicomDetails["RadioPharma"]["ConversionSUV"] != conversionSUV or 
+                                firstDicomDetails["RadioPharma"]["ConversionBQML"] != conversionBQML) : 
+                                return False
+                        return False
+ 
                 return False
         return True
 

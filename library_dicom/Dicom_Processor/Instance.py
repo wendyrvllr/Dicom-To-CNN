@@ -16,106 +16,142 @@ class Instance:
         self.dicomData = pydicom.dcmread(path) 
 
     def getSOPClassUID(self):
-        return self.dicomData.SOPClassUID
+        if 'SOPClassIUD' in self.dicomData.dir() : return self.dicomData.SOPClassUID
+        else : return ("Undefined")
 
     def getNumberOfSlices(self):
-        return self.dicomData.NumberOfSlices 
+        if 'NumberOfSlices' in self.dicomData.dir() : return self.dicomData.NumberOfSlices 
+        else : return ("Undefined")
 
     def getPatientID(self): 
-        return self.dicomData.PatientID
+        if 'PatientID' in self.dicomData.dir(): return self.dicomData.PatientID
+        else : return ("Undefined")
         
     def getPatientName(self):
-        return self.dicomData.PatientName
+        if 'PatientName' in self.dicomData.dir() : return self.dicomData.PatientName
+        else : return ("Undefined")
 
     def getPatientBirthDate(self):
-        return self.dicomData.PatientBirthDay
+        if 'PatientBirthDate' in self.dicomData.dir() : return self.dicomData.PatientBirthDay
+        else : return ("Undefined")
 
     def getPatientSex(self):
-        return self.dicomData.PatientSex
+        if 'PatientSex' in self.dicomData.dir() : return self.dicomData.PatientSex
+        else : return ("Undefined")
 
     def getPatientWeight(self):
-        return self.dicomData.PatientWeight
+        if 'PatientWeight' in self.dicomData.dir() : return self.dicomData.PatientWeight
+        else : return ("Undefined")
 
     def getPatientHeight(self):
-        return self.dicomData.PatientHeight
+        if 'PatientHeight' in self.dicomData.dir() : return self.dicomData.PatientHeight
+        else : return ("Undefined")
 
     def getAccessionNumber(self):
-        return self.dicomData.AccessionNumber
+        if 'AccessioNumber' in self.dicomData.dir() : return self.dicomData.AccessionNumber
+        else : return("Undefined")
     
     def getInstitutionName(self):
-        return self.dicomData.InsitutionName 
+        if 'InstitutionName' in self.dicomData.dir() : return self.dicomData.InsitutionName
+        else : return ("Undefined")
 
     def getStudyDate(self):
-        return self.dicomData.StudyDate
+        if 'StudyDate' in self.dicomData.dir() : return self.dicomData.StudyDate
+        else : return ("Undefined")
 
     def getStudyDescription(self):
-        return self.dicomData.StudyDescription
+        if 'StudyDescription' in self.dicomData.dir() : return self.dicomData.StudyDescription
+        else : return ("Undefined")
 
     def getStudyID(self):
-        return self.dicomData.StudyID
+        if 'Study ID' in self.dicomData.dir() : return self.dicomData.StudyID
+        else : return("Undefined")
 
     def getStudyInstanceUID(self):
-        return self.dicomData.StudyInstanceUID
+        if 'StudyInstance' in self.dicomData.dir() : return self.dicomData.StudyInstanceUID
+        else : return("Undefined")
 
     def getStudyTime(self):
-        return self.dicomData.StudyTime
+        if 'StudyTime' in self.dicomData.dir() : return self.dicomData.StudyTime
+        else : return ("Undefined")
 
     def getAcquisitionDate(self):
-        return self.dicomData.AcquisitionDate
+        if 'AcquisitionDate' in self.dicomData.dir() : return self.dicomData.AcquisitionDate
+        else : return ("Undefined")
     
     def getAcquisitionTime(self):
-        return self.dicomData.AcquisitionTime 
+        if 'AcquisitionTime' in self.dicomData.dir() : return self.dicomData.AcquisitionTime 
+        else : return ("Undefined")
 
     def getImageOrientationPatient(self):
-        return self.dicomData.ImageOrientationPatient 
+        if 'ImageOrientationPatient' in self.dicomData.dir() : return self.dicomData.ImageOrientationPatient 
+        else : return ("Undefined")
 
     def getManufacturer(self):
-        return self.dicomData.Manufacturer
+        if 'Manufacturer' in self.dicomData.dir() : return self.dicomData.Manufacturer
+        else : return ("Undefined")
 
     def getModality(self):
-        return self.dicomData.Modality
+        if 'Modality' in self.dicomData.dir() : return self.dicomData.Modality
+        else : return ("Undefined")
 
     def getSeriesName(self):
-        return self.dicomData.SeriesName
+        if 'SeriesName' in self.dicomData.dir() : return self.dicomData.SeriesName
+        else : return ("Undefined")
 
     def getSeriesDate(self):
-        return self.dicomData.SeriesDate 
+        if 'SeriesDate' in self.dicomData.dir() : return self.dicomData.SeriesDate 
+        else : return ("Undefined")
 
     def getSeriesDescription(self):
-        return self.dicomData.SeriesDescription 
+        if 'SeriesDescription' in self.dicomData.dir() : return self.dicomData.SeriesDescription 
+        else : return ("Undefined")
 
     def getSeriesInstanceUID(self):
-        return self.dicomData.SeriesInstanceUID
+        if 'SeriesInstanceUID' in self.dicomData.dir() : return self.dicomData.SeriesInstanceUID
+        else : return ("Undefined")
 
     def getSeriesNumber(self):
-        return self.dicomData.SeriesNumber
+        if 'SeriesNumber' in self.dicomData.dir() : return self.dicomData.SeriesNumber
+        else : return ("Undefined")
 
     def getSeriesTime(self):
-        return self.dicomData.SeriesTime 
+        if 'SeriesTime' in self.dicomData.dir() : return self.dicomData.SeriesTime 
+        else : return ("Undefined")
 
     #pour TEP
 
 
-    def getHalfLife(self):
-        return self.dicomData[0x00181075].value
+    def getRadionuclideHalfLife(self):
+        if 'RadionuclideHalfLife' in self.dicomData.dir() : return self.dicomData.RadionuclideHalfLife
+        else : return ("Undefined")
 
-    def getTotalDose(self):
-        return self.dicomData[0x00181074].value
+    def getRadionuclideTotalDose(self):
+        if 'TotalDose' in self.dicomData.dir() : return self.dicomData.RadionuclideTotalDose
+        else : return ("Undefined")
 
     def getRadiopharmaceuticalStartDateTime(self):
-        return self.dicomData[0x00181078].value
+        if 'RadiopharmaceuticalStartDateTime' in self.dicomData.dir() : return self.dicomData.RadiopharmaceuticalStartDateTime
+        else : return ("Undefined")
 
     def getDecayCorrection(self):
-        return self.dicomData[0x00541102].value
-    
-    def getUnit(self):
-        return self.dicomData[0x00541001].value
+        if 'DecayCorrection' in self.dicomData.dir() : return self.dicomData.DecayCorrection
+        else : return ("Undefined")
 
+    def getUnits(self):
+        if 'Units' in self.dicomData.dir() :  return self.dicomData.Units
+        else : return ("Undefined")
+
+#Problème pour afficher les tags privés : 
+#7053 1000 : SUV Scale Factor
+#7053 1009 : Activity Concentration Scale Factor
     def getConversionSUV(self):
-        return self.dicomData[0x70531000].value
+        if '0x70531000' in self.dicomData : return self.dicomData[0x70531000].value
+        else : return ("Undefined")
 
     def getConversionBQML(self):
-        return self.dicomData[0x70531009].value
+        if '0x70531009' in self.dicomData : return self.dicomData[0x70531009].value
+        else : return ("Undefined")
 
     
     
