@@ -1,7 +1,11 @@
 from library_dicom.dicom_processor.model.Instance import Instance
 from library_dicom.dicom_processor.model.Modality import Modality
 from library_dicom.dicom_processor.enums.TagEnum import *
+from library_dicom.dicom_processor.model.NiftiBuilder import NiftiBuilder
+
+import numpy as np
 import os
+
 
 class Series:
     """ A class representing a series Dicom
@@ -15,7 +19,7 @@ class Series:
         """
 
         self.path = path
-        self.fileNames = os.listdir(path) 
+        self.file_names = os.listdir(path) 
 
     def get_series_details(self):
         """Read the first dicom in the folder and store Patient / Study / Series
@@ -24,66 +28,34 @@ class Series:
         Returns:
             [dict] -- [Return the details of a Serie from the first Dicom]
         """
-        series_details = {}
-        patient_details = {}
-        study_details = {}
+        self.series_details = {}
+        self.patient_details = {}
+        self.study_details = {}
 
-        firstFileName = self.fileNames[0]
+        firstFileName = self.file_names[0]
         dicomInstance = Instance(os.path.join(self.path,firstFileName), load_image=True)
 
-        series_details = dicomInstance.get_series_tags()
-        patient_details = dicomInstance.get_patients_tags()
-        study_details = dicomInstance.get_studies_tags()
-
-
-        self.numberOfSlices = series_details[TagsSeries.NumberOfSlices.name]
-        self.sopClassUID = dicomInstance.get_sop_class_uid()
-        print(self.sopClassUID)
-        print(dicomInstance.is_image_modality() )
-        if dicomInstance.is_image_modality() == True: 
-            nparray = dicomInstance.get_image_nparray()
-            print(nparray[80][80])
-
+        self.series_details = dicomInstance.get_series_tags()
+        self.patient_details = dicomInstance.get_patients_tags()
+        self.study_details = dicomInstance.get_studies_tags()
+        self.sop_class_uid = dicomInstance.get_sop_class_uid()
+        self.is_image_series = dicomInstance.is_image_modality()
+        # SK AJOUTER RADIOPHARMACEUTICAL SI TEP
         return {
             'series' : series_details,
             'study' : study_details,
             'patient' : patient_details
         }
-        """
-        seriesDetails["DataPatient"] = dataPatient
-        seriesDetails["DataStudy"] = dataStudy
-        seriesDetails["DataSeries"] = dataSeries
-
-        if self.sopClassUID == Modality.PET :
-            radioPharma = {}
-            radioPharma["RadionuclideHalfLife"] = dicomInstance.getRadionuclideHalfLife()
-            radioPharma["RadionuclideTotalDose"] = dicomInstance.getRadionuclideTotalDose()
-            radioPharma["RadiopharmaceuticalStartDateTime"] = dicomInstance.getRadiopharmaceuticalStartDateTime()
-            radioPharma["DecayCorrection"] = dicomInstance.getDecayCorrection()
-            radioPharma["Units"] = dicomInstance.getUnits()
-            if dataSeries["Manufacturer"] == 'Philips' :
-                radioPharma["ConversionSUV"] = dicomInstance.getConversionSUV()
-                radioPharma["ConversionBQML"] = dicomInstance.getConversionBQML()
-
-            seriesDetails["RadioPharma"] = radioPharma
-
-        *"""
-        
+    """
     def is_series_valid(self):
-        """Read all DICOMs in the current folder and check that all dicoms belong to the same series
-        and number of instances mathing number of slice
-
-        Returns:
-            [bolean] -- [true if valid folder]
-        """
 
         #SK : Ici il faut mieux tester l'egalité des dictionnaire plutot que de faire Item par Item
 
         firstDicomDetails = self.getSeriesDetails()
 
-        if self.numberOfSlices != len(self.fileNames):
+        if self.numberOfSlices != len(self.file_names):
             return False
-        for fileName in self.fileNames:
+        for fileName in self.file_names:
             dicomInstance = Instance(os.path.join(self.path, fileName), load_image=False)
 
             patientID = dicomInstance.getPatientID()
@@ -161,4 +133,18 @@ class Series:
  
                 return False
         return True
+    """
+    def get_numpy_array(self):
+        if self.is_image_series == False : return
+        instance_array = [Instance(file_name, load_image=True) for file_name in self.file_names]
+        instance_array.sort(key=lambda x:int(instance_array.get_image_position()[2]), reverse=True)
+        pixel_data = [instance.get_image_nparray() for instance in instance_array]
+        np_array = np.stack(pixel_data,axis=0)
+        self.instance_array = instance_array
+
+        return np_array
+
+    def export_nifti(self, file_path):
+        nifti_builder = NiftiBuilder(self, file_path)
+        nifti_builder.save_nifti()
 
