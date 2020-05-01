@@ -1,6 +1,8 @@
-from library_dicom.Dicom_Processor.Instance import Instance 
+from library_dicom.dicom_processor.model.Instance import Instance
+from library_dicom.dicom_processor.model.Modality import Modality
+from library_dicom.dicom_processor.model.TagEnum import *
 import os
-#import glob
+
 class Series:
     """ A class representing a series Dicom
     """
@@ -15,58 +17,41 @@ class Series:
         self.path = path
         self.fileNames = os.listdir(path) 
 
-
-
-    def getSeriesDetails(self):
+    def get_series_details(self):
         """Read the first dicom in the folder and store Patient / Study / Series
         informations
 
         Returns:
             [dict] -- [Return the details of a Serie from the first Dicom]
         """
-        seriesDetails = {}
-        dataPatient = {}
-        dataStudy = {}
-        dataSeries = {}
+        series_details = {}
+        patient_details = {}
+        study_details = {}
 
         firstFileName = self.fileNames[0]
-        dicomInstance = Instance(os.path.join(self.path,firstFileName))
+        dicomInstance = Instance(os.path.join(self.path,firstFileName), load_image=False)
 
-        self.numberOfSlices = dicomInstance.getNumberOfSlices()
+        series_details = dicomInstance.get_series_tags()
+        patient_details = dicomInstance.get_patients_tags()
+        study_details = dicomInstance.get_studies_tags()
+
+
+        self.numberOfSlices = series_details[TagsSeries.NumberOfSlices.name]
         self.sopClassUID = dicomInstance.getSOPClassUID()
 
-        dataPatient["PatientID "] = dicomInstance.getPatientID()
-        dataPatient["PatientName"] = dicomInstance.getPatientName()
-        dataPatient["PatientBirthDate"] = dicomInstance.getPatientBirthDate()
-        dataPatient["PatientSex"] = dicomInstance.getPatientSex()
-        dataPatient["PatientWeight"] = dicomInstance.getPatientWeight()
-        dataPatient["PatientHeight"] = dicomInstance.getPatientHeight()
+        print(dicomInstance.get_instance_tags())
 
-        dataStudy["AccessionNumber"] = dicomInstance.getAccessionNumber()
-        dataStudy["InstitutionName"] = dicomInstance.getInstitutionName()
-        dataStudy["StudyDate"] = dicomInstance.getStudyDate()
-        dataStudy["StudyDescription"] = dicomInstance.getStudyDescription()
-        dataStudy["StudyID"] = dicomInstance.getStudyID()
-        dataStudy["StudyInstanceUID"] = dicomInstance.getStudyInstanceUID()
-        dataStudy["StudyTime"] = dicomInstance.getStudyTime()
-        dataStudy["AcquisitionDate"] = dicomInstance.getAcquisitionDate()
-        dataStudy["AcquisitionTime"] = dicomInstance.getAcquisitionTime()
-
-        dataSeries["ImageOrientationPatient"] = dicomInstance.getImageOrientationPatient()
-        dataSeries["Manufacturer"] = dicomInstance.getManufacturer()
-        dataSeries["Modality"] = dicomInstance.getModality()
-        dataSeries["SeriesName"] = dicomInstance.getSeriesName()
-        dataSeries["SeriesDate"] = dicomInstance.getSeriesDate()
-        dataSeries["SeriesDescription"] = dicomInstance.getSeriesDescription()
-        dataSeries["SeriesInstanceUID"] = dicomInstance.getSeriesInstanceUID()
-        dataSeries["SeriesNumber"] = dicomInstance.getSeriesNumber()
-        dataSeries["SeriesTime"] = dicomInstance.getSeriesTime()
-
+        return {
+            'series' : series_details,
+            'study' : study_details,
+            'patient' : patient_details
+        }
+        """
         seriesDetails["DataPatient"] = dataPatient
         seriesDetails["DataStudy"] = dataStudy
         seriesDetails["DataSeries"] = dataSeries
 
-        if self.sopClassUID == '1.2.840.10008.5.1.4.1.1.128' : #TEP
+        if self.sopClassUID == Modality.PET :
             radioPharma = {}
             radioPharma["RadionuclideHalfLife"] = dicomInstance.getRadionuclideHalfLife()
             radioPharma["RadionuclideTotalDose"] = dicomInstance.getRadionuclideTotalDose()
@@ -79,11 +64,9 @@ class Series:
 
             seriesDetails["RadioPharma"] = radioPharma
 
-
-        return (seriesDetails)
+        *"""
         
-
-    def isSeriesValid(self):
+    def is_series_valid(self):
         """Read all DICOMs in the current folder and check that all dicoms belong to the same series
         and number of instances mathing number of slice
 
@@ -91,12 +74,14 @@ class Series:
             [bolean] -- [true if valid folder]
         """
 
+        #SK : Ici il faut mieux tester l'egalité des dictionnaire plutot que de faire Item par Item
+
         firstDicomDetails = self.getSeriesDetails()
 
         if self.numberOfSlices != len(self.fileNames):
             return False
         for fileName in self.fileNames:
-            dicomInstance = Instance(os.path.join(self.path, fileName))
+            dicomInstance = Instance(os.path.join(self.path, fileName), load_image=False)
 
             patientID = dicomInstance.getPatientID()
             patientName = dicomInstance.getPatientName()
