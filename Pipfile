@@ -7,6 +7,7 @@ verify_ssl = true
 
 [packages]
 pydicom = "*"
+python3-gdcm = "*"
 
 [requires]
 python_version = "3.5"

@@ -7,4 +7,3 @@ print(series_paths)
 for serie_path in series_paths:
     dicom1 = Series(serie_path)
     dicomsInfo = dicom1.get_series_details()
-    print(dicomsInfo)

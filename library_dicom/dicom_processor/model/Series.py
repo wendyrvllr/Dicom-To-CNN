@@ -29,7 +29,7 @@ class Series:
         study_details = {}
 
         firstFileName = self.fileNames[0]
-        dicomInstance = Instance(os.path.join(self.path,firstFileName), load_image=False)
+        dicomInstance = Instance(os.path.join(self.path,firstFileName), load_image=True)
 
         series_details = dicomInstance.get_series_tags()
         patient_details = dicomInstance.get_patients_tags()
@@ -38,9 +38,9 @@ class Series:
 
         self.numberOfSlices = series_details[TagsSeries.NumberOfSlices.name]
         self.sopClassUID = dicomInstance.get_sop_class_uid()
-
-        print(dicomInstance.get_instance_tags())
-        print(dicomInstance.get_radiopharmaceuticals_tags())
+        print(self.sopClassUID)
+        print(dicomInstance.is_image_modality() )
+        if dicomInstance.is_image_modality() == True: print(dicomInstance.get_image_nparray())
 
         return {
             'series' : series_details,

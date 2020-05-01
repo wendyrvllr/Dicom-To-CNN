@@ -81,5 +81,25 @@ class Instance:
     #SK Le return est coté en condition ternaire
     def is_secondary_capture(self):
         return True if self.getSOPClassUID in CapturesSOPClass else False
+
+    def __get_rescale_slope(self):
+        return self.dicomData[TagsInstance.RescaleSlope]
+
+    def __get_rescale_intercept(self):
+        return self.dicomData[TagsInstance.RescaleIntercept]
+
+    def is_image_modality(self):
+        sop_values = set(item.value for item in ImageModalitiesSOPClass)
+        return True if self.get_sop_class_uid() in sop_values else False
+
+    def get_image_nparray(self):
+        print(self.is_image_modality())
+        if self.is_image_modality() == False : 
+            raise Exception('Not Image Modality')
+        else:
+            pixel_array = self.dicomData.pixel_array
+            rescale_slope = self.__get_rescale_slope
+            rescale_intercept = self.__get_rescale_intercept()
+            return ( pixel_array * rescale_slope) + rescale_intercept
     
     
