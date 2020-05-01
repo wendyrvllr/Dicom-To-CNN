@@ -1,5 +1,6 @@
 import pydicom
 import os
+import numpy as np
 
 from library_dicom.dicom_processor.enums.TagEnum import *
 from library_dicom.dicom_processor.enums.SopClassUID import *
@@ -83,23 +84,23 @@ class Instance:
         return True if self.getSOPClassUID in CapturesSOPClass else False
 
     def __get_rescale_slope(self):
-        return self.dicomData[TagsInstance.RescaleSlope]
+        return self.dicomData[TagsInstance.RescaleSlope.value].value
 
     def __get_rescale_intercept(self):
-        return self.dicomData[TagsInstance.RescaleIntercept]
+        return self.dicomData[TagsInstance.RescaleIntercept.value].value
 
     def is_image_modality(self):
         sop_values = set(item.value for item in ImageModalitiesSOPClass)
         return True if self.get_sop_class_uid() in sop_values else False
 
     def get_image_nparray(self):
-        print(self.is_image_modality())
         if self.is_image_modality() == False : 
             raise Exception('Not Image Modality')
         else:
             pixel_array = self.dicomData.pixel_array
-            rescale_slope = self.__get_rescale_slope
+            rescale_slope = self.__get_rescale_slope()
             rescale_intercept = self.__get_rescale_intercept()
+            if( isinstance(rescale_slope, float) or isinstance(rescale_intercept, float)): pixel_array.astype(np.float32)
             return ( pixel_array * rescale_slope) + rescale_intercept
     
     

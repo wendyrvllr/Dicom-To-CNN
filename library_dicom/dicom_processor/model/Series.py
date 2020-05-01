@@ -40,7 +40,9 @@ class Series:
         self.sopClassUID = dicomInstance.get_sop_class_uid()
         print(self.sopClassUID)
         print(dicomInstance.is_image_modality() )
-        if dicomInstance.is_image_modality() == True: print(dicomInstance.get_image_nparray())
+        if dicomInstance.is_image_modality() == True: 
+            nparray = dicomInstance.get_image_nparray()
+            print(nparray[80][80])
 
         return {
             'series' : series_details,
