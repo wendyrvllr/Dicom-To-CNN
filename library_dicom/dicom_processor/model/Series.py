@@ -1,6 +1,6 @@
 from library_dicom.dicom_processor.model.Instance import Instance
 from library_dicom.dicom_processor.model.Modality import Modality
-from library_dicom.dicom_processor.model.TagEnum import *
+from library_dicom.dicom_processor.enums.TagEnum import *
 import os
 
 class Series:
@@ -37,9 +37,10 @@ class Series:
 
 
         self.numberOfSlices = series_details[TagsSeries.NumberOfSlices.name]
-        self.sopClassUID = dicomInstance.getSOPClassUID()
+        self.sopClassUID = dicomInstance.get_sop_class_uid()
 
         print(dicomInstance.get_instance_tags())
+        print(dicomInstance.get_radiopharmaceuticals_tags())
 
         return {
             'series' : series_details,

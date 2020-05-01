@@ -59,41 +59,24 @@ class Instance:
     #SK : Le SOPClassUID est une clé obligatoire dans le DICOM si elle n'est pas présente je déclanche une exception
     #Cette exeception doit etre gérée la ou elle est appellée sinon le programme va s'arreter
     #Ici j'ai pas fait de catch, normalement elle ne doit jamais etre absente
-    def getSOPClassUID(self):
+    def get_sop_class_uid(self):
         if 'SOPClassUID' in self.dicomData.dir() : return self.dicomData.SOPClassUID
         else : raise Exception('Undefined SOP Class UID')
 
-    #pour TEP
-    def getRadionuclideHalfLife(self):
-        if 'RadionuclideHalfLife' in self.dicomData.dir() : return self.dicomData.RadionuclideHalfLife
-        else : return ("Undefined")
+    def get_radiopharmaceuticals_tags(self):
+        radiopharmaceuticals_tags={}
+        radiopharmaceutical_sequence = []
 
-    def getRadionuclideTotalDose(self):
-        if 'TotalDose' in self.dicomData.dir() : return self.dicomData.RadionuclideTotalDose
-        else : return ("Undefined")
+        try :
+            radiopharmaceutical_sequence = self.dicomData[0x00540016][0]
+        except Exception: 
+            print("no Radiopharmaceuticals tags")
 
-    def getRadiopharmaceuticalStartDateTime(self):
-        if 'RadiopharmaceuticalStartDateTime' in self.dicomData.dir() : return self.dicomData.RadiopharmaceuticalStartDateTime
-        else : return ("Undefined")
+        for tag_address in TagsRadioPharmaceuticals:
+            if tag_address.value in radiopharmaceutical_sequence : radiopharmaceuticals_tags[tag_address.name] = radiopharmaceutical_sequence[tag_address.value].value
+            else : radiopharmaceuticals_tags[tag_address.name] = "Undefined"
 
-    def getDecayCorrection(self):
-        if 'DecayCorrection' in self.dicomData.dir() : return self.dicomData.DecayCorrection
-        else : return ("Undefined")
-
-    def getUnits(self):
-        if 'Units' in self.dicomData.dir() :  return self.dicomData.Units
-        else : return ("Undefined")
-
-    #Problème pour afficher les tags privés : 
-    #7053 1000 : SUV Scale Factor
-    #7053 1009 : Activity Concentration Scale Factor
-    def getConversionSUV(self):
-        if '0x70531000' in self.dicomData : return self.dicomData[0x70531000].value
-        else : return ("Undefined")
-
-    def getConversionBQML(self):
-        if '0x70531009' in self.dicomData : return self.dicomData[0x70531009].value
-        else : return ("Undefined")
+        return radiopharmaceuticals_tags
 
     #SK Le return est coté en condition ternaire
     def is_secondary_capture(self):

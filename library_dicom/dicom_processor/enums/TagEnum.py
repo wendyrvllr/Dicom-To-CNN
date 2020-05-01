@@ -47,6 +47,10 @@ class TagsSeries(Enum):
     AcquisitionDate = 0x00080022
     AcquisitionTime = 0x0080032
     NumberOfSlices = 0x00540081
+    Units = 0x00541001
+    DecayCorrection = 0x00541102
+    PhilipsSUVFactor = 0x70531000
+    PhilipsBqMlFactor = 0x70531009
 
 class TagsInstance(Enum):
     """Instance related tags
@@ -61,3 +65,14 @@ class TagsInstance(Enum):
     RescaleIntercept = 0x00281052
     PixelSpacing = 0x00280030
     SliceLocation = 0x00201041
+
+class TagsRadioPharmaceuticals(Enum):
+    """Tags related to Radiopharmaceuticals injection
+
+    Arguments:
+        Enum {hex} -- [tag address]
+    """
+
+    RadionuclideHalfLife = 0x00181075
+    TotalDose = 0x00181074
+    RadiopharmaceuticalStartDateTime = 0x00181078
