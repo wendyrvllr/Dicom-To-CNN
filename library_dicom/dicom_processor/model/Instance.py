@@ -109,7 +109,10 @@ class Instance:
             pixel_array = self.dicomData.pixel_array
             rescale_slope = self.__get_rescale_slope()
             rescale_intercept = self.__get_rescale_intercept()
-            if( isinstance(rescale_slope, float) or isinstance(rescale_intercept, float)): pixel_array.astype(np.float32)
-            return ( pixel_array * rescale_slope) + rescale_intercept
+
+            resultArray = ( pixel_array * rescale_slope) + rescale_intercept
+            if( not rescale_slope.is_integer() or not rescale_intercept.is_integer() ): 
+                return resultArray.astype(np.float32)
+            else : return resultArray.astype(np.int16)
     
     
