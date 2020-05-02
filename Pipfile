@@ -7,6 +7,8 @@ verify_ssl = true
 
 [packages]
 pydicom = "*"
+numpy = "*"
+simpleitk = "*"
 
 [requires]
 python_version = "3.5"
