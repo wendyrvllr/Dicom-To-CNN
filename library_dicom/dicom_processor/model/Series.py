@@ -1,16 +1,26 @@
-from library_dicom.dicom_processor.model.Instance import Instance
-from library_dicom.dicom_processor.model.Modality import Modality
-from library_dicom.dicom_processor.enums.TagEnum import *
-from library_dicom.dicom_processor.model.NiftiBuilder import NiftiBuilder
-
 import numpy as np
 import os
 
+from Instance import Instance
+from Modality import *
+from NiftiBuilder import NiftiBuilder
 
-class Series:
+from library_dicom.dicom_processor.enums.TagEnum import *
+from library_dicom.dicom_processor.enums.SopClassUID import *
+
+class Series():
     """ A class representing a series Dicom
     """
-
+    @classmethod
+    def get_series_object(cls, path):
+        first_file_name = os.listdir(path)[0]
+        first_instance = Instance( os.path.join(path,first_file_name) )
+        sop_class_uid = first_instance.get_sop_class_uid()
+        if(sop_class_uid == ImageModalitiesSOPClass.PT.value or sop_class_uid == ImageModalitiesSOPClass.EnhancedPT.value):
+            from SeriesPT import SeriesPT
+            return SeriesPT(path)
+        else : return Series(path)
+    
     def __init__(self, path):
         """Construct a Dicom Series Object
 
@@ -156,6 +166,6 @@ class Series:
         return initial_z_spacing
 
     def export_nifti(self, file_path):
-        nifti_builder = NiftiBuilder(self, file_path)
-        nifti_builder.save_nifti()
+        nifti_builder = NiftiBuilder(self)
+        nifti_builder.save_nifti(file_path)
 
