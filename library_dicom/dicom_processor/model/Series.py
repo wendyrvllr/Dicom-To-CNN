@@ -42,14 +42,14 @@ class Series:
         self.is_image_series = dicomInstance.is_image_modality()
         # SK AJOUTER RADIOPHARMACEUTICAL SI TEP
         return {
-            'series' : series_details,
-            'study' : study_details,
-            'patient' : patient_details
+            'series' : self.series_details,
+            'study' : self.study_details,
+            'patient' : self.patient_details
         }
     """
     def is_series_valid(self):
 
-        #SK : Ici il faut mieux tester l'egalité des dictionnaire plutot que de faire Item par Item
+        SK : Ici il faut mieux tester l'egalite des dictionnaire plutot que de faire Item par Item
 
         firstDicomDetails = self.getSeriesDetails()
 
@@ -136,13 +136,24 @@ class Series:
     """
     def get_numpy_array(self):
         if self.is_image_series == False : return
-        instance_array = [Instance(file_name, load_image=True) for file_name in self.file_names]
-        instance_array.sort(key=lambda x:int(instance_array.get_image_position()[2]), reverse=True)
+        instance_array = [Instance(os.path.join(self.path, file_name), load_image=True) for file_name in self.file_names]
+        instance_array.sort(key=lambda instance_array:int(instance_array.get_image_position()[2]), reverse=True)
         pixel_data = [instance.get_image_nparray() for instance in instance_array]
         np_array = np.stack(pixel_data,axis=0)
         self.instance_array = instance_array
 
         return np_array
+
+    def get_z_spacing(self):
+        """ called by __getMetadata """
+        Z_positions = [ instance.get_image_position()[2] for instance in self.instance_array ]
+        
+        initial_z_spacing = Z_positions[0]-Z_positions[1]
+        for i in range(1,len(Z_positions)):
+            z_spacing = Z_positions[i-1]-Z_positions[i]
+            if (z_spacing!=initial_z_spacing):
+                raise Exception('Unconstant Spacing')
+        return initial_z_spacing
 
     def export_nifti(self, file_path):
         nifti_builder = NiftiBuilder(self, file_path)

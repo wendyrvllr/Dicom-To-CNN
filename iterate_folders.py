@@ -7,4 +7,4 @@ print(series_paths)
 for serie_path in series_paths:
     dicom_serie = Series(serie_path)
     dicomsInfo = dicom_serie.get_series_details()
-    dicom_serie.export_nifti('/home/salim/testNiftiExport')
+    dicom_serie.export_nifti('/home/salim/testNiftiExport/test.nii')

@@ -19,8 +19,8 @@ class Instance:
         if (load_image) : self.__load_full_instance()
         else : self.__load_metadata()
 
-    #SK : le double __ est pour signaler que que cette methode est "privée" elle n'es sencée etre utilisée que par la class elle meme
-    # J'ai mis deux methode de l'ecture defini dans constructeur, si on ne veut que les metadonées ou non
+    #SK : le double __ est pour signaler que que cette methode est "privee" elle n'es sencee etre utilisee que par la class elle meme
+    # J'ai mis deux methode de l'ecture defini dans constructeur, si on ne veut que les metadonees ou non
     def __load_metadata(self):
         self.dicomData = pydicom.dcmread(self.path, stop_before_pixels=True)
     
@@ -57,8 +57,8 @@ class Instance:
             else : instance_tags[tag_address.name] = "Undefined"
         return instance_tags
 
-    #SK : Le SOPClassUID est une clé obligatoire dans le DICOM si elle n'est pas présente je déclanche une exception
-    #Cette exeception doit etre gérée la ou elle est appellée sinon le programme va s'arreter
+    #SK : Le SOPClassUID est une cle obligatoire dans le DICOM si elle n'est pas presente je declanche une exception
+    #Cette exeception doit etre geree la ou elle est appellee sinon le programme va s'arreter
     #Ici j'ai pas fait de catch, normalement elle ne doit jamais etre absente
     def get_sop_class_uid(self):
         if 'SOPClassUID' in self.dicomData.dir() : return self.dicomData.SOPClassUID
@@ -79,7 +79,7 @@ class Instance:
 
         return radiopharmaceuticals_tags
 
-    #SK Le return est coté en condition ternaire
+    #SK Le return est code en condition ternaire
     def is_secondary_capture(self):
         return True if self.getSOPClassUID in CapturesSOPClass else False
 
