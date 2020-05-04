@@ -19,16 +19,14 @@ class Instance:
         if (load_image) : self.__load_full_instance()
         else : self.__load_metadata()
 
-    #SK : le double __ est pour signaler que que cette methode est "privee" elle n'es sencee etre utilisee que par la class elle meme
-    # J'ai mis deux methode de l'ecture defini dans constructeur, si on ne veut que les metadonees ou non
+
     def __load_metadata(self):
         self.dicomData = pydicom.dcmread(self.path, stop_before_pixels=True)
     
     def __load_full_instance(self):
         self.dicomData = pydicom.dcmread(self.path)
 
-    #SK : Au lieu de copier tous les tags, je les ai lister dans une enumeration et je boucle dessus
-    # ca permettra d'ajouter ou d'enlever facilement les tags dans l'enum
+  
     def get_series_tags(self):
         series_tags={}
         for tag_address in TagsSeries:
@@ -79,9 +77,9 @@ class Instance:
 
         return radiopharmaceuticals_tags
 
-    #SK Le return est code en condition ternaire
+    
     def is_secondary_capture(self):
-        return True if self.getSOPClassUID in CapturesSOPClass else False
+        return True if self.get_sop_class_uid in CapturesSOPClass else False
 
     def __get_rescale_slope(self):
         return self.dicomData[TagsInstance.RescaleSlope.value].value

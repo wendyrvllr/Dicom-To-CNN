@@ -50,100 +50,44 @@ class Series():
         self.study_details = dicomInstance.get_studies_tags()
         self.sop_class_uid = dicomInstance.get_sop_class_uid()
         self.is_image_series = dicomInstance.is_image_modality()
-        # SK AJOUTER RADIOPHARMACEUTICAL SI TEP
+
+        if dicomInstance.get_sop_class_uid == '1.2.840.10008.5.1.4.1.1.128' or dicomInstance.get_sop_class_uid == '1.2.840.10008.5.1.4.1.1.130' : #TEP  
+            self.radiopharmaceutical_details = {}
+            self.radiopharmaceutical_details = dicomInstance.get_radiopharmaceuticals_tags()
+            return {
+                'series' : self.series_details,
+                'study' : self.study_details,
+                'patient' : self.patient_details, 
+                'radiopharmaceutical' : self.radiopharmaceutical_details
+            }
+
         return {
             'series' : self.series_details,
             'study' : self.study_details,
             'patient' : self.patient_details
         }
-    """
+    
     def is_series_valid(self):
 
-        SK : Ici il faut mieux tester l'egalite des dictionnaire plutot que de faire Item par Item
+        #SK : Ici il faut mieux tester l'egalite des dictionnaire plutot que de faire Item par Item
 
-        firstDicomDetails = self.getSeriesDetails()
+        firstDicomDetails = self.get_series_details()
 
-        if self.numberOfSlices != len(self.file_names):
+        if firstDicomDetails['series']['NumberOfSlices'] != len(self.file_names):
             return False
         for fileName in self.file_names:
             dicomInstance = Instance(os.path.join(self.path, fileName), load_image=False)
-
-            patientID = dicomInstance.getPatientID()
-            patientName = dicomInstance.getPatientName()
-            patientBirthDate = dicomInstance.getPatientBirthDate()
-            patientSex = dicomInstance.getPatientSex()
-            patientWeight = dicomInstance.getPatientWeight()
-            patientHeight = dicomInstance.getPatientHeight()
-
-            accessionNumber = dicomInstance.getAccessionNumber()
-            institutionName = dicomInstance.getInstitutionName()
-            studyDate = dicomInstance.getStudyDate()
-            studyDescription = dicomInstance.getStudyDescription()
-            studyID = dicomInstance.getStudyID()
-            studyInstanceUID = dicomInstance.getStudyInstanceUID()
-            studyTime = dicomInstance.getStudyTime()
-            acquisitionDate = dicomInstance.getAcquisitionDate()
-            acquisitionTime = dicomInstance.getAcquisitionTime()
-
-            imageOrientationPatient = dicomInstance.getImageOrientationPatient()
-            manufacturer = dicomInstance.getManufacturer()
-            modality = dicomInstance.getModality()
-            seriesName = dicomInstance.getSeriesName()
-            seriesDate = dicomInstance.getSeriesDate()
-            seriesDescription = dicomInstance.getSeriesDescription()
-            seriesInstanceUID = dicomInstance.getSeriesInstanceUID()
-            seriesNumber = dicomInstance.getSeriesNumber()
-            seriesTime = dicomInstance.getSeriesTime()
-
-            if (firstDicomDetails["DataPatient"]["PatientID"] != patientID or
-                firstDicomDetails["DataPatient"]["PatientName"] != patientName or
-                firstDicomDetails["DataPatient"]["PatientBirthDate"] != patientBirthDate or
-                firstDicomDetails["DataPatient"]["PatientSex"] != patientSex or
-                firstDicomDetails["DataPatient"]["PatientWeight"] != patientWeight or
-                firstDicomDetails["DataPatient"]["PatientHeight"] != patientHeight or
-                firstDicomDetails["DataStudy"]["AccessionNumber"] != accessionNumber or
-                firstDicomDetails["DataStudy"]["InstitutionName"] != institutionName or
-                firstDicomDetails["DataStudy"]["StudyDate"] != studyDate or
-                firstDicomDetails["DataStudy"]["StudyDescription"] != studyDescription or
-                firstDicomDetails["DataStudy"]["StudyID"] != studyID or
-                firstDicomDetails["DataStudy"]["StudyInstanceUID"] != studyInstanceUID or
-                firstDicomDetails["DataStudy"]["StudyTime"] != studyTime or
-                firstDicomDetails["DataStudy"]["AcquisitionDate"] != acquisitionDate or
-                firstDicomDetails["DataStudy"]["AcquisitionTime"] != acquisitionTime or
-                firstDicomDetails["DataSeries"]["ImageOrientationPatient"] != imageOrientationPatient or
-                firstDicomDetails["DataSeries"]["Manufacturer"] != manufacturer or
-                firstDicomDetails["DataSeries"]["Modality"] != modality or
-                firstDicomDetails["DataSeries"]["SeriesName"] != seriesName or
-                firstDicomDetails["DataSeries"]["SeriesDate"] != seriesDate or
-                firstDicomDetails["DataSeries"]["SeriesDescription"] != seriesDescription or
-                firstDicomDetails["DataSeries"]["SeriesInstanceUID"] != seriesInstanceUID or
-                firstDicomDetails["DataSeries"]["SeriesNumber"] != seriesNumber or
-                firstDicomDetails["DataSeries"]["SeriesTime"] != seriesTime):
-
-                if self.sopClassUID == '1.2.840.10008.5.1.4.1.1.128' : #TEP
-                    radionuclideHalfLife = dicomInstance.getRadionuclideHalfLife()
-                    radionuclideTotalDose = dicomInstance.getRadionuclideTotalDose()
-                    radiopharmaceuticalStartDateTime= dicomInstance.getRadiopharmaceuticalStartDateTime()
-                    decayCorrection = dicomInstance.getDecayCorrection()
-                    units = dicomInstance.getUnits()
-                    if (firstDicomDetails["RadioPharma"]["RadionuclideHalfLife"] != radionuclideHalfLife or
-                        firstDicomDetails["RadioPharma"]["RadionuclideTotalDose"] != radionuclideTotalDose or
-                        firstDicomDetails["RadioPharma"]["RadiopharmaceuticalStartDateTime"] != radiopharmaceuticalStartDateTime or
-                        firstDicomDetails["RadioPharma"]["DecayCorrection"] != decayCorrection or
-                        firstDicomDetails["RadioPharma"]["Units"] != units):
-                        
-                        
-                        if firstDicomDetails["DataSeries"]["Manufacturer"] == 'Philips' :
-                            conversionSUV = dicomInstance.getConversionSUV()
-                            conversionBQML = dicomInstance.getConversionBQML()
-                            if (firstDicomDetails["RadioPharma"]["ConversionSUV"] != conversionSUV or 
-                                firstDicomDetails["RadioPharma"]["ConversionBQML"] != conversionBQML) : 
-                                return False
+            if (dicomInstance.get_series_tags != firstDicomDetails['series'] or
+                dicomInstance.get_patients_tags != firstDicomDetails['patient'] or
+                dicomInstance.get_studies_tags != firstDicomDetails['study']):
+                if dicomInstance.get_sop_class_uid == '1.2.840.10008.5.1.4.1.1.128' or dicomInstance.get_sop_class_uid == '1.2.840.10008.5.1.4.1.1.130' :
+                    if dicomInstance.get_radiopharmaceuticals_tags != firstDicomDetails['radiopharmaceutical']:
                         return False
- 
-                return False
+            return False
         return True
-    """
+            
+        
+    
     def get_numpy_array(self):
         if self.is_image_series == False : return
         instance_array = [Instance(os.path.join(self.path, file_name), load_image=True) for file_name in self.file_names]
@@ -164,6 +108,8 @@ class Series():
             if (z_spacing!=initial_z_spacing):
                 raise Exception('Unconstant Spacing')
         return initial_z_spacing
+
+    #check origin direction spacing de nifti
 
     def export_nifti(self, file_path):
         nifti_builder = NiftiBuilder(self)
