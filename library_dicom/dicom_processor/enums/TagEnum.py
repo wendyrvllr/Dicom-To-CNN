@@ -40,7 +40,7 @@ class TagsSeries(Enum):
     Manufacturer = 0x00080070
     Modality = 0x00080060
     SeriesDate = 0x00080021
-    SeriesTime = 0x00080032
+    SeriesTime = 0x00080031
     SeriesDescription = 0x0008103E
     SeriesInstanceUID = 0x0020000E
     SeriesNumber = 0x00200011
