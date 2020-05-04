@@ -1,6 +1,6 @@
 import os
 
-def getSeriesPath(path):
+def get_series_path(path):
     """Go through all the folder to find every series path
 
     Arguments:

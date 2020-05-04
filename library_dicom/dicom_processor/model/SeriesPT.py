@@ -1,8 +1,8 @@
-from Series import Series
+from library_dicom.dicom_processor.model.Series import Series
 from math import exp, log, pow
 from datetime import datetime
 
-class SeriesPT(Series, object):
+class SeriesPT(Series):
     """[summary]
 
     Arguments:
@@ -10,7 +10,7 @@ class SeriesPT(Series, object):
     """
 
     def __init__(self, path, sul_value=False):
-        super(SeriesPT, self).__init__(path)
+        super().__init__(path)
         self.sul_value=sul_value
 
     #SK : Plutot que de faire un IF dans Series, vu qu'on a une classe derivée
@@ -22,7 +22,7 @@ class SeriesPT(Series, object):
         Returns:
             [dict] -- [Return the details of a SeriePT from the first Dicom]
         """
-        details = Series.get_series_details()
+        details = super().get_series_details()
         dicomInstance = self.get_first_instance_metadata()
         self.radiopharmaceutical_details = {}
         self.radiopharmaceutical_details = dicomInstance.get_radiopharmaceuticals_tags()
@@ -36,13 +36,12 @@ class SeriesPT(Series, object):
         Returns:
             [float] -- [return SUV factor or "Calcul SUV impossible" if there is "Undefined" value in tags]
         """
-        series_details = Series.get_series_details()
-        
+        series_details = self.get_series_details()
+        print(series_details)
         units = series_details['series']['Units']
         if units == 'GML' : return 1
         
-        patient_heigt = series_details['patient']['PatientHeight']
-        patient_weight = series_details['patient']['PatientWeight']
+        patient_weight = series_details['study']['PatientWeight']
         series_time = series_details['series']['SeriesTime']
         series_date = series_details['series']['SeriesDate']
         series_datetime = series_date + series_time #str 
@@ -102,9 +101,9 @@ class SeriesPT(Series, object):
         """
         series_details = Series.get_series_details()
         patient_sex = series_details['patient']['PatientSex']
-        patient_weight = series_details['patient']['PatientWeight']
-        patient_height = series_details['patient']['PatientHeight']
-        if (patient_height == 'Undefined' or patient_weight == 'Undefined') : 
+        patient_weight = series_details['study']['PatientWeight']
+        patient_height = series_details['study']['PatientHeight']
+        if (patient_sex == 'Undefined' or patient_height == 'Undefined' or patient_weight == 'Undefined') : 
             raise Exception('Missing Height or Weight to calculate SUL')
         bmi =  patient_weight / pow(patient_height, 2)
         if patient_sex == 'F' : 
@@ -121,7 +120,7 @@ class SeriesPT(Series, object):
         Returns:
             [array] -- [return array of the SeriesPT with SUV and SUL factor in 32bis npArray ]
         """
-        numpy_array = Series.get_numpy_array()
+        numpy_array = super().get_numpy_array()
         try:
             if (self.sul_value == False) :
                 return numpy_array * self.__calculateSUVFactor()
