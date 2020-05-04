@@ -11,6 +11,7 @@ from library_dicom.dicom_processor.enums.SopClassUID import *
 class Series():
     """ A class representing a series Dicom
     """
+
     @classmethod
     def get_series_object(cls, path):
         first_file_name = os.listdir(path)[0]
@@ -29,7 +30,12 @@ class Series():
         """
 
         self.path = path
-        self.file_names = os.listdir(path) 
+        self.file_names = os.listdir(path)
+    
+    def get_first_instance_metadata(self):
+        firstFileName = self.file_names[0]
+        return Instance(os.path.join(self.path,firstFileName), load_image=True)
+
 
     def get_series_details(self):
         """Read the first dicom in the folder and store Patient / Study / Series
@@ -42,8 +48,7 @@ class Series():
         self.patient_details = {}
         self.study_details = {}
 
-        firstFileName = self.file_names[0]
-        dicomInstance = Instance(os.path.join(self.path,firstFileName), load_image=True)
+        dicomInstance = self.get_first_instance_metadata()
 
         self.series_details = dicomInstance.get_series_tags()
         self.patient_details = dicomInstance.get_patients_tags()
@@ -51,40 +56,29 @@ class Series():
         self.sop_class_uid = dicomInstance.get_sop_class_uid()
         self.is_image_series = dicomInstance.is_image_modality()
 
-        if dicomInstance.get_sop_class_uid == '1.2.840.10008.5.1.4.1.1.128' or dicomInstance.get_sop_class_uid == '1.2.840.10008.5.1.4.1.1.130' : #TEP  
-            self.radiopharmaceutical_details = {}
-            self.radiopharmaceutical_details = dicomInstance.get_radiopharmaceuticals_tags()
-            return {
-                'series' : self.series_details,
-                'study' : self.study_details,
-                'patient' : self.patient_details, 
-                'radiopharmaceutical' : self.radiopharmaceutical_details
-            }
-
         return {
             'series' : self.series_details,
             'study' : self.study_details,
             'patient' : self.patient_details
         }
-    
-    def is_series_valid(self):
 
-        #SK : Ici il faut mieux tester l'egalite des dictionnaire plutot que de faire Item par Item
+    #SK : En fait je crois que ca suffit pas besoin de checker les radiopharmaceutical 
+    # Par contre on peut ajouter le pixel spacing
+    def is_series_valid(self):
 
         firstDicomDetails = self.get_series_details()
 
         if firstDicomDetails['series']['NumberOfSlices'] != len(self.file_names):
             return False
+        
         for fileName in self.file_names:
             dicomInstance = Instance(os.path.join(self.path, fileName), load_image=False)
             if (dicomInstance.get_series_tags != firstDicomDetails['series'] or
                 dicomInstance.get_patients_tags != firstDicomDetails['patient'] or
-                dicomInstance.get_studies_tags != firstDicomDetails['study']):
-                if dicomInstance.get_sop_class_uid == '1.2.840.10008.5.1.4.1.1.128' or dicomInstance.get_sop_class_uid == '1.2.840.10008.5.1.4.1.1.130' :
-                    if dicomInstance.get_radiopharmaceuticals_tags != firstDicomDetails['radiopharmaceutical']:
-                        return False
-            return False
-        return True
+                dicomInstance.get_studies_tags != firstDicomDetails['study']) :
+                return False
+            else : 
+                return True
             
         
     
@@ -94,9 +88,10 @@ class Series():
         instance_array.sort(key=lambda instance_array:int(instance_array.get_image_position()[2]), reverse=True)
         pixel_data = [instance.get_image_nparray() for instance in instance_array]
         np_array = np.stack(pixel_data,axis=0)
+        #A VERIF
         self.instance_array = instance_array
 
-        return np_array
+        return np_array.astype(np.int16)
 
     def get_z_spacing(self):
         """ called by __getMetadata """

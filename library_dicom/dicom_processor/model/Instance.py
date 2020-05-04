@@ -19,13 +19,11 @@ class Instance:
         if (load_image) : self.__load_full_instance()
         else : self.__load_metadata()
 
-
     def __load_metadata(self):
         self.dicomData = pydicom.dcmread(self.path, stop_before_pixels=True)
     
     def __load_full_instance(self):
         self.dicomData = pydicom.dcmread(self.path)
-
   
     def get_series_tags(self):
         series_tags={}
@@ -55,9 +53,6 @@ class Instance:
             else : instance_tags[tag_address.name] = "Undefined"
         return instance_tags
 
-    #SK : Le SOPClassUID est une cle obligatoire dans le DICOM si elle n'est pas presente je declanche une exception
-    #Cette exeception doit etre geree la ou elle est appellee sinon le programme va s'arreter
-    #Ici j'ai pas fait de catch, normalement elle ne doit jamais etre absente
     def get_sop_class_uid(self):
         if 'SOPClassUID' in self.dicomData.dir() : return self.dicomData.SOPClassUID
         else : raise Exception('Undefined SOP Class UID')
@@ -109,8 +104,6 @@ class Instance:
             rescale_intercept = self.__get_rescale_intercept()
 
             resultArray = ( pixel_array * rescale_slope) + rescale_intercept
-            if( not rescale_slope.is_integer() or not rescale_intercept.is_integer() ): 
-                return resultArray.astype(np.float32)
-            else : return resultArray.astype(np.int16)
+            return resultArray
     
     

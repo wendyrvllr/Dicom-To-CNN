@@ -13,14 +13,34 @@ class SeriesPT(Series, object):
         super(SeriesPT, self).__init__(path)
         self.sul_value=sul_value
 
+    #SK : Plutot que de faire un IF dans Series, vu qu'on a une classe derivée
+    # je defini ici une methode qui redefinie la methode du parent
+    # elle apprelle la methode du parent et ajoute les radiopharmaceutical
+    def get_series_details(self):
+        """Add Pharmaceuticals data to common series details
 
-    def calculateSUVFactor(self):
+        Returns:
+            [dict] -- [Return the details of a SeriePT from the first Dicom]
+        """
+        details = Series.get_series_details()
+        dicomInstance = self.get_first_instance_metadata()
+        self.radiopharmaceutical_details = {}
+        self.radiopharmaceutical_details = dicomInstance.get_radiopharmaceuticals_tags()
+        details['radiopharmaceutical'] = self.radiopharmaceutical_details
+
+        return details
+
+    def __calculateSUVFactor(self):
         """Calcul of  SUV factor
 
         Returns:
             [float] -- [return SUV factor or "Calcul SUV impossible" if there is "Undefined" value in tags]
         """
         series_details = Series.get_series_details()
+        
+        units = series_details['series']['Units']
+        if units == 'GML' : return 1
+        
         patient_heigt = series_details['patient']['PatientHeight']
         patient_weight = series_details['patient']['PatientWeight']
         series_time = series_details['series']['SeriesTime']
@@ -28,61 +48,51 @@ class SeriesPT(Series, object):
         series_datetime = series_date + series_time #str 
         series_datetime = datetime.strptime(series_datetime, "%Y%m%d%H%M%S") #datetime.datetime
 
-
         acquisition_time = series_details['series']['AcquisitionTime']
         acquisition_date = series_details['series']['AcquisitionDate']
         acquisition_datetime = acquisition_date + acquisition_time #str
         acquisition_datetime = datetime.strptime(acquisition_datetime, "%Y%m%d%H%M%S") #datetime.datetime
 
-
         modality = series_details['series']['Modality']
         manufacturer = series_details['series']['Manufacturer']
-        units = series_details['series']['Units']
         decay_correction = series_details['series']['DecayCorrection']
         radionuclide_half_life = series_details['radiopharmaceutical']['RadionuclideHalfLife']
         total_dose = series_details['radiopharmaceutical']['TotalDose']
         radiopharmaceutical_start_date_time = series_details['radiopharmaceutical']['RadiopharmaceuticalStartDateTime']
         radiopharmaceutical_start_date_time = datetime.strptime(radiopharmaceutical_start_date_time, "%Y%m%d%H%M%S")
-
-
-        #condition à checker
-        if manufacturer == 'Philips' :
-            philips_suv_factor = series_details['series']['PhilipsSUVFactor']
-            philips_suv_bqml = series_details['series']['PhilipsBqMlFactor']
-            if (philips_suv_bqml == 'Undefined') : return ('Calcul SUV impossible')
         
-        if units != 'GML' :
-            if (total_dose == 'Undefined' or acquisition_time== 'Undefined' 
-                or patient_weight == 'Undefined' or radionuclide_half_life == 'Undefined' ) :
-                return ('Calcul SUV impossible')
-
-        #heure d'acquisition 
+        if manufacturer == 'Philips' :
+            #philips_suv_factor = series_details['series']['PhilipsSUVFactor']
+            philips_suv_bqml = series_details['series']['PhilipsBqMlFactor']
+            if (philips_suv_bqml == 'Undefined') : raise Exception('Missing Philips BqMl Factor')
+        
+        if (total_dose == 'Undefined' or acquisition_time== 'Undefined' 
+            or patient_weight == 'Undefined' or radionuclide_half_life == 'Undefined' ) :
+            raise Exception('Missing Radiopharmaceutical data or patient weight')
+        
+        #Determine Time reference of image acqusition 
         acquisition_hour = series_datetime
         if (acquisition_date != 'Undefined' and acquisition_time != 'Undefined'
              and acquisition_datetime - series_datetime < 0 and units == 'BQML') : 
             acquisition_hour = acquisition_datetime
-
-        #algo
-        #1)
-        if units == 'GML' : return 1
-        #2)
-        if manufacturer =='Philips' : return philips_suv_bqml
-        #3)
-        if decay_correction != 'ADMIN' : 
-
-            #calcul du facteur de décroissance
+        
+        #Calculate decay correction
+        if decay_correction == 'START' : 
             delta = (acquisition_hour - radiopharmaceutical_start_date_time).seconds 
-            if delta < 0 : return ("Calcul SUV impossible")
-
+            if delta < 0 : raise("Acqusition time before injection time")
             decay_factor = exp(-delta * log(2) / radionuclide_half_life)
 
+        #If decay corrected from administration time no decay correction to apply
         elif decay_correction == 'ADMIN' : 
             decay_factor = 1
+
+        else : raise Exception('Unknown Decay Correction methode')
         
-        return (1/((total_dose * decay_factor) / patient_weight)) #facteur de conversion SUV
+        suv_conversion_factor = (1/((total_dose * decay_factor) / patient_weight))
+
+        if manufacturer =='Philips' : return philips_suv_bqml * suv_conversion_factor
+        else : return suv_conversion_factor
     
-
-
 
     def calculateSULFactor(self):
         """Calcul SUL Factor
@@ -93,23 +103,29 @@ class SeriesPT(Series, object):
         series_details = Series.get_series_details()
         patient_sex = series_details['patient']['PatientSex']
         patient_weight = series_details['patient']['PatientWeight']
-        patient_heigt = series_details['patient']['PatientHeight']
-        if (patient_heigt == 'Undefined' or patient_weight == 'Undefined') : 
-            return ("Calcul SUL impossible ")
-        bmi =  patient_weight / pow(patient_heigt, 2)
+        patient_height = series_details['patient']['PatientHeight']
+        if (patient_height == 'Undefined' or patient_weight == 'Undefined') : 
+            raise Exception('Missing Height or Weight to calculate SUL')
+        bmi =  patient_weight / pow(patient_height, 2)
         if patient_sex == 'F' : 
             return 9270 / (8780 + 244 * bmi)
         return 9270 / (6680 + 216 * bmi)
     
+    #SK :  Tu vois ici l'interet d'utiliser dans les exeption, il y a plein de raison
+    # que les calculs de SUV et SUL ne soient pas possible, les Exception permettent d'identifier
+    # ces cas sans avoir à utiliser des string à parser ect.
+    # Elle permettent aussi de personaliser la facon de traiter ces exectption (dans le exept tu peux appeler d'autres partie du code si besoin)
     def get_numpy_array(self):
         """[summary]
 
         Returns:
-            [array] -- [return array of the SeriesPT with SUV and SUL factor ]
+            [array] -- [return array of the SeriesPT with SUV and SUL factor in 32bis npArray ]
         """
-        if self.calculateSUVFactor == 'Calcul SUV impossible' : 
-            return ("No conversion")
-        numpy_array = Series.get_numpy_array(self)
-        numpy_array = numpy_array * self.calculateSUVFactor()
-        if(self.sul_value == False): return numpy_array
-        else : return ( numpy_array * self.calculateSULFactor() )
+        numpy_array = Series.get_numpy_array()
+        try:
+            if (self.sul_value == False) :
+                return numpy_array * self.__calculateSUVFactor()
+            else :
+                return numpy_array * self.__calculateSUVFactor() * self.calculateSULFactor()
+        except Exception as err:
+            print("Error generating result array", err)
