@@ -37,20 +37,21 @@ class TagsSeries(Enum):
     """
 
     ImageOrientationPatient = 0x00200020
-    Manufacturer = 0x0080070
-    Modality = 0x0080060
+    Manufacturer = 0x00080070
+    Modality = 0x00080060
     SeriesDate = 0x00080021
-    SeriesTime = 0x00080032
+    SeriesTime = 0x00080031
     SeriesDescription = 0x0008103E
     SeriesInstanceUID = 0x0020000E
     SeriesNumber = 0x00200011
     AcquisitionDate = 0x00080022
-    AcquisitionTime = 0x0080032
+    AcquisitionTime = 0x00080032
     NumberOfSlices = 0x00540081
     Units = 0x00541001
     DecayCorrection = 0x00541102
     PhilipsSUVFactor = 0x70531000
     PhilipsBqMlFactor = 0x70531009
+    CorrectedImage = 0x00280051
 
 class TagsInstance(Enum):
     """Instance related tags
