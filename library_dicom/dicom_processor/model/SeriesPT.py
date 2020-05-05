@@ -112,9 +112,9 @@ class SeriesPT(Series):
 
     def is_corrected_attenuation(self):
         series_details = self.get_series_details()
-        corrected_image = series_details['radiopharmaceutical']['CorrectedImage']
-        if 'ATTN' in corrected_image : return ("Corrected", "\\".join(corrected_image))
-        return ("Not Corrected" , "\\".join(corrected_image))
+        corrected_image = series_details['series']['CorrectedImage']
+        if 'ATTN' in corrected_image : return True
+        else : return False
 
 
     
