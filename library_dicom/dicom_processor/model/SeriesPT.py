@@ -13,9 +13,7 @@ class SeriesPT(Series):
         super().__init__(path)
         self.sul_value=sul_value
 
-    #SK : Plutot que de faire un IF dans Series, vu qu'on a une classe derivée
-    # je defini ici une methode qui redefinie la methode du parent
-    # elle apprelle la methode du parent et ajoute les radiopharmaceutical
+
     def get_series_details(self):
         """Add Pharmaceuticals data to common series details
 
@@ -52,7 +50,7 @@ class SeriesPT(Series):
         acquisition_datetime = acquisition_date + acquisition_time #str
         acquisition_datetime = datetime.strptime(acquisition_datetime, "%Y%m%d%H%M%S") #datetime.datetime
 
-        modality = series_details['series']['Modality']
+        #modality = series_details['series']['Modality']
         manufacturer = series_details['series']['Manufacturer']
         decay_correction = series_details['series']['DecayCorrection']
         radionuclide_half_life = series_details['radiopharmaceutical']['RadionuclideHalfLife']
@@ -100,7 +98,7 @@ class SeriesPT(Series):
         Returns:
             [float] -- [Return SUL Factor or "Calcul SUL impossible" if there is "Undefined" value in tags]
         """
-        series_details = Series.get_series_details()
+        series_details = self.get_series_details()
         patient_sex = series_details['patient']['PatientSex']
         patient_weight = series_details['study']['PatientWeight']
         patient_height = series_details['study']['PatientHeight']
@@ -111,10 +109,15 @@ class SeriesPT(Series):
             return 9270 / (8780 + 244 * bmi)
         return 9270 / (6680 + 216 * bmi)
     
-    #SK :  Tu vois ici l'interet d'utiliser dans les exeption, il y a plein de raison
-    # que les calculs de SUV et SUL ne soient pas possible, les Exception permettent d'identifier
-    # ces cas sans avoir à utiliser des string à parser ect.
-    # Elle permettent aussi de personaliser la facon de traiter ces exectption (dans le exept tu peux appeler d'autres partie du code si besoin)
+
+    def is_corrected_attenuation(self):
+        series_details = self.get_series_details()
+        corrected_image = series_details['radiopharmaceutical']['CorrectedImage']
+        if 'ATTN' in corrected_image : return ("Corrected", "\\".join(corrected_image))
+        return ("Not Corrected" , "\\".join(corrected_image))
+
+
+    
     def get_numpy_array(self):
         """[summary]
 
