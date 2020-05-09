@@ -69,6 +69,7 @@ class CsvReader():
                 'name' : manual_row[0].strip(),
                 'first_slice' : int(manual_row[2].strip()),
                 'last_slice' : int(manual_row[3].strip()),
+                'type_number' : int(manual_row[1].strip()),
                 'point_list' : point_list
         }
 
