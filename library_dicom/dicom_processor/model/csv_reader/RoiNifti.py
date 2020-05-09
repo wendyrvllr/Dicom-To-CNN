@@ -4,8 +4,8 @@ from library_dicom.dicom_processor.model.csv_reader.Roi import Roi
 
 class RoiNifti(Roi):
 
-    def __init__(self, roi_number, list_point):
-        super().__init__(0, 0, 0, roi_number, list_point)
+    def __init__(self, roi_number, list_point, volume_dimension):
+        super().__init__(0, 0, 0, roi_number, list_point, volume_dimension)
 
     def calculateMaskPoint(self):
         volume_dimension = super().get_volume_dimension()

@@ -4,8 +4,8 @@ from library_dicom.dicom_processor.model.csv_reader.Roi import Roi
 
 class RoiElipse(Roi):
 
-    def __init__(self, axis, first_slice, last_slice, roi_number, list_point):
-        super().__init__(axis, first_slice, last_slice, roi_number, list_point)
+    def __init__(self, axis, first_slice, last_slice, roi_number, list_point, volume_dimension):
+        super().__init__(axis, first_slice, last_slice, roi_number, list_point, volume_dimension)
 
     def calculateMaskPoint(self):
         volume_dimension = super().get_volume_dimension()

@@ -1,17 +1,22 @@
+import numpy as np
+
 class Roi():
 
-    def __init(self, axis, first_slice, last_slice, roi_number, list_point):
-        super().__init__(axis, first_slice, last_slice, roi_number, list_point)
-    
-    def set_volume_dimension(self, x, y, z):
-        self.x = x
-        self.y = y
-        self.z = z
+    def __init__(self, axis, first_slice, last_slice, roi_number, list_point, volume_dimension):
+        self.axis = axis
+        self.first_slice = first_slice
+        self.last_slice = last_slice
+        self.roi_number = roi_number
+        self.list_point = list_point
+        self.x = volume_dimension[0]
+        self.y = volume_dimension[1]
+        self.z = volume_dimension[2]
+        
 
-    def get_volume_dimension(self, x, y, z):
+    def get_volume_dimension(self):
         return (self.x, self.y, self.z)
 
-    def pointlist_to_pointarray (self, point_list):
+    def pointlist_to_pointarray (self):
         """Transforms string point into x/y/z point array for matplotlib : [ [x,y,slice] , [x ,y, slice], ...]
 
         Arguments:
@@ -20,13 +25,13 @@ class Roi():
         Returns:
             [array] -- [matplot lib array]
         """
-        size = len(point_list)
+        size = len(self.list_point)
         points = []
         for i in range(size):
-            points.append(point_list[i].split())
+            points.append(self.list_point[i].split())
         return np.asarray(points)
     
-    def get_min_max_of_roi(self, point_list):
+    def get_min_max_of_roi(self):
         """Compute extrema of ROI in which we will loop to find included voxel
 
         Arguments:
@@ -35,7 +40,7 @@ class Roi():
         Returns:
             [minx, miny, maxx, maxy] -- X/Y extremas
         """
-        points_array = Roi.pointlist_to_pointarray(point_list)
+        points_array = self.pointlist_to_pointarray()
         x = []
         y= []
         for i in range (points_array.shape[0]):
