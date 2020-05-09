@@ -78,10 +78,21 @@ class CsvReader():
         elif (int(manual_row[1].strip()) == 11):
             result_answer['type'] = 'Elipse'
 
+        elif (int(manual_row[1].strip()) == 2):
+            result_answer['type'] = 'Polygon_Coronal'
+
+        elif (int(manual_row[1].strip()) == 12):
+            result_answer['type'] = 'Elipse_Coronal'
+
+        elif (int(manual_row[1].strip()) == 3):
+            result_answer['type'] = 'Polygon_Sagittal'
+
+        elif (int(manual_row[1].strip()) == 13):
+            result_answer['type'] = 'Elipse_Coronal'
+
         return result_answer
 
-    #SK : Pour les Nifti ROI c'est juste un array de point à inclure dans le mask
-    # c'est le plus facile à lire donc on verra après ^^
+
     @classmethod
     def convert_nifti_row_to_list_point(cls, nifti_row):
         """Return list of point included in the roi
