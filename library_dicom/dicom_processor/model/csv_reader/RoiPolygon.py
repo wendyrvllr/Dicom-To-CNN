@@ -9,7 +9,7 @@ class RoiPolygon(Roi):
 
     def calculateMaskPoint(self):
         volume_dimension = super().get_volume_dimension()
-        np_array_3D = np.zeros((volume_dimension[0], volume_dimension[1], volume_dimension[2]))
+        np_array_3D = super().get_empty_np_array()
         xmin, ymin, xmax, ymax  = super().get_min_max_of_roi(np_array_3D)
 
         roi_pixel_matplot = self.___create_closed_polygon()

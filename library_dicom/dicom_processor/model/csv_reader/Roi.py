@@ -48,10 +48,20 @@ class Roi():
             for j in range(ymin, ymax) : 
                 if patch.contains_point([i,j], radius = 0) : #si vrai alors changement 
                     sliceToMask[i,j] =  number_of_roi # = 1,2,3 etc 
-        return sliceToMask 
+        return sliceToMask
+    
+    def get_empty_np_array(self):
+        if(self.axis == 1):
+            return np.zeros((self.x, self.y, self.z))
+        elif (self.axis == 2):
+            return np.zeros((self.x, self.z, self.y))
+        elif (self.axis == 3):
+            return np.zeros((self.y, self.z, self.x))
 
     def coronal_to_axial(self, np_array_3D):
         return np.transpose(np_array_3D, (1,2,0)) #coronnal x y z -> axial y z x 
+        #SK A VERIF
 
     def sagittal_to_axial(self, np_array_3D):
         return np.transpose(np_array_3D, (2,0,1)) #sagittal x y z - > axial  z x y 
+        #SK A VERIF
