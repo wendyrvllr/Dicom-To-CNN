@@ -6,6 +6,7 @@ csv_reader = CsvReader('/home/salim/Bureau/11009101406003_apr 14_2010.csv')
 
 
 manual_rois = csv_reader.get_manual_rois()
+automatic_rois = csv_reader.get_nifti_rois()
 
 for manual_roi in manual_rois:
     roi_object = csv_reader.convert_manual_row_to_object(manual_roi)
