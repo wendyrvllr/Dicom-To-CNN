@@ -62,8 +62,7 @@ class CsvReader():
         """
         number_point_field = manual_row[4]
         number_point = int( number_point_field.replace(" num points = ", "").strip() )
-        
-        point_list = manual_row[ 6 : (6 + number_point) ]
+        point_list = manual_row[ 5 : (5 + number_point) ]
         point_list = list(map(str.strip, point_list))
         result_answer = {
                 'name' : manual_row[0].strip(),
