@@ -10,14 +10,12 @@ class RoiPolygon(Roi):
     def calculateMaskPoint(self):
         np_array_3D = super().get_empty_np_array()
         x,y,z = np_array_3D.shape
-        
-        xmin, ymin, xmax, ymax  = super().get_min_max_of_roi()
 
         roi_pixel_matplot = self.___create_closed_polygon()
 
         #SK : Pourquoi le +1 ici que dans last slice ?
         for number_of_slices in range(self.first_slice, self.last_slice + 1 ) : 
-            np_array_3D[:,:,number_of_slices] = super().mask_roi_in_slice(xmin, ymin, xmax, ymax, np.zeros( (x, y) ), roi_pixel_matplot, self.roi_number) 
+            np_array_3D[:,:,number_of_slices] = super().mask_roi_in_slice( np.zeros( (x, y) ), roi_pixel_matplot, self.roi_number) 
         
         if (self.axis == 2) : 
             np_array_3D = super().coronal_to_axial(np_array_3D)
@@ -27,5 +25,5 @@ class RoiPolygon(Roi):
         return np_array_3D.astype(np.uint8)
 
     def ___create_closed_polygon(self):
-        points_array = super().pointlist_to_pointarray()
+        points_array = self.list_point_np
         return matplotlib.patches.Polygon(points_array, closed = True)

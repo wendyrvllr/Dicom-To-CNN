@@ -8,33 +8,13 @@ class Roi():
         self.last_slice = last_slice
         self.roi_number = roi_number
         self.list_point = list_point
+        self.list_point_np = np.asarray(self.list_point)
         self.x = volume_dimension[0]
         self.y = volume_dimension[1]
         self.z = volume_dimension[2]
         
-
-    def get_volume_dimension(self):
-        return (self.x, self.y, self.z)
-
-    def pointlist_to_pointarray (self):
-        """Transforms string point into x/y/z point array for matplotlib : [ [x,y,slice] , [x ,y, slice], ...]
-
-        Arguments:
-            point_list {[type]} -- [description]
-
-        Returns:
-            [array] -- [matplot lib array]
-        """
-        size = len(self.list_point)
-        points = []
-        for i in range(size):
-            #SK ICI A TRAITER DEPUIS LA LECTURE DES CSV
-            list_string_point = self.list_point[i].split()
-            list_int_point = list(map(int, list_string_point))
-            points.append(list_int_point)
-        return np.asarray(points)
     
-    def get_min_max_of_roi(self):
+    def __get_min_max_of_roi(self):
         """Compute extrema of ROI in which we will loop to find included voxel
 
         Arguments:
@@ -43,15 +23,18 @@ class Roi():
         Returns:
             [minx, miny, maxx, maxy] -- X/Y extremas
         """
-        points_array = self.pointlist_to_pointarray()
+        points_array = self.list_point_np
         x = []
         y= []
+        print(points_array.shape)
         for i in range (points_array.shape[0]):
             x.append(points_array[i, 0])
             y.append(points_array[i, 1])
         return min(x), min(y), max(x), max(y)
 
-    def mask_roi_in_slice(self,  xmin, ymin, xmax, ymax, sliceToMask, patch, number_of_roi): #patch = ellipse ou polygone #slice = np array 256*256
+    def mask_roi_in_slice(self, sliceToMask, patch, number_of_roi): #patch = ellipse ou polygone #slice = np array 256*256
+        #get Roi limits in wich we will loop
+        xmin, ymin, xmax, ymax  = self.__get_min_max_of_roi()
         for i in range(xmin, xmax): 
             for j in range(ymin, ymax) : 
                 if patch.contains_point([i,j], radius = 0) : #si vrai alors changement 
@@ -59,6 +42,11 @@ class Roi():
         return sliceToMask
     
     def get_empty_np_array(self):
+        """Return numpy array to fill given the current dimension and axis
+
+        Returns:
+            numpy array -- zero filled numpy array
+        """
         if(self.axis == 1):
             return np.zeros((self.x, self.y, self.z))
         elif (self.axis == 2):
@@ -67,9 +55,9 @@ class Roi():
             return np.zeros((self.y, self.z, self.x))
 
     def coronal_to_axial(self, np_array_3D):
-        return np.transpose(np_array_3D, (1,2,0)) #coronnal x y z -> axial y z x 
+        return np.transpose(np_array_3D, (0,2,1)) #coronnal x y z -> axial x z y
         #SK A VERIF
 
     def sagittal_to_axial(self, np_array_3D):
-        return np.transpose(np_array_3D, (2,0,1)) #sagittal x y z - > axial  z x y 
+        return np.transpose(np_array_3D, (1,2,0)) #sagittal x y z - > axial y z x 
         #SK A VERIF
