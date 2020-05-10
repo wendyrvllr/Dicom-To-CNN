@@ -105,7 +105,14 @@ class CsvReader():
         """
         list_points = nifti_row[2:]
         list_points = list(map(str.strip, list_points))
-        return list_points
+        result_answer = {
+                'name' : nifti_row[0].strip(),
+                'first_slice' : 0,
+                'last_slice' : 0,
+                'type_number' : 0,
+                'point_list' : list_points
+        }
+        return result_answer
 
 
         

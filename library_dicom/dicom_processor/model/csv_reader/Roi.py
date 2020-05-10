@@ -28,6 +28,7 @@ class Roi():
         size = len(self.list_point)
         points = []
         for i in range(size):
+            #SK ICI A TRAITER DEPUIS LA LECTURE DES CSV
             list_string_point = self.list_point[i].split()
             list_int_point = list(map(int, list_string_point))
             points.append(list_int_point)
@@ -54,7 +55,6 @@ class Roi():
         for i in range(xmin, xmax): 
             for j in range(ymin, ymax) : 
                 if patch.contains_point([i,j], radius = 0) : #si vrai alors changement 
-                    
                     sliceToMask[i,j] =  number_of_roi # = 1,2,3 etc 
         return sliceToMask
     

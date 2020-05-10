@@ -1,11 +1,12 @@
 from library_dicom.dicom_processor.model.csv_reader.CsvReader import CsvReader
 from library_dicom.dicom_processor.model.csv_reader.RoiFactory import RoiFactory
 
-csv_reader = CsvReader('/home/salim/Bureau/11009101406003_apr 14_2010.csv')
+csv_reader = CsvReader('/home/salim/Bureau/5986298233_jun 22_2011.csv')
 
-manual_rois = csv_reader.get_manual_rois()
+manual_rois = csv_reader.get_nifti_rois()
 
-roi_object = csv_reader.convert_manual_row_to_object(manual_rois[3])
+#roi_object = csv_reader.convert_manual_row_to_object(manual_rois[3])
+roi_object = csv_reader.convert_nifti_row_to_list_point(manual_rois[0])
 
 print(manual_rois)
 print(roi_object)

@@ -11,7 +11,7 @@ class RoiNifti(Roi):
         volume_dimension = super().get_volume_dimension()
         np_array_3D = np.zeros((volume_dimension[0], volume_dimension[1], volume_dimension[2]))
 
-        pixel_array = super().pointlist_to_pointarray(self.list_point)
+        pixel_array = super().pointlist_to_pointarray()
 
         for points in pixel_array :
             np_array_3D[points[2]][points[0], points[1]] = self.roi_number
