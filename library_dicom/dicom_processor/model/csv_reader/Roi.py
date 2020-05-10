@@ -18,19 +18,22 @@ class Roi():
         """Compute extrema of ROI in which we will loop to find included voxel
 
         Arguments:
-            point_list {[type]} -- [description]
+            point_list {np array} -- numpy point list
 
         Returns:
             [minx, miny, maxx, maxy] -- X/Y extremas
         """
         points_array = self.list_point_np
-        x = []
-        y= []
-        print(points_array.shape)
-        for i in range (points_array.shape[0]):
-            x.append(points_array[i, 0])
-            y.append(points_array[i, 1])
-        return min(x), min(y), max(x), max(y)
+
+        all_x = points_array[:][:,0]
+        all_y =points_array[:][:,1]
+
+        xmin = min(all_x)
+        xmax = max(all_x)
+        ymin = min(all_y)
+        ymax = max(all_y)
+        
+        return xmin, xmax, ymin, ymax
 
     def mask_roi_in_slice(self, sliceToMask, patch, number_of_roi): #patch = ellipse ou polygone #slice = np array 256*256
         #get Roi limits in wich we will loop
