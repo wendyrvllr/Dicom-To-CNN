@@ -13,7 +13,7 @@ class RoiPolygon(Roi):
 
         roi_pixel_matplot = self.___create_closed_polygon()
 
-        #SK : Pourquoi le +1 ici que dans last slice ?
+
         for number_of_slices in range(self.first_slice, self.last_slice + 1 ) : 
             np_array_3D[:,:,number_of_slices] = super().mask_roi_in_slice( np.zeros( (x, y) ), roi_pixel_matplot, self.roi_number) 
         

@@ -43,10 +43,11 @@ class CsvReader():
     def get_nifti_rois(self):
         """ return automatic (nifti) roi block
         """
+
         try :
             first_nifti_row = self.first_line_nifti_roi + 1
         except AttributeError:
-            return
+            return ([])
         last_nifti_row = first_nifti_row + self.number_of_nifti_roi
         return self.csv_data[ first_nifti_row : last_nifti_row ]
 

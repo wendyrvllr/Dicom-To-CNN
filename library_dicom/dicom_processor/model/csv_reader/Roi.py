@@ -37,7 +37,7 @@ class Roi():
 
     def mask_roi_in_slice(self, sliceToMask, patch, number_of_roi): #patch = ellipse ou polygone #slice = np array 256*256
         #get Roi limits in wich we will loop
-        xmin, ymin, xmax, ymax  = self.__get_min_max_of_roi()
+        xmin, xmax, ymin, ymax  = self.__get_min_max_of_roi()
         for i in range(xmin, xmax): 
             for j in range(ymin, ymax) : 
                 if patch.contains_point([i,j], radius = 0) : #si vrai alors changement 
@@ -50,17 +50,19 @@ class Roi():
         Returns:
             numpy array -- zero filled numpy array
         """
-        if(self.axis == 1):
+        if (self.axis == 1):
             return np.zeros((self.x, self.y, self.z))
         elif (self.axis == 2):
-            return np.zeros((self.x, self.z, self.y))
+            return np.zeros((self.z, self.x, self.y))
         elif (self.axis == 3):
-            return np.zeros((self.y, self.z, self.x))
+            return np.zeros((self.z, self.y, self.x))
 
     def coronal_to_axial(self, np_array_3D):
-        return np.transpose(np_array_3D, (0,2,1)) #coronnal x y z -> axial x z y
+        return np.transpose(np_array_3D, (2,0,1))
+        #return np.transpose(np_array_3D, (0,2,1)) #coronnal x y z -> axial z x y 
         #SK A VERIF
 
     def sagittal_to_axial(self, np_array_3D):
-        return np.transpose(np_array_3D, (1,2,0)) #sagittal x y z - > axial y z x 
+        return np.transpose(np_array_3D, (2,1,0))
+        #return np.transpose(np_array_3D, (1,2,0)) #sagittal x y z - > axial z y x 
         #SK A VERIF
