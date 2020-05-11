@@ -38,7 +38,7 @@ class CsvReader():
         except AttributeError:
             return
         last_manual_row =  first_manual_roi + self.number_of_manual_roi
-        return self.csv_data[ first_manual_roi : last_manual_row]
+        return self.csv_data[ first_manual_roi : last_manual_row ]
     
     def get_nifti_rois(self):
         """ return automatic (nifti) roi block
@@ -62,33 +62,16 @@ class CsvReader():
         """
         number_point_field = manual_row[4]
         number_point = int( number_point_field.replace(" num points = ", "").strip() )
-        
-        point_list = manual_row[ 6 : (6 + number_point) ]
-        point_list = list(map(str.strip, point_list))
+        point_list_string = manual_row[ 5 : (5 + number_point) ]
+        point_list = CsvReader.list_string_to_point_list_int( point_list_string )
+
         result_answer = {
                 'name' : manual_row[0].strip(),
                 'first_slice' : int(manual_row[2].strip()),
                 'last_slice' : int(manual_row[3].strip()),
+                'type_number' : int(manual_row[1].strip()),
                 'point_list' : point_list
         }
-
-        if (int(manual_row[1].strip()) == 1):
-            result_answer['type'] = 'Polygon'
-
-        elif (int(manual_row[1].strip()) == 11):
-            result_answer['type'] = 'Elipse'
-
-        elif (int(manual_row[1].strip()) == 2):
-            result_answer['type'] = 'Polygon_Coronal'
-
-        elif (int(manual_row[1].strip()) == 12):
-            result_answer['type'] = 'Elipse_Coronal'
-
-        elif (int(manual_row[1].strip()) == 3):
-            result_answer['type'] = 'Polygon_Sagittal'
-
-        elif (int(manual_row[1].strip()) == 13):
-            result_answer['type'] = 'Elipse_Coronal'
 
         return result_answer
 
@@ -103,9 +86,29 @@ class CsvReader():
         Returns:
             [list] -- list of point in the roi
         """
-        list_points = nifti_row[2:]
-        list_points = list(map(str.strip, list_points))
-        return list_points
+        point_list_string = nifti_row[2:]
+        point_list = CsvReader.list_string_to_point_list_int( point_list_string )
+        result_answer = {
+                'name' : nifti_row[0].strip(),
+                'first_slice' : 0,
+                'last_slice' : 0,
+                'type_number' : 0,
+                'point_list' : point_list
+        }
+        return result_answer
+
+    @classmethod
+    def list_string_to_point_list_int(cls, point_list_string):
+        """
+        Transforms point string into list of coordinate (int)
+        """
+        point_list_string = list(map(str.strip, point_list_string))
+        point_list = []
+        for point_string in point_list_string:
+            list_string_point = point_string.split()
+            list_int_point = list(map(int, list_string_point))
+            point_list.append(list_int_point)
+        return point_list
 
 
         
