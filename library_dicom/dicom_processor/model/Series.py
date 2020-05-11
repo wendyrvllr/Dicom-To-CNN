@@ -52,26 +52,24 @@ class Series():
             'path' : self.path
         }
 
-    #SK : En fait je crois que ca suffit pas besoin de checker les radiopharmaceutical 
-    # Par contre on peut ajouter le pixel spacing
     def is_series_valid(self):
-
         firstDicomDetails = self.get_series_details()
-
-        if firstDicomDetails['series']['NumberOfSlices'] != len(self.file_names):
+        #Le tag number of slice n'est que pour PT et NM, pas trouvé d'autre tag fiable pour les autres series
+        if firstDicomDetails['series']['NumberOfSlices']!="Undefined" and firstDicomDetails['series']['NumberOfSlices'] != len(self.file_names):
+            print('wrong number of slice')
             return False
-        
+
         for fileName in self.file_names:
             dicomInstance = Instance(os.path.join(self.path, fileName), load_image=False)
-            if (dicomInstance.get_series_tags != firstDicomDetails['series'] or
-                dicomInstance.get_patients_tags != firstDicomDetails['patient'] or
-                dicomInstance.get_studies_tags != firstDicomDetails['study']) :
+            if (dicomInstance.get_series_tags()['SeriesInstanceUID'] != firstDicomDetails['series']['SeriesInstanceUID']):
+                print('Not same Series Instance UID')
                 return False
-            else : 
-                return True
-            
         
-    
+        return True
+        
+    def is_image_modality(self):
+        return self.get_first_instance_metadata().is_image_modality()
+
     def get_numpy_array(self):
         if self.is_image_series == False : return
         instance_array = [Instance(os.path.join(self.path, file_name), load_image=True) for file_name in self.file_names]

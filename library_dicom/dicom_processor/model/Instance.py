@@ -81,8 +81,19 @@ class Instance:
             return list(self.dicomData[TagPTCorrection.CorrectedImage.value].value)
         else: return "Undefined"
     
+    def get_philips_private_tags(self):
+        philips_tags={}
+        for tag_address in philips_tags:
+            if tag_address.value in self.dicomData : 
+                philips_tags[tag_address.name] = float(self.dicomData[tag_address.value].value)
+            else : philips_tags[tag_address.name] = "Undefined"
+        return philips_tags
+
     def is_secondary_capture(self):
         return True if self.get_sop_class_uid in CapturesSOPClass else False
+
+    def is_image_modality(self):
+        return True if self.get_sop_class_uid in ImageModalitiesSOPClass else False
 
     def __get_rescale_slope(self):
         return self.dicomData[TagsInstance.RescaleSlope.value].value
