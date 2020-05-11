@@ -25,6 +25,12 @@ class SeriesPT(Series):
         self.radiopharmaceutical_details = {}
         self.radiopharmaceutical_details = dicomInstance.get_radiopharmaceuticals_tags()
         details['radiopharmaceutical'] = self.radiopharmaceutical_details
+        self.pet_correction_details = {}
+        self.pet_correction_details = dicomInstance.get_pet_correction_tags()
+        details['pet_correction'] = self.pet_correction_details
+        self.philips_tag = {}
+        self.philips_tag = dicomInstance.get_philips_private_tags()
+        details['philips_tags'] = self.philips_tag
 
         return details
 
@@ -61,7 +67,7 @@ class SeriesPT(Series):
         
         if manufacturer == 'Philips' :
             #philips_suv_factor = series_details['series']['PhilipsSUVFactor']
-            philips_suv_bqml = series_details['series']['PhilipsBqMlFactor']
+            philips_suv_bqml = series_details['philips_tags']['PhilipsBqMlFactor']
             if (philips_suv_bqml == 'Undefined') : raise Exception('Missing Philips BqMl Factor')
         
         if (total_dose == 'Undefined' or acquisition_time== 'Undefined' 
@@ -112,7 +118,7 @@ class SeriesPT(Series):
 
     def is_corrected_attenuation(self):
         series_details = self.get_series_details()
-        corrected_image = series_details['series']['CorrectedImage']
+        corrected_image = series_details['pet_correction']
         if 'ATTN' in corrected_image : return True
         else : return False
 

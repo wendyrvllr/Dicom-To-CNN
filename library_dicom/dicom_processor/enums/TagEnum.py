@@ -47,11 +47,17 @@ class TagsSeries(Enum):
     AcquisitionDate = 0x00080022
     AcquisitionTime = 0x00080032
     NumberOfSlices = 0x00540081
+    ImageInAcquisition = 0x00201002
     Units = 0x00541001
     DecayCorrection = 0x00541102
+
+class PhilipsPrivateTags(Enum):
     PhilipsSUVFactor = 0x70531000
     PhilipsBqMlFactor = 0x70531009
+
+class TagPTCorrection(Enum):
     CorrectedImage = 0x00280051
+
 
 class TagsInstance(Enum):
     """Instance related tags
