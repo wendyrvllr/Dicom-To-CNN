@@ -35,7 +35,11 @@ class Instance:
     def get_patients_tags(self):
         patient_tags={}
         for tag_address in TagsPatient:
-            if tag_address.value in self.dicomData : patient_tags[tag_address.name] = self.dicomData[tag_address.value].value
+            if tag_address.value in self.dicomData : 
+                patient_tags[tag_address.name] = self.dicomData[tag_address.value].value
+                if( type(self.dicomData[tag_address.value].value) != str):
+                    #patient name return PersonName3 object, convert it to string
+                    patient_tags[tag_address.name] = str(patient_tags[tag_address.name])
             else : patient_tags[tag_address.name] = "Undefined"
         return patient_tags
 
@@ -72,6 +76,10 @@ class Instance:
 
         return radiopharmaceuticals_tags
 
+    def get_pet_correction_tags(self):
+        if TagPTCorrection.CorrectedImage.value in self.dicomData :
+            return list(self.dicomData[TagPTCorrection.CorrectedImage.value].value)
+        else: return "Undefined"
     
     def is_secondary_capture(self):
         return True if self.get_sop_class_uid in CapturesSOPClass else False

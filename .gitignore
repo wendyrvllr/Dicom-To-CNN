@@ -1,2 +1,2 @@
 .vscode/settings.json
-library_dicom/dicom_processor/model/csv_reader/__pycache__/
+*.pyc

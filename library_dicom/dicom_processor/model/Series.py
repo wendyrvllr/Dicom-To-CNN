@@ -48,7 +48,8 @@ class Series():
         return {
             'series' : self.series_details,
             'study' : self.study_details,
-            'patient' : self.patient_details
+            'patient' : self.patient_details,
+            'path' : self.path
         }
 
     #SK : En fait je crois que ca suffit pas besoin de checker les radiopharmaceutical 

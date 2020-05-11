@@ -14,4 +14,9 @@ def get_series_path(path):
     for (path, dirs, files) in os.walk(path): 
         if not (dirs) :
             seriesPath.append(path) 
-    return seriesPath 
+    return seriesPath
+
+def write_json_file(path, file_name, content, extension = 'json'):
+    wrinting_file = open(os.path.join(path, file_name+'.'+extension), 'w')
+    wrinting_file.write(content)
+    wrinting_file.close()

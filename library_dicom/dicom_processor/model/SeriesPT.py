@@ -24,7 +24,10 @@ class SeriesPT(Series):
         dicomInstance = self.get_first_instance_metadata()
         self.radiopharmaceutical_details = {}
         self.radiopharmaceutical_details = dicomInstance.get_radiopharmaceuticals_tags()
-        details['radiopharmaceutical'] = self.radiopharmaceutical_details
+        details['series']['radiopharmaceutical'] = self.radiopharmaceutical_details
+        self.pet_correction_details = {}
+        self.pet_correction_details = dicomInstance.get_pet_correction_tags()
+        details['series']['pet_correction'] = self.pet_correction_details
 
         return details
 
@@ -53,10 +56,10 @@ class SeriesPT(Series):
         #modality = series_details['series']['Modality']
         manufacturer = series_details['series']['Manufacturer']
         decay_correction = series_details['series']['DecayCorrection']
-        radionuclide_half_life = series_details['radiopharmaceutical']['RadionuclideHalfLife']
-        total_dose = series_details['radiopharmaceutical']['TotalDose']
+        radionuclide_half_life = series_details['series']['radiopharmaceutical']['RadionuclideHalfLife']
+        total_dose = series_details['series']['radiopharmaceutical']['TotalDose']
         #ICI SK Probleme de vieux tag a explorer
-        radiopharmaceutical_start_date_time = series_details['radiopharmaceutical']['RadiopharmaceuticalStartDateTime']
+        radiopharmaceutical_start_date_time = series_details['series']['radiopharmaceutical']['RadiopharmaceuticalStartDateTime']
         radiopharmaceutical_start_date_time = datetime.strptime(radiopharmaceutical_start_date_time, "%Y%m%d%H%M%S")
         
         if manufacturer == 'Philips' :
@@ -112,7 +115,7 @@ class SeriesPT(Series):
 
     def is_corrected_attenuation(self):
         series_details = self.get_series_details()
-        corrected_image = series_details['series']['CorrectedImage']
+        corrected_image = series_details['series']['pet_correction']
         if 'ATTN' in corrected_image : return True
         else : return False
 

@@ -51,7 +51,10 @@ class TagsSeries(Enum):
     DecayCorrection = 0x00541102
     PhilipsSUVFactor = 0x70531000
     PhilipsBqMlFactor = 0x70531009
+
+class TagPTCorrection(Enum):
     CorrectedImage = 0x00280051
+
 
 class TagsInstance(Enum):
     """Instance related tags
