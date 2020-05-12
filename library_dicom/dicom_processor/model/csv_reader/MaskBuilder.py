@@ -1,6 +1,7 @@
 from library_dicom.dicom_processor.model.csv_reader.CsvReader import CsvReader
 from library_dicom.dicom_processor.model.csv_reader.RoiFactory import RoiFactory
 import numpy as np
+import matplotlib.pyplot as plt
 
 from library_dicom.dicom_processor.model.csv_reader.RoiPolygon import RoiPolygon
 from library_dicom.dicom_processor.model.csv_reader.RoiElipse import RoiElipse
@@ -34,5 +35,12 @@ class MaskBuilder():
         
         return self.mask_array
     
-    def get_mip(self):
-        pass 
+
+
+    def show_np_array_3D(self, mask_array, slice) : 
+        somme = 0 
+        for i in range(self.number_of_rois) : 
+            somme += mask_array[:,:,:,i]
+        plt.imshow(somme[:,:,slice])
+        plt.show()
+    
