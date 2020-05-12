@@ -35,8 +35,6 @@ class TagsSeries(Enum):
     Arguments:
         Enum {hex} -- [Tag address]
     """
-
-    ImageOrientationPatient = 0x00200020
     Manufacturer = 0x00080070
     Modality = 0x00080060
     SeriesDate = 0x00080021
