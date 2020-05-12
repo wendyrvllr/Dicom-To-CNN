@@ -51,18 +51,20 @@ class Roi():
             numpy array -- zero filled numpy array
         """
         if (self.axis == 1):
-            return np.zeros((self.x, self.y, self.z))
+            return (np.zeros((self.x, self.y, self.z)))
+            
         elif (self.axis == 2):
-            return np.zeros((self.z, self.x, self.y))
+            return (np.zeros((self.z, self.y, self.x)))
+
         elif (self.axis == 3):
-            return np.zeros((self.z, self.y, self.x))
+            return (np.zeros((self.z, self.x, self.y)))
 
     def coronal_to_axial(self, np_array_3D):
-        return np.transpose(np_array_3D, (2,0,1))
-        #return np.transpose(np_array_3D, (0,2,1)) #coronnal x y z -> axial z x y 
+        return np.transpose(np_array_3D, (2,1,0))
+        #return np.transpose(np_array_3D, (0,2,1)) #coronnal x y z -> axial z y x 
         #SK A VERIF
 
     def sagittal_to_axial(self, np_array_3D):
-        return np.transpose(np_array_3D, (2,1,0))
-        #return np.transpose(np_array_3D, (1,2,0)) #sagittal x y z - > axial z y x 
+        return np.transpose(np_array_3D, (2,0,1))
+        #return np.transpose(np_array_3D, (1,2,0)) #sagittal x y z - > axial z x y 
         #SK A VERIF
