@@ -17,12 +17,13 @@ class RoiElipse(Roi):
         for number_of_slices in range(self.first_slice, self.last_slice + 1 ) : 
             np_array_3D[:,:,number_of_slices] = super().mask_roi_in_slice(np.zeros( (x,y) ), roi_pixel_matplot, self.roi_number) 
         
+    
         if (self.axis == 2) : 
             np_array_3D = super().coronal_to_axial(np_array_3D)
         elif (self.axis == 3) :
             np_array_3D = super().sagittal_to_axial(np_array_3D)
 
-        return np_array_3D.astype(np.uint8)
+        return np.transpose(np_array_3D.astype(np.uint8), (1,0,2))
 
     def __create_elipse(self):
         points_array = self.list_point_np

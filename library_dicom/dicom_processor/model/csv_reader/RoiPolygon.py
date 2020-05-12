@@ -22,7 +22,7 @@ class RoiPolygon(Roi):
         elif (self.axis == 3) :
             np_array_3D = super().sagittal_to_axial(np_array_3D)
 
-        return np_array_3D.astype(np.uint8)
+        return np.transpose(np_array_3D.astype(np.uint8), (1,0,2))
 
     def ___create_closed_polygon(self):
         points_array = self.list_point_np
