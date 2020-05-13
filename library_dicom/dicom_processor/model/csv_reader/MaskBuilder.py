@@ -18,6 +18,11 @@ class MaskBuilder():
         self.mask_array = np.zeros( (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2], self.number_of_rois) )
 
     def read_csv(self):
+        """return 4D array of 3D roi array from un csv_file
+
+        Returns:
+            [array] -- [4D array of roi in csv_file]
+        """
         csv_reader = CsvReader(self.csv_file)
         manual_rois = csv_reader.get_manual_rois()
         automatic_rois = csv_reader.get_nifti_rois()
@@ -37,10 +42,23 @@ class MaskBuilder():
     
 
 
-    def show_np_array_3D(self, mask_array, slice) : 
-        somme = 0 
-        for i in range(self.number_of_rois) : 
-            somme += mask_array[:,:,:,i]
-        plt.imshow(somme[:,:,slice])
+    def show_axial_to_coronal_saggital(self, mask_array, number_roi, number_slice_axial, number_slice_coronal, number_slice_saggital):
+        """to show axial, coronal and sagittal ROI
+
+        Arguments:
+            mask_array {[array]} -- [4D array of ROIs]
+            number_roi {[int]} -- [number of one ROI]
+            number_slice_axial {[int]} -- [number of the slice _ axial of one ROI]
+            number_slice_coronal {[int]} -- [number of the slice _ coronal of one ROI]
+            number_slice_saggital {[int]} -- [number of the slice _ saggital of one ROI]
+        """
+        roi_axial = mask_array[:,:,:,number_roi]
+        roi_coronal = np.transpose(roi_axial, (2,1,0))
+        roi_saggital  = np.transpose(roi_axial, (2,0,1))
+        plt.imshow(roi_axial[:,:,number_slice_axial])
         plt.show()
-    
+        plt.imshow(np.rot90(np.transpose(roi_coronal[:,:,number_slice_coronal]),1))
+        plt.show()
+        plt.imshow(np.rot90(np.transpose(roi_saggital[:,:,number_slice_saggital]),1))
+        plt.show()
+

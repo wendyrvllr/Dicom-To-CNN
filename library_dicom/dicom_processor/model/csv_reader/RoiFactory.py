@@ -19,25 +19,26 @@ class RoiFactory():
         last_slice = self.details['last_slice']
         point_list  = self.details['point_list']
         roi_number = self.roi_number
+        type_number = self.details['type_number']
         volume_dimension = self.volume_dimension
 
         if (self.details['type_number'] == 1):
-            return RoiPolygon( 1, first_slice, last_slice, roi_number, point_list, volume_dimension )
+            return RoiPolygon( 1, first_slice, last_slice, roi_number, type_number, point_list, volume_dimension )
 
         elif (self.details['type_number'] == 11):
-            return RoiElipse( 1, first_slice, last_slice, roi_number, point_list, volume_dimension )
+            return RoiElipse( 1, first_slice, last_slice, roi_number, type_number, point_list, volume_dimension )
 
         elif (self.details['type_number'] == 2):
-            return RoiPolygon( 2, first_slice, last_slice, roi_number, point_list, volume_dimension )
+            return RoiPolygon( 2, first_slice, last_slice, roi_number, type_number, point_list, volume_dimension )
 
         elif (self.details['type_number'] == 12):
-            return RoiElipse( 2, first_slice, last_slice, roi_number, point_list, volume_dimension )
+            return RoiElipse( 2, first_slice, last_slice, roi_number, type_number, point_list, volume_dimension )
 
         elif (self.details['type_number'] == 3):
-            return RoiPolygon( 3, first_slice, last_slice, roi_number, point_list, volume_dimension )
+            return RoiPolygon( 3, first_slice, last_slice, roi_number, type_number, point_list, volume_dimension )
 
         elif (self.details['type_number'] == 13):
-            return RoiElipse( 3, first_slice, last_slice, roi_number, point_list, volume_dimension )
+            return RoiElipse( 3, first_slice, last_slice, roi_number, type_number, point_list, volume_dimension )
         
         else:
             return RoiNifti( roi_number, point_list, volume_dimension )
