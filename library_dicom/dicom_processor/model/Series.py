@@ -71,7 +71,7 @@ class Series():
         return self.get_first_instance_metadata().is_image_modality()
 
     def get_numpy_array(self):
-        if self.is_image_series == False : return
+        if self.is_image_modality == False : return
         instance_array = [Instance(os.path.join(self.path, file_name), load_image=True) for file_name in self.file_names]
         instance_array.sort(key=lambda instance_array:int(instance_array.get_image_position()[2]), reverse=True)
         pixel_data = [instance.get_image_nparray() for instance in instance_array]
@@ -85,7 +85,7 @@ class Series():
         """ called by __getMetadata """
         Z_positions = [ instance.get_image_position()[2] for instance in self.instance_array ]
         
-        initial_z_spacing = Z_positions[0]-Z_positions[1]
+        initial_z_spacing = Z_positions[0]-Z_positions[2]
         for i in range(1,len(Z_positions)):
             z_spacing = Z_positions[i-1]-Z_positions[i]
             if (z_spacing!=initial_z_spacing):

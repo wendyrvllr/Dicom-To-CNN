@@ -81,3 +81,4 @@ class TagsRadioPharmaceuticals(Enum):
     RadionuclideHalfLife = 0x00181075
     TotalDose = 0x00181074
     RadiopharmaceuticalStartDateTime = 0x00181078
+    RadiopharmaceuticalStartTime = 0x00181072
