@@ -4,8 +4,8 @@ from library_dicom.dicom_processor.model.csv_reader.Roi import Roi
 
 class RoiPolygon(Roi):
 
-    def __init__(self, axis, first_slice, last_slice, roi_number, list_point, volume_dimension):
-        super().__init__(axis, first_slice, last_slice, roi_number, list_point, volume_dimension)
+    def __init__(self, axis, first_slice, last_slice, roi_number, type_number, list_point, volume_dimension):
+        super().__init__(axis, first_slice, last_slice, roi_number, type_number, list_point, volume_dimension)
 
     def calculateMaskPoint(self):
         np_array_3D = super().get_empty_np_array()
