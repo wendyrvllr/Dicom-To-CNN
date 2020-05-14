@@ -6,7 +6,7 @@ class SeriesPT(Series):
     """[summary]
 
     Arguments:
-        Series {[type]} -- [description]
+        Series {[class]} -- [description]
     """
 
     def __init__(self, path, sul_value=False):
@@ -45,6 +45,7 @@ class SeriesPT(Series):
         if units == 'GML' : return 1
         
         patient_weight = series_details['study']['PatientWeight']
+        patient_weight = patient_weight * 1000
         series_time = series_details['series']['SeriesTime']
         series_date = series_details['series']['SeriesDate']
         series_datetime = series_date + series_time #str 
@@ -70,6 +71,7 @@ class SeriesPT(Series):
         decay_correction = series_details['series']['DecayCorrection']
         radionuclide_half_life = series_details['radiopharmaceutical']['RadionuclideHalfLife']
         total_dose = series_details['radiopharmaceutical']['TotalDose']
+
         #ICI SK Probleme de vieux tag a explorer
 
         radiopharmaceutical_start_date_time = series_details['radiopharmaceutical']['RadiopharmaceuticalStartDateTime']
