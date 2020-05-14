@@ -73,21 +73,23 @@ class Series():
     def get_numpy_array(self):
         if self.is_image_modality == False : return
         instance_array = [Instance(os.path.join(self.path, file_name), load_image=True) for file_name in self.file_names]
-        instance_array.sort(key=lambda instance_array:int(instance_array.get_image_position()[2]), reverse=True)
+        instance_array.sort(key=lambda instance_array:int(instance_array.get_image_position()[2]))
         pixel_data = [instance.get_image_nparray() for instance in instance_array]
-        np_array = np.stack(pixel_data,axis=0)
+        np_array = np.stack(pixel_data,axis=-1)
         #A VERIF
         self.instance_array = instance_array
 
-        return np_array.astype(np.int16)
+        return(np_array.astype(np.int16))
 
     def get_z_spacing(self):
         """ called by __getMetadata """
         Z_positions = [ instance.get_image_position()[2] for instance in self.instance_array ]
+        print(Z_positions)
+    
+        initial_z_spacing = round(Z_positions[0]-Z_positions[1],2)
         
-        initial_z_spacing = Z_positions[0]-Z_positions[2]
-        for i in range(1,len(Z_positions)):
-            z_spacing = Z_positions[i-1]-Z_positions[i]
+        for i in range(2,len(Z_positions)):
+            z_spacing = round(Z_positions[i-1]-Z_positions[i],2)
             if (z_spacing!=initial_z_spacing):
                 raise Exception('Unconstant Spacing')
         return initial_z_spacing

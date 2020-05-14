@@ -31,10 +31,10 @@ class MaskBuilder():
         for number_roi in range(self.number_of_rois) : #pour chaque ROI du fichier
             if len(manual_rois) == 0 : #ROI NIfti
                 roi_object = csv_reader.convert_nifti_row_to_list_point(automatic_rois[number_roi])
-                self.mask_array[:, :, :, number_roi] = RoiFactory(roi_object, (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]), self.number_of_rois ).read_roi().calculateMaskPoint() #return array 3D si nifti poly ou ellipse
+                self.mask_array[:, :, :, number_roi] = RoiFactory(roi_object, (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]), number_roi+1 ).read_roi().calculateMaskPoint() #return array 3D si nifti poly ou ellipse
             else : #ROI Poly ou ellipse
                 roi_object = csv_reader.convert_manual_row_to_object(manual_rois[number_roi])
-                self.mask_array[:, :, :, number_roi] = RoiFactory(roi_object, (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]) , self.number_of_rois).read_roi().calculateMaskPoint()
+                self.mask_array[:, :, :, number_roi] = RoiFactory(roi_object, (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]) , number_roi+1).read_roi().calculateMaskPoint()
 
              
         
