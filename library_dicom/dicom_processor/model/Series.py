@@ -20,6 +20,10 @@ class Series():
 
         self.path = path
         self.file_names = os.listdir(path)
+        self.number_of_files = len(self.file_names)
+
+    def get_number_of_files(self):
+        return self.number_of_files
     
     def get_first_instance_metadata(self):
         firstFileName = self.file_names[0]
@@ -40,6 +44,7 @@ class Series():
         dicomInstance = self.get_first_instance_metadata()
 
         self.series_details = dicomInstance.get_series_tags()
+        self.series_details['ImageType'] = dicomInstance.get_image_type()
         self.patient_details = dicomInstance.get_patients_tags()
         self.study_details = dicomInstance.get_studies_tags()
         self.sop_class_uid = dicomInstance.get_sop_class_uid()
@@ -49,7 +54,8 @@ class Series():
             'series' : self.series_details,
             'study' : self.study_details,
             'patient' : self.patient_details,
-            'path' : self.path
+            'path' : self.path,
+            'files' : self.number_of_files
         }
 
     def is_series_valid(self):
@@ -69,6 +75,12 @@ class Series():
         
     def is_image_modality(self):
         return self.get_first_instance_metadata().is_image_modality()
+
+    def is_primary_image(self):
+        return ( "PRIMARY" in self.series_details['ImageType'])
+
+    def is_localizer_series(self):
+        return ( "LOCALIZER" in self.series_details['ImageType'])
 
     def get_numpy_array(self):
         if self.is_image_modality == False : return
