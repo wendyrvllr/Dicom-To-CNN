@@ -1,11 +1,21 @@
 # library-DICOM
 
-*library developped during an internship at IUCT-Oncopole, France.*
+Features : 
+- Description of Series content in a huge dataset of DICOM (output JSON descriptor for each series containings main DICOM tags).
+- Conversion Dicom to Nifti
+- PET : Conversion Bqml/Counts to SUV and SUL
 
-Provide tools to read, modify and convert medical images at DICOM format.
+Roadmap : 
+- Read RTSS to generate Mask
+- Generate RTSS from Mask
+- PT / CT fusion in 4D array np array
 
-**DONE :**
-- conversion PET,CT or similar DICOM set of images to nifti file
+#Maintainer  : Salim Kanoun
+#Contributors : Thomas Trouillard, Wendy Revailler
+
+
+
+To refactor : 
 - conversion of a nifti mask to a ROI in a DICOM RTSTRUCT
 - ROI integration to an existing RTSTRUCT
 - generation empty RTSTRUCT from PET,CT or similar set of DICOM images
