@@ -52,7 +52,7 @@ class MaskBuilder():
             number_slice_coronal {[int]} -- [number of the slice _ coronal of one ROI]
             number_slice_saggital {[int]} -- [number of the slice _ saggital of one ROI]
         """
-        roi_axial = mask_array[:,:,:,number_roi]
+        roi_axial = mask_array[:,:,:,number_roi - 1]
         roi_coronal = np.transpose(roi_axial, (2,1,0))
         roi_saggital  = np.transpose(roi_axial, (2,0,1))
         plt.imshow(roi_axial[:,:,number_slice_axial])
@@ -61,4 +61,20 @@ class MaskBuilder():
         plt.show()
         plt.imshow(np.rot90(np.transpose(roi_saggital[:,:,number_slice_saggital]),1))
         plt.show()
+
+
+    def read_roi(self, nifti, mask_array):
+        
+        for number_roi in range(0, self.number_of_rois) :
+
+            pixels_array = []
+            for z in range(self.matrix_size[2]) : 
+                for x in range(self.matrix_size[1]):
+                    for y in range(self.matrix_size[0]):
+                        if mask_array[x,y,z, number_roi ] == number_roi + 1 :
+                            pixels_array.append(nifti[x,y,z])
+            print("ROI :", number_roi + 1)
+            print("SUV max : ", np.max(pixels_array))
+            print("SUV mean : ", np.mean(pixels_array))
+
 

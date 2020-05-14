@@ -39,9 +39,9 @@ class RoiElipse(Roi):
         
     
         if (self.axis == 2) : 
-            np_array_3D = super().coronal_to_axial(np_array_3D)
+            return  super().coronal_to_axial(np_array_3D)
         elif (self.axis == 3) :
-            np_array_3D = super().sagittal_to_axial(np_array_3D)
+            return super().sagittal_to_axial(np_array_3D)
 
         return (np.transpose(np_array_3D.astype(np.uint8), (1,0,2)))
 

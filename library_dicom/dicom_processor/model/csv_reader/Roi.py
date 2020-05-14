@@ -70,7 +70,7 @@ class Roi():
             return (np.zeros((self.z, self.y, self.x)))
 
         elif (self.axis == 3):
-            return (np.zeros((self.z, self.x, self.y)))
+            return (np.zeros((self.y, self.z, self.x)))
 
     def coronal_to_axial(self, np_array_3D):
         return np.transpose(np_array_3D, (2,1,0))
@@ -79,6 +79,6 @@ class Roi():
         #SK A VERIF
 
     def sagittal_to_axial(self, np_array_3D):
-        return np.transpose(np_array_3D, (1,2,0))
-        #return np.transpose(np_array_3D, (1,2,0)) #sagittal x y z - > axial z x y 
+        return np.transpose(np_array_3D, (0,2,1))
+        #return np.transpose(np_array_3D, (1,2,0)) #sagittal x y z - > axial y z x 
         #SK A VERIF
