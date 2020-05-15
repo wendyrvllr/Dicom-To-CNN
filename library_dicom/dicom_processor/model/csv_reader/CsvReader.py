@@ -29,7 +29,39 @@ class CsvReader():
                 index += 1
 
         self.csv_data = csv_data
+
+    def load_data_suv(self):
+        """load data to get suv max et suv mean of each roi in the csv file
+        """
+        with open(self.path, 'r') as csvfile : 
+            reader = csv.reader(csvfile)
+            csv_data_suv = []
+            for row in reader : 
+                csv_data_suv.append(row)
+
+        return csv_data_suv[0 : csv_data_suv.index([])]
     
+    def get_SUL(self):
+        data_suv = self.load_data_suv()
+        return float(data_suv[-1][3])
+
+    
+    def get_rois_suv(self):
+        data_suv = self.load_data_suv()
+        return data_suv[1:-2]
+
+    @classmethod
+    def convert_rois_suv_to_object(self, rois_suv_row):
+        results = {
+            'SUVmean' : float(rois_suv_row[5].strip()),
+            'SD': float(rois_suv_row[6].strip()),
+            'SUVmax' : float(rois_suv_row[11].strip())
+        }
+        return results
+
+
+
+
     def get_manual_rois(self):
         """return manual rois block
         """
@@ -50,6 +82,11 @@ class CsvReader():
             return ([])
         last_nifti_row = first_nifti_row + self.number_of_nifti_roi
         return self.csv_data[ first_nifti_row : last_nifti_row ]
+
+
+    def get_SUVlo(self):
+        last_row = self.csv_data[-1]
+        return last_row[0]
 
     @classmethod 
     def convert_manual_row_to_object(cls, manual_row):
