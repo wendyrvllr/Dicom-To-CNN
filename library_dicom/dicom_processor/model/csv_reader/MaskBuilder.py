@@ -1,6 +1,7 @@
 from library_dicom.dicom_processor.model.csv_reader.CsvReader import CsvReader
 from library_dicom.dicom_processor.model.csv_reader.RoiFactory import RoiFactory
 import numpy as np
+import matplotlib.pyplot as plt
 
 from library_dicom.dicom_processor.model.csv_reader.RoiPolygon import RoiPolygon
 from library_dicom.dicom_processor.model.csv_reader.RoiElipse import RoiElipse
@@ -17,6 +18,11 @@ class MaskBuilder():
         self.mask_array = np.zeros( (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2], self.number_of_rois) )
 
     def read_csv(self):
+        """return 4D array of 3D roi array from un csv_file
+
+        Returns:
+            [array] -- [4D array of roi in csv_file]
+        """
         csv_reader = CsvReader(self.csv_file)
         manual_rois = csv_reader.get_manual_rois()
         automatic_rois = csv_reader.get_nifti_rois()
@@ -25,14 +31,50 @@ class MaskBuilder():
         for number_roi in range(self.number_of_rois) : #pour chaque ROI du fichier
             if len(manual_rois) == 0 : #ROI NIfti
                 roi_object = csv_reader.convert_nifti_row_to_list_point(automatic_rois[number_roi])
-                self.mask_array[:, :, :, number_roi] = RoiFactory(roi_object, (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]), self.number_of_rois ).read_roi().calculateMaskPoint() #return array 3D si nifti poly ou ellipse
+                self.mask_array[:, :, :, number_roi] = RoiFactory(roi_object, (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]), number_roi+1 ).read_roi().calculateMaskPoint() #return array 3D si nifti poly ou ellipse
             else : #ROI Poly ou ellipse
                 roi_object = csv_reader.convert_manual_row_to_object(manual_rois[number_roi])
-                self.mask_array[:, :, :, number_roi] = RoiFactory(roi_object, (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]) , self.number_of_rois).read_roi().calculateMaskPoint()
+                self.mask_array[:, :, :, number_roi] = RoiFactory(roi_object, (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]) , number_roi+1).read_roi().calculateMaskPoint()
 
              
         
         return self.mask_array
     
-    def get_mip(self):
-        pass 
+
+
+    def show_axial_to_coronal_saggital(self, mask_array, number_roi, number_slice_axial, number_slice_coronal, number_slice_saggital):
+        """to show axial, coronal and sagittal ROI
+
+        Arguments:
+            mask_array {[array]} -- [4D array of ROIs]
+            number_roi {[int]} -- [number of one ROI]
+            number_slice_axial {[int]} -- [number of the slice _ axial of one ROI]
+            number_slice_coronal {[int]} -- [number of the slice _ coronal of one ROI]
+            number_slice_saggital {[int]} -- [number of the slice _ saggital of one ROI]
+        """
+        roi_axial = mask_array[:,:,:,number_roi - 1]
+        roi_coronal = np.transpose(roi_axial, (2,1,0))
+        roi_saggital  = np.transpose(roi_axial, (2,0,1))
+        plt.imshow(roi_axial[:,:,number_slice_axial])
+        plt.show()
+        plt.imshow(np.rot90(np.transpose(roi_coronal[:,:,number_slice_coronal]),1))
+        plt.show()
+        plt.imshow(np.rot90(np.transpose(roi_saggital[:,:,number_slice_saggital]),1))
+        plt.show()
+
+
+    def read_roi(self, nifti, mask_array):
+        
+        for number_roi in range(0, self.number_of_rois) :
+
+            pixels_array = []
+            for z in range(self.matrix_size[2]) : 
+                for x in range(self.matrix_size[1]):
+                    for y in range(self.matrix_size[0]):
+                        if mask_array[x,y,z, number_roi ] == number_roi + 1 :
+                            pixels_array.append(nifti[x,y,z])
+            print("ROI :", number_roi + 1)
+            print("SUV max : ", np.max(pixels_array))
+            print("SUV mean : ", np.mean(pixels_array))
+
+

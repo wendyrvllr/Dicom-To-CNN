@@ -35,8 +35,6 @@ class TagsSeries(Enum):
     Arguments:
         Enum {hex} -- [Tag address]
     """
-
-    ImageOrientationPatient = 0x00200020
     Manufacturer = 0x00080070
     Modality = 0x00080060
     SeriesDate = 0x00080021
@@ -83,3 +81,4 @@ class TagsRadioPharmaceuticals(Enum):
     RadionuclideHalfLife = 0x00181075
     TotalDose = 0x00181074
     RadiopharmaceuticalStartDateTime = 0x00181078
+    RadiopharmaceuticalStartTime = 0x00181072
