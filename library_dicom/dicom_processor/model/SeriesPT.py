@@ -133,6 +133,7 @@ class SeriesPT(Series):
             raise Exception('Missing Height or Weight to calculate SUL')
         bmi =  patient_weight / pow(patient_height, 2)
         if patient_sex == 'F' : 
+            
             return 9270 / (8780 + 244 * bmi)
         return 9270 / (6680 + 216 * bmi)
     
