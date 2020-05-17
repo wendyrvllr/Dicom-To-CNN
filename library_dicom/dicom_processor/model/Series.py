@@ -2,7 +2,6 @@ import numpy as np
 import os
 
 from library_dicom.dicom_processor.model.Instance import Instance
-from library_dicom.dicom_processor.model.Modality import *
 from library_dicom.dicom_processor.model.NiftiBuilder import NiftiBuilder
 from library_dicom.dicom_processor.enums.TagEnum import *
 from library_dicom.dicom_processor.enums.SopClassUID import *

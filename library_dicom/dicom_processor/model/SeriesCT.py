@@ -2,10 +2,10 @@ from library_dicom.dicom_processor.model.Series import Series
 import numpy as np
 
 class SeriesCT(Series):
-    """[summary]
+    """Get Series CT Nifti in 16 Bits
 
     Arguments:
-        Series {[type]} -- [description]
+        Series {String} -- Series Location Path
     """
 
     def __init__(self,path):
@@ -13,4 +13,4 @@ class SeriesCT(Series):
 
     def get_numpy_array(self):
         numpy_array = super().get_numpy_array()
-        return (numpy_array.astype(np.int16))
+        return numpy_array.astype(np.int16)
