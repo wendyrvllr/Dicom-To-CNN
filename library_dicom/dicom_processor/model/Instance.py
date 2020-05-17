@@ -95,10 +95,12 @@ class Instance:
     def is_image_modality(self):
         return True if self.get_sop_class_uid in ImageModalitiesSOPClass else False
 
-    def __get_rescale_slope(self):
+    def get_rescale_slope(self):
+        #print("slope =", self.dicomData[TagsInstance.RescaleSlope.value].value)
         return self.dicomData[TagsInstance.RescaleSlope.value].value
 
-    def __get_rescale_intercept(self):
+    def get_rescale_intercept(self):
+        #print("intercept =", self.dicomData[TagsInstance.RescaleIntercept.value].value)
         return self.dicomData[TagsInstance.RescaleIntercept.value].value
 
     def get_image_orientation(self):
@@ -122,8 +124,8 @@ class Instance:
             raise Exception('Not Image Modality')
         else:
             pixel_array = self.dicomData.pixel_array
-            rescale_slope = self.__get_rescale_slope()
-            rescale_intercept = self.__get_rescale_intercept()
+            rescale_slope = self.get_rescale_slope()
+            rescale_intercept = self.get_rescale_intercept()
 
             resultArray = ( pixel_array * rescale_slope) + rescale_intercept
             return resultArray
