@@ -1,8 +1,8 @@
-from library_dicom.dicom_processor.model.csv_reader.CsvReader import CsvReader
-from library_dicom.dicom_processor.model.csv_reader.RoiFactory import RoiFactory
 import numpy as np
 import matplotlib.pyplot as plt
 
+from library_dicom.dicom_processor.model.csv_reader.CsvReader import CsvReader
+from library_dicom.dicom_processor.model.csv_reader.RoiFactory import RoiFactory
 from library_dicom.dicom_processor.model.csv_reader.RoiPolygon import RoiPolygon
 from library_dicom.dicom_processor.model.csv_reader.RoiElipse import RoiElipse
 from library_dicom.dicom_processor.model.csv_reader.RoiNifti import RoiNifti
@@ -112,7 +112,7 @@ class MaskBuilder():
         return max_mean
 
 
-#parti check 
+    #parti check 
     def is_correct_suv(self, series_path):
         csv_reader = CsvReader(self.csv_file) #object
         data_suv = csv_reader.get_rois_suv() #liste de liste
@@ -132,10 +132,6 @@ class MaskBuilder():
             for i in range(self.number_of_rois):
                 np.flip(self.mask_array[:,:,:,i], axis = 2) #flip les z pour chaque matrice 3D (ROI) 
         return self.calcul_suv_max_mean_mask(series_path)
-        
-
-
-
 
     def is_calcul_sul_correct(self, series_path):
         series_object = SeriesPT(series_path) #objet serie

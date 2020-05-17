@@ -2,6 +2,11 @@ import matplotlib
 import numpy as np
 from library_dicom.dicom_processor.model.csv_reader.Roi import Roi
 
+"""Derivated Class for automatic Nifti ROI of PetCtViewer.org
+
+Returns:
+    [RoiNifti] -- Nifti ROI
+"""
 class RoiNifti(Roi):
 
     def __init__(self, roi_number, list_point, volume_dimension):
