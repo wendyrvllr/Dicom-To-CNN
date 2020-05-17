@@ -3,6 +3,11 @@ import numpy as np
 from library_dicom.dicom_processor.model.csv_reader.Roi import Roi
 import cmath
 
+"""Derivated Class for manual Elipse ROI of PetCtViewer.org
+
+Returns:
+    [RoiElipse] -- Roi Elipse Object
+"""
 class RoiElipse(Roi):
 
     def __init__(self, axis, first_slice, last_slice, roi_number, type_number, list_point, volume_dimension):

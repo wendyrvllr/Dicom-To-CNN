@@ -2,19 +2,32 @@ from library_dicom.dicom_processor.model.csv_reader.RoiPolygon import RoiPolygon
 from library_dicom.dicom_processor.model.csv_reader.RoiElipse import RoiElipse
 from library_dicom.dicom_processor.model.csv_reader.RoiNifti import RoiNifti
 
-"""
-Cette classe va servir à parser le dictionnaire ROI et instancier le bon objet ROI
-Set la taille de la matrice Image
-Superposer la matrice image et masque pour les metrics ? => Peut etre pas
+"""Create ROI object from a CSV Roi Details
+    ROI Object is able to build the Nifti Mask according to CSV informations
+
+Returns:
+    [RoiFactory] -- Factory for ROI instanciation according to csv details
 """
 class RoiFactory():
 
     def __init__(self, details, volume_dimension, roi_number):
+       """[summary]
+
+       Arguments:
+           details {dict} -- Parsed ROI informations
+           volume_dimension {(x,y,z)} -- Matrice dimension for Mask (should match DICOM input size)
+           roi_number {int} -- Integer number that will have to be written in the mask
+       """
        self.details = details
        self.volume_dimension = volume_dimension
        self.roi_number = roi_number
     
     def read_roi(self):
+        """Instanciate the Correct ROI type according to data
+
+        Returns:
+            [Roi] -- Roi object
+        """
         first_slice = self.details['first_slice']
         last_slice = self.details['last_slice']
         point_list  = self.details['point_list']

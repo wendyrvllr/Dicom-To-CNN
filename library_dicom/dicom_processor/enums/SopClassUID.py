@@ -18,6 +18,8 @@ class ImageModalitiesSOPClass(Enum):
     MR = '1.2.840.10008.5.1.4.1.1.4'
     EnhancedMR = '1.2.840.10008.5.1.4.1.1.4.1'
     MRSpectroscopy = '1.2.840.10008.5.1.4.1.1.4.2'
+    RTSTRUCT = '1.2.840.10008.5.1.4.1.1.481.3'
+
 
 class RTModalitiesSOPClass(Enum):
 
