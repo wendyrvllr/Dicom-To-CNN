@@ -3,13 +3,26 @@ from math import exp, log, pow
 from datetime import datetime, timedelta
 
 class SeriesPT(Series):
-    """[summary]
+    """Specific methods to read PET series
+    Store radiopharmaceutical data
+    Check Attenuation conrrection
+    SUV / SUL calculation
+    Get Series as 32bits Nifti SUV/SUL
+    
 
     Arguments:
         Series {[class]} -- [description]
     """
 
     def __init__(self, path, sul_value=False):
+        """Constructor
+
+        Arguments:
+            path {String} -- Path folder of series
+
+        Keyword Arguments:
+            sul_value {bool} -- [If true return NIFTI SUL] (default: {False})
+        """
         super().__init__(path)
         self.sul_value=sul_value
 
@@ -44,18 +57,18 @@ class SeriesPT(Series):
         units = series_details['series']['Units']
         if units == 'GML' : return 1
         
-        patient_weight = series_details['study']['PatientWeight']
-        patient_weight = patient_weight * 1000
+        patient_weight = series_details['study']['PatientWeight'] * 1000 #kg to g conversion
+        
         series_time = series_details['series']['SeriesTime']
         series_date = series_details['series']['SeriesDate']
-        series_datetime = series_date + series_time #str 
+        series_datetime = series_date + series_time 
 
+        #Remove microseconds (after dot) as it is unconstant
         if '.' in series_datetime : 
             series_datetime = series_datetime[0 : series_datetime.index('.')]
 
         
         series_datetime = datetime.strptime(series_datetime, "%Y%m%d%H%M%S") #datetime.datetime
-        
 
         acquisition_time = series_details['series']['AcquisitionTime']
         acquisition_date = series_details['series']['AcquisitionDate']
@@ -65,17 +78,15 @@ class SeriesPT(Series):
             acquisition_datetime = acquisition_datetime[0 : acquisition_datetime.index('.')]
         
         acquisition_datetime = datetime.strptime(acquisition_datetime, "%Y%m%d%H%M%S") #datetime.datetime
-        
-        #modality = series_details['series']['Modality']
+
         manufacturer = series_details['series']['Manufacturer']
         decay_correction = series_details['series']['DecayCorrection']
         radionuclide_half_life = series_details['radiopharmaceutical']['RadionuclideHalfLife']
         total_dose = series_details['radiopharmaceutical']['TotalDose']
 
-        #ICI SK Probleme de vieux tag a explorer
-
         radiopharmaceutical_start_date_time = series_details['radiopharmaceutical']['RadiopharmaceuticalStartDateTime']
         if radiopharmaceutical_start_date_time == 'Undefined':
+            #If startDateTime not available use the deprecated statTime assuming the injection is same day than acquisition date
             radiopharmaceutical_start_time = series_details['radiopharmaceutical']['RadiopharmaceuticalStartTime']
             radiopharmaceutical_start_date_time = acquisition_date + radiopharmaceutical_start_time 
             
@@ -83,7 +94,6 @@ class SeriesPT(Series):
             radiopharmaceutical_start_date_time = radiopharmaceutical_start_date_time[0 : radiopharmaceutical_start_date_time.index('.')]
 
         radiopharmaceutical_start_date_time = datetime.strptime(radiopharmaceutical_start_date_time, "%Y%m%d%H%M%S")
-    
 
         if manufacturer == 'Philips' :
             #philips_suv_factor = series_details['series']['PhilipsSUVFactor']
@@ -132,12 +142,20 @@ class SeriesPT(Series):
         if (patient_sex == 'Undefined' or patient_height == 'Undefined' or patient_weight == 'Undefined' or patient_height == 0.0) : 
             raise Exception('Missing Height or Weight to calculate SUL')
         bmi =  patient_weight / pow(patient_height, 2)
-        if patient_sex == 'F' : 
+        if patient_sex == 'F' :
             return 9270 / (8780 + 244 * bmi)
-        return 9270 / (6680 + 216 * bmi)
+        elif patient_sex == 'M':
+            return 9270 / (6680 + 216 * bmi)
+        else :
+            raise Exception('Unknown Sex String')
     
 
     def is_corrected_attenuation(self):
+        """If PET Series is attenuation corrected
+
+        Returns:
+            [bool] -- [True if attenuation corrected]
+        """
         series_details = self.get_series_details()
         corrected_image = series_details['pet_correction']
         if 'ATTN' in corrected_image : return True

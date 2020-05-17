@@ -112,6 +112,9 @@ class Instance:
     def get_pixel_spacing(self):
         return self.dicomData[TagsInstance.PixelSpacing.value].value
 
+    def get_image_type(self):
+        return list(self.dicomData[TagsSeries.ImageType.value].value)
+
     def is_image_modality(self):
         sop_values = set(item.value for item in ImageModalitiesSOPClass)
         return True if self.get_sop_class_uid() in sop_values else False
