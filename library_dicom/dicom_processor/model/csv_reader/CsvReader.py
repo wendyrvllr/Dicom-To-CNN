@@ -62,6 +62,8 @@ class CsvReader():
             'SUVmax' : float(rois_suv_row[11].strip())
         }
         return results
+    def get_data_rois(self, number_of_roi):
+        pass
 
     def get_manual_rois(self):
         """return manual rois block
@@ -72,7 +74,7 @@ class CsvReader():
             return ([])
         last_manual_row =  first_manual_roi + self.number_of_manual_roi
         return self.csv_data[ first_manual_roi : last_manual_row ]
-    
+
     def get_nifti_rois(self):
         """ return automatic (nifti) roi block
         """
@@ -81,8 +83,18 @@ class CsvReader():
             first_nifti_row = self.first_line_nifti_roi + 1
         except AttributeError:
             return ([])
-        last_nifti_row = first_nifti_row + self.number_of_nifti_roi
-        return self.csv_data[ first_nifti_row : last_nifti_row ]
+        nifti_roi_bloc = self.csv_data[first_nifti_row : ] #deuxiième bloc entier du csv
+        #print("nifti bloc :", nifti_roi_bloc)
+        nifti_roi_bloc = nifti_roi_bloc[0 : nifti_roi_bloc.index([])]
+        nifti_roi_list = []
+        for row in nifti_roi_bloc :
+            if "num points = " in row[1] : 
+                nifti_roi_list.append(row)
+            else : 
+                nifti_roi_list[-1] = nifti_roi_list[-1] + row 
+        #last_nifti_row = first_nifti_row + self.number_of_nifti_roi
+        #return self.csv_data[ first_nifti_row : last_nifti_row ]
+        return nifti_roi_list
 
 
     def get_SUVlo(self):
