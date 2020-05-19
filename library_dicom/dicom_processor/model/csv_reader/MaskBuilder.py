@@ -16,7 +16,7 @@ class MaskBuilder():
         self.matrix_size=matrix_size
 
     def initialize_mask_matrix(self):
-        self.mask_array = np.zeros( (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2], self.number_of_rois) )
+        self.mask_array = np.zeros( (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2], self.number_of_rois ) )
 
     def read_csv(self):
         """return 4D array of 3D roi array from un csv_file
@@ -31,7 +31,8 @@ class MaskBuilder():
         self.SUVlo = SUVlo 
         self.number_of_rois = len(manual_rois) + len(automatic_rois)
         self.initialize_mask_matrix() #matrice 4D
-        for number_roi in range(self.number_of_rois) : #pour chaque ROI du fichier #self.number_of_rois
+        
+        for number_roi in range(4) : #pour chaque ROI du fichier #self.number_of_rois
             if len(manual_rois) == 0 : #ROI NIfti
                 roi_object = csv_reader.convert_nifti_row_to_list_point(automatic_rois[number_roi])
                 self.mask_array[:, :, :, number_roi] = RoiFactory(roi_object, (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]), number_roi+1 ).read_roi().calculateMaskPoint() #return array 3D si nifti poly ou ellipse
@@ -55,14 +56,17 @@ class MaskBuilder():
             number_slice_coronal {[int]} -- [number of the slice _ coronal of one ROI]
             number_slice_saggital {[int]} -- [number of the slice _ saggital of one ROI]
         """
-        roi_axial = mask_array[:,:,:,number_roi - 1]
+
+        
+        roi_axial = mask_array[:,:,:,number_roi]
         print(roi_axial.shape)
+        plt.imshow(roi_axial[:,:,number_slice_axial ])
+        plt.show()
+        #roi_axial = np.flip(roi_axial, axis = 2)
         roi_coronal = np.transpose(roi_axial, (2,1,0))
         print(roi_coronal.shape)
         roi_saggital  = np.transpose(roi_axial, (2,0,1))
         print(roi_saggital.shape)
-        plt.imshow(roi_axial[:,:,number_slice_axial])
-        plt.show()
         plt.imshow(roi_coronal[:,:,number_slice_coronal])
         plt.show()
         plt.imshow(roi_saggital[:,:,number_slice_saggital])
@@ -82,33 +86,36 @@ class MaskBuilder():
         """
         series_object = SeriesPT(series_path)
         nifti_array = series_object.get_numpy_array()
+        #nifti_array = np.flip(nifti_array, axis = 2)
         max_mean = {}
         #voir pour autre méthode de calcul sans trop de boucles et sans passer par tous les pixels
-        for number_roi in range(self.number_of_rois): #self.number_of_rois
+        for number_roi in range(4): #self.number_of_rois
             pixels_max = []
             pixels_mean = []
             results = {}
             for z in range(self.matrix_size[2]):
-                for x in range(self.matrix_size[0]):
-                    for y in range(self.matrix_size[1]):
+                for y in range(self.matrix_size[1]):
+                    for x in range(self.matrix_size[0]):
                         if self.mask_array[x,y,z, number_roi] == number_roi + 1 :
                             pixels_max.append(nifti_array[x,y,z])
             
-            results['SUV_max'] = round(np.max(pixels_max),2)
-
             seuil = self.SUVlo
             if "%" in seuil : 
                 seuil = float(seuil.strip("%"))/100 * np.max(pixels_max)
             else : 
                 seuil = float(seuil)
 
-            for i in range(len(pixels_max)):
-                if pixels_max[i] > seuil : 
-                    pixels_mean.append(pixels_max[i])
 
-            results['SUV_mean'] = round(np.mean(pixels_mean),2)
+            for i in range(len(pixels_max)):
+                if pixels_max[i] >= seuil : 
+                    pixels_mean.append(pixels_max[i])
+            if len(pixels_mean) == 0 :
+                results['SUV_max'] = float(0)
+                results['SUV_mean'] = float(0)
+            else : 
+                results['SUV_max'] = round(np.max(pixels_mean),2)
+                results['SUV_mean'] = round(np.mean(pixels_mean),2)
             max_mean[number_roi + 1] = results
-        #max_mean['SUL'] = round(series_object.calculateSULFactor(), 5) #sul factor calculé dans SeriesPT
         return max_mean
 
 
@@ -129,9 +136,10 @@ class MaskBuilder():
 
     def flip_z(self, series_path): 
         if self.is_correct_suv == 'False' : 
-            for i in range(self.number_of_rois):
-                np.flip(self.mask_array[:,:,:,i], axis = 2) #flip les z pour chaque matrice 3D (ROI) 
-        return self.calcul_suv_max_mean_mask(series_path)
+            for number_roi in range(self.number_of_rois):
+                self.mask_array[:,:,:,number_roi] = np.flip(self.mask_array[:,:,:,number_roi], axis = 2)
+        return self.mask_array
+            
 
     def is_calcul_sul_correct(self, series_path):
         series_object = SeriesPT(series_path) #objet serie

@@ -17,17 +17,17 @@ class RoiElipse(Roi):
         np_array_3D = super().get_empty_np_array()
         x,y,z = np_array_3D.shape
 
-        points_array = self.list_point_np
+        points_array = self.list_point_np - 1 
         x0 = points_array[0][0]
         y0 = points_array[0][1]
 
         delta_x = points_array[1][0] - x0
         delta_y = abs(points_array[2][1] - y0)
-        middle = (self.first_slice + self.last_slice) / 2
+        middle = ((self.first_slice + self.last_slice) / 2) - 1
         
-        rad1 = (self.last_slice - self.first_slice) / 2
+        rad1 = ((self.last_slice - self.first_slice) / 2) - 1 
 
-        for number_of_slices in range(self.first_slice, self.last_slice + 1 ) : 
+        for number_of_slices in range(self.first_slice -1 , self.last_slice ) : 
             
             diff0 = abs(middle - number_of_slices)
             
@@ -51,7 +51,7 @@ class RoiElipse(Roi):
         return (np.transpose(np_array_3D.astype(np.uint8), (1,0,2)))
 
     def __create_elipse(self, width, height): 
-        points_array = self.list_point_np
+        points_array = self.list_point_np  
         #width = 2 * abs(points_array[0][0] - points_array[1][0]) #centre_x - est_x 
         #height = 2 * abs(points_array[0][1] - points_array[2][1]) #centre_y - nord_y
         return matplotlib.patches.Ellipse(points_array[0], width, height, angle = 0)
