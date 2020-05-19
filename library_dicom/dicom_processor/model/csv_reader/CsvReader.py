@@ -27,43 +27,30 @@ class CsvReader():
                 if(row and 'Number of Nifti ROIs = ' in row[0]) :
                     number_of_nifti_roi = row[0].replace("Number of Nifti ROIs = ", "").strip()
                     self.first_line_nifti_roi = index
-                    self.number_of_nifti_roi = int(number_of_nifti_roi)
+                    self.number_of_nifti_roi = int(number_of_nifti_roi) 
                 csv_data.append(row) #liste de liste(chaque ligne = liste)
                 index += 1
 
         self.csv_data = csv_data
 
-    def __get_rois_results(self):
+    def __load_rois_results(self):
         """Return CSV lines containing ROIs results
         """
-        return self.csv_data[0 : self.csv_data.index([])]
+        return self.csv_data[0 : self.csv_data.index([]) - 2 ]
     
     def get_SUL(self):
-        data_suv = self.__get_rois_results()
-        return float(data_suv[-1][3])
+        sul =  self.csv_data[0 :  self.csv_data.index([])]
+        return float(sul[-1][3])
     
-    #Cette methode devrait etre privée __ voir inutile, de l'exterieur tu demandera directement 
-    # "passe moi les data de la ROI n° X "
-    def get_rois_suv(self):
-        data_suv = self.__get_rois_results()
-        return data_suv[1:-2]
 
-    #SK : Ici je te conseille de ne pas la mettre a statique mais plus faire faire une methode
-    # Get ROI results ou tu passe l'integer de ta ROI number en parametre et ca te repond le dictionnaire
-    # avec le Max, mean, SD
-    # L'idee d'un object c'est que tu ne te soucie plus ce qu'il a dedans, tu a donne un CSV avec des Data
-    # et tu lui demande "donne moi le resultat de la ROI n°3" et tu a ta reponse
-    # tu n'a pas a recuperer une ligne du CSV et à lui repasser, cette partie doit etre "cachée" dans l'objet lui meme
-    @classmethod
-    def convert_rois_suv_to_object(cls, rois_suv_row):
-        results = {
-            'SUVmean' : float(rois_suv_row[5].strip()),
-            'SD': float(rois_suv_row[6].strip()),
-            'SUVmax' : float(rois_suv_row[11].strip())
-        }
+    def get_rois_result(self, number_roi):
+        data = self.__load_rois_results()
+        results = {}
+        for i in range(1,len(data[0])):
+            results[data[0][i]] = float(data[number_roi][i])
         return results
-    def get_data_rois(self, number_of_roi):
-        pass
+
+    
 
     def get_manual_rois(self):
         """return manual rois block
@@ -83,8 +70,7 @@ class CsvReader():
             first_nifti_row = self.first_line_nifti_roi + 1
         except AttributeError:
             return ([])
-        nifti_roi_bloc = self.csv_data[first_nifti_row : ] #deuxiième bloc entier du csv
-        #print("nifti bloc :", nifti_roi_bloc)
+        nifti_roi_bloc = self.csv_data[first_nifti_row : ] 
         nifti_roi_bloc = nifti_roi_bloc[0 : nifti_roi_bloc.index([])]
         nifti_roi_list = []
         for row in nifti_roi_bloc :
@@ -92,8 +78,6 @@ class CsvReader():
                 nifti_roi_list.append(row)
             else : 
                 nifti_roi_list[-1] = nifti_roi_list[-1] + row 
-        #last_nifti_row = first_nifti_row + self.number_of_nifti_roi
-        #return self.csv_data[ first_nifti_row : last_nifti_row ]
         return nifti_roi_list
 
 

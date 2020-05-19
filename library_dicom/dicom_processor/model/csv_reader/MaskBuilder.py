@@ -45,7 +45,7 @@ class MaskBuilder():
         return self.mask_array
     
 
-    #affichage 
+    #méthode d'affichage des masks
     def show_axial_to_coronal_saggital(self, mask_array, number_roi, number_slice_axial, number_slice_coronal, number_slice_saggital):
         """to show axial, coronal and sagittal ROI
 
@@ -62,7 +62,6 @@ class MaskBuilder():
         print(roi_axial.shape)
         plt.imshow(roi_axial[:,:,number_slice_axial ])
         plt.show()
-        #roi_axial = np.flip(roi_axial, axis = 2)
         roi_coronal = np.transpose(roi_axial, (2,1,0))
         print(roi_coronal.shape)
         roi_saggital  = np.transpose(roi_axial, (2,0,1))
@@ -73,7 +72,6 @@ class MaskBuilder():
         plt.show()
 
 
-    #Si z inversé => problème à gérer 
 
     def calcul_suv_max_mean_mask(self, series_path):
         """Calcul SUV Max et SUV Mean with SUVlo of each ROI in the CSV file 
@@ -122,14 +120,14 @@ class MaskBuilder():
     #parti check 
     def is_correct_suv(self, series_path):
         csv_reader = CsvReader(self.csv_file) #object
-        data_suv = csv_reader.get_rois_suv() #liste de liste
         calculated_suv_max_mean = self.calcul_suv_max_mean_mask(series_path)#dict 
         for number_roi in range(self.number_of_rois) :
-            rois_suv_object = csv_reader.convert_rois_suv_to_object(data_suv[number_roi]) #dict
-            if calculated_suv_max_mean[number_roi + 1]["SUV_max"] != rois_suv_object['SUVmax'] : 
+
+            data_roi = csv_reader.get_rois_result(number_roi + 1)
+            if calculated_suv_max_mean[number_roi + 1]["SUV_max"] != data_roi[' SUVMax']: 
                 return False
-            if (calculated_suv_max_mean[number_roi + 1]["SUV_mean"] < rois_suv_object['SUVmean'] - rois_suv_object['SD'] 
-                or calculated_suv_max_mean[number_roi + 1]["SUV_mean"] > rois_suv_object['SUVmean'] + rois_suv_object['SD'] ):
+            if (calculated_suv_max_mean[number_roi + 1]["SUV_mean"] < data_roi[' SUVMean'] - data_roi[' SD'] 
+                or calculated_suv_max_mean[number_roi + 1]["SUV_mean"] > data_roi[' SUVMean'] + data_roi[' SD'] ):
                 return False
         return True 
 
@@ -142,12 +140,10 @@ class MaskBuilder():
             
 
     def is_calcul_sul_correct(self, series_path):
-        series_object = SeriesPT(series_path) #objet serie
-        csv_reader = CsvReader(self.csv_file) #objet csv reader
-        sul_csv = csv_reader.get_SUL() #SUL du CSV 
-        print(sul_csv)
-        sul_calculate = round(series_object.calculateSULFactor(),5) #SUL calculé
-        print(sul_calculate)
+        series_object = SeriesPT(series_path) 
+        csv_reader = CsvReader(self.csv_file) 
+        sul_csv = csv_reader.get_SUL() 
+        sul_calculate = round(series_object.calculateSULFactor(),5) 
         if sul_calculate != sul_csv : 
             return False
         return True 
