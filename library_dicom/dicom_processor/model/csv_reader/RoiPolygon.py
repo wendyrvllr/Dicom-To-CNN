@@ -18,7 +18,7 @@ class RoiPolygon(Roi):
 
         roi_pixel_matplot = self.__create_closed_polygon()
 
-        for number_of_slices in range(self.first_slice, self.last_slice + 1 ) : 
+        for number_of_slices in range(self.first_slice -1  , self.last_slice ) : 
             np_array_3D[:,:,number_of_slices] = super().mask_roi_in_slice( np.zeros( (x, y) ), roi_pixel_matplot, self.roi_number) 
         
         if (self.axis == 2) : 
@@ -30,4 +30,4 @@ class RoiPolygon(Roi):
 
     def __create_closed_polygon(self):
         points_array = self.list_point_np
-        return matplotlib.patches.Polygon(points_array, closed = True)
+        return matplotlib.patches.Polygon(points_array  , closed = True)
