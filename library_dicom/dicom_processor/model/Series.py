@@ -111,3 +111,10 @@ class Series():
         nifti_builder = NiftiBuilder(self)
         nifti_builder.save_nifti(file_path)
 
+    def get_all_SOPInstanceIUD(self):
+        liste = []
+        for filename in self.file_names : 
+            instanceData = Instance(os.path.join(self.path,filename), load_image=True)
+            liste.append(instanceData.get_SOPInstanceUID())
+        return liste 
+

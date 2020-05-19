@@ -95,6 +95,9 @@ class Instance:
     def is_image_modality(self):
         return True if self.get_sop_class_uid in ImageModalitiesSOPClass else False
 
+    def get_SOPInstanceUID(self):
+        return self.dicomData[TagsInstance.SOPInstanceUID.value].value
+
     def get_rescale_slope(self):
         #print("slope =", self.dicomData[TagsInstance.RescaleSlope.value].value)
         return self.dicomData[TagsInstance.RescaleSlope.value].value
