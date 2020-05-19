@@ -29,8 +29,13 @@ class ROI_RTSS:
     def set_contours_roi_sequence(self):
         self.contours_roi_sequence = ROI_Contour()
         #voir comment utiliser objet ROI_contour
+        #SK  : En fait tu devrait passer en parametre ton objet contour que t'aura instancie
+        # a la lecture du RTSS
 
-    #ReferencedFrameOfReferenceSequence 
+    #ReferencedFrameOfReferenceSequence
+    # SK : Pour l'explication 
+    # le frame of reference UID est l'image d'une serie qui pose le repere des coordonées spatiales http://dicom.nema.org/medical/dicom/2016c/output/chtml/part03/sect_C.7.4.html
+    # J'ai encore un peu de mal pour le reste : https://dicom.innolitics.com/ciods/rt-structure-set/structure-set/30060010 
     def set_frame_of_reference_UID(self, frame_of_reference_UID):
         self.frame_of_reference_UID = frame_of_reference_UID
 
@@ -53,6 +58,7 @@ class ROI_RTSS:
 
     def set_contour_image_sequence(self, contour_image_sequence): # sous sous sous sequence
         self.contour_image_sequence = contour_image_sequence
+        #C'est quoi la difference avec set_contours_roi_sequence?
     
     #dans ContourImageSequence
     #a nouveau un ReferencedSOPClassUID et ReferencedSOPInstanceUID différent
