@@ -71,6 +71,7 @@ class TagsInstance(Enum):
     RescaleIntercept = 0x00281052
     PixelSpacing = 0x00280030
     SliceLocation = 0x00201041
+    SOPInstanceUID = 0x00080018
 
 class TagsRadioPharmaceuticals(Enum):
     """Tags related to Radiopharmaceuticals injection

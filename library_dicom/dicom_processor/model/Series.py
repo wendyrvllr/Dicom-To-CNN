@@ -43,7 +43,7 @@ class Series():
         dicomInstance = self.get_first_instance_metadata()
 
         self.series_details = dicomInstance.get_series_tags()
-        self.series_details['ImageType'] = dicomInstance.get_image_type()
+        #self.series_details['ImageType'] = dicomInstance.get_image_type()
         self.patient_details = dicomInstance.get_patients_tags()
         self.study_details = dicomInstance.get_studies_tags()
         self.sop_class_uid = dicomInstance.get_sop_class_uid()
@@ -110,4 +110,11 @@ class Series():
     def export_nifti(self, file_path):
         nifti_builder = NiftiBuilder(self)
         nifti_builder.save_nifti(file_path)
+
+    def get_all_SOPInstanceIUD(self):
+        liste = []
+        for filename in self.file_names : 
+            instanceData = Instance(os.path.join(self.path,filename), load_image=True)
+            liste.append(instanceData.get_SOPInstanceUID())
+        return liste 
 
