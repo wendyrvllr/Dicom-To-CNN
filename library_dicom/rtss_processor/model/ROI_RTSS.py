@@ -1,8 +1,4 @@
 #classe pour 1 roi RTSS, stocker les infos d'un roi RTSS
-from library_dicom.rtss_processor.model.ROI_Contour import ROI_Contour
-
-#dans un ROI RTSS : StructureSetRoiSequence + RoiContourSequence 
-
 
 class ROI_RTSS:
     """data of ROI RTSS
@@ -19,15 +15,17 @@ class ROI_RTSS:
         self.name_roi = name_roi
 
     def set_referenced_frame_of_reference_UID(self, referenced_frame_of_reference_UID):
+        #le même pour tous les ROIS
+        #le même que dans le ReferencedFrameOfReferenceSequence pour les 2 séries CT et PT 
         self.referenced_frame_of_reference_UID = referenced_frame_of_reference_UID
 
     def set_roi_generation_algorithm(self, roi_generation_algorithm):
         self.roi_generation_algorithm = roi_generation_algorithm
 
     #ROIContourSequence
-    def set_contours_roi_sequence(self, ROI_Contour): #objet Roi_Contour 
-        #=> pour un ROI, donne les coupes ou il y va avoir les contours 
-         self.contours_roi_sequence = ROI_Contour(self.number_roi)
+    def set_contours_roi_sequence(self, ROI_contour): #objet ROI_Contour 
+        #=> pour un ROI, donne toutes les infos sur les contours déf dans la classe ROI_Contour
+         self.contours_roi_sequence = ROI_contour
 
 
 
