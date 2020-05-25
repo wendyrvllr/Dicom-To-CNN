@@ -21,13 +21,13 @@ class ROI_Contour :
         """
         self.list_referenced_SOP_instance_UID = list_referenced_SOP_instance_UID
 
-    def set_contour_geometric_type(self, contour_geometric_type): #str
-        self.contour_geometric_type = contour_geometric_type
+    def set_list_contour_geometric_type(self, list_contour_geometric_type): #list de str 
+        self.list_contour_geometric_type = list_contour_geometric_type
     
     def set_list_number_of_contour_points(self, list_number_of_contour_points): #list de int 
         self.list_number_of_contours_points = list_number_of_contour_points
 
-    def set_list_contour_data(self, list_contour_data): #list de liste de points des contours
+    def set_list_contour_data(self, list_contour_data): #list d'array de points des contours
         self.list_contour_data = list_contour_data
 
 
@@ -42,7 +42,7 @@ class ROI_Contour :
         return self.list_referenced_SOP_instance_UID
 
     def get_contour_geometric_type(self):
-        return self.contour_geometric_type
+        return self.list_contour_geometric_type
 
     def get_list_number_of_contour_points(self):
         return self.list_number_of_contours_points
