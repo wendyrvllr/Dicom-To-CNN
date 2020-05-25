@@ -45,6 +45,7 @@ class Series():
         self.series_details = dicomInstance.get_series_tags()
         self.patient_details = dicomInstance.get_patients_tags()
         self.study_details = dicomInstance.get_studies_tags()
+        self.instance_details = dicomInstance.get_instance_tags()
         self.sop_class_uid = dicomInstance.get_sop_class_uid()
         self.is_image_series = dicomInstance.is_image_modality()
 
@@ -53,7 +54,8 @@ class Series():
             'study' : self.study_details,
             'patient' : self.patient_details,
             'path' : self.path,
-            'files' : self.number_of_files
+            'files' : self.number_of_files,
+            'instance' : self.instance_details
         }
 
     def is_series_valid(self):
