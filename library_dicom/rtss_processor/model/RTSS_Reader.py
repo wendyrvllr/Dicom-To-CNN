@@ -1,9 +1,10 @@
 from library_dicom.dicom_processor.model.Series import Series
 import pydicom
 import os
-import cv2
+import cv2 as cv2
+
 import numpy as np 
-import matplotlib.patches
+
 
 
 class RTSS_Reader:
@@ -29,10 +30,23 @@ class RTSS_Reader:
 
         return liste #les mêmes pour les 2 series 
 
-    
+
+    def get_number_of_series(self):
+        """return number of series in ReferencedFrameOfReferencedSequence
+
+        Returns:
+            [int] -- [description]
+        """
+        return len(self.data.ReferencedFrameOfReferenceSequence)
+
 
 
     def is_frame_of_reference_same(self):
+        """check if frame of reference is the same for the series in ReferencedOfReferencedSequence
+
+        Returns:
+            [bool] -- [description]
+        """
         frame_of_reference_UID = self.get_frame_of_reference_UID()
         for i in range(len(frame_of_reference_UID)):
             if frame_of_reference_UID[0] != frame_of_reference_UID[i] :
@@ -87,8 +101,16 @@ class RTSS_Reader:
             liste.append(str(self.data[0x30060039][roi_number - 1].ContourSequence[i].ContourImageSequence[0].ReferencedSOPInstanceUID))
         return liste 
 
-    #check si la coupe ou il y a le contour est bien dans la liste de toutes les coupes de la série
+    
     def is_referenced_SOP_Instance_UID_in_all_SOP_Instance(self):
+        """check if slices in which there are a ROI is in the list of all slices of the serie
+
+        Raises:
+            Exception: [description]
+
+        Returns:
+            [bool] -- [description]
+        """
         all_sop = str(self.get_list_all_SOP_Instance_UID)
         referenced_sop = str(self.get_list_referenced_SOP_Instance_UID)
         for uid in referenced_sop : 
@@ -104,6 +126,20 @@ class RTSS_Reader:
             liste.append(self.data[0x30060039][roi_number - 1].ContourSequence[i].NumberOfContourPoints)
         return liste
 
+    def get_list_contour_geometric_type(self, roi_number):
+        number_item = len(self.data[0x30060039][roi_number - 1].ContourSequence)
+        liste = []
+        for i in range(number_item):
+            liste.append(self.data[0x30060039][roi_number - 1].ContourSequence[i].ContourGeometricType)
+        return liste
+
+    def is_closed_planar(self, roi_number):
+        geometric_type = self.get_list_contour_geometric_type(roi_number)
+        for type in geometric_type :
+            if type != "CLOSED_PLANAR" : 
+                return False
+        return True 
+
 
     def get_contour_data(self, roi_number):
         number_item = len(self.data[0x30060039][roi_number - 1].ContourSequence)
@@ -115,12 +151,8 @@ class RTSS_Reader:
         #les z sont les mêmes pour chaque item (ok puisque 1 item = 1 slice )
 
 
-        
 
-    #représentation spatial => pixel 
-    #A mettre en privé
-
-    def spatial_to_pixels(self, number_roi, series_path):
+    def __spatial_to_pixels(self, number_roi, series_path):
         """Transform contour data in spatial to contour data in pixels
 
         Arguments:
@@ -135,7 +167,7 @@ class RTSS_Reader:
                                y : []
                                z : []} , ...]
         """
-        frame_of_reference_UID = self.get_frame_of_reference_UID()
+        #frame_of_reference_UID = self.get_frame_of_reference_UID()
 
         list_referenced_SOP_instance_uid = (self.get_list_referenced_SOP_Instance_UID(number_roi))
         
@@ -143,18 +175,20 @@ class RTSS_Reader:
         series_object = Series(series_path) #celle de la CT par ex
         data = series_object.get_series_details()
         pixel_spacing = data['instance']['PixelSpacing'] #[x,y]  distance between center of 2 pixels
-        print("pixel spacing : ", pixel_spacing)
+        #print("pixel spacing : ", pixel_spacing)
 
         image_position = data['instance']['ImagePosition']
-        print("image position :", image_position)  #[-300 -300 325] coordonée x y z coin supérieur gauche
+        #print("image position :", image_position)  # = [-300 -300 325] coordonée x y z coin supérieur gauche
         image_position[0] = float(image_position[0]) / float(pixel_spacing[0])
         image_position[1] = float(image_position[1]) / float(pixel_spacing[1])
-        print("image position :", image_position) # [-256 -256 325] 
+        #print("image position :", image_position) # =  [-256 -256 325] 
 
         self.image_position = image_position
         
 
-        #Image CT dans ImageJ : 512 512 (=600 600 mm)
+        #Image CT dans ImageJ : 512 x 512 (=600 600 mm)
+
+        #Dans Slicer3D
         #-256 ... 0 ... 256
         #.
         #.
@@ -180,7 +214,7 @@ class RTSS_Reader:
             y = [int(i / float(pixel_spacing[1]))-2 + 256 for i in y ] #pixel y 
             contour_item['y'] = y
             z = list_referenced_SOP_instance_uid[number_item]
-            z = list_all_sop_Instance_UID.index(z) #numero de coupe 
+            z = list_all_sop_Instance_UID.index(z) #numero de coupe correspondant
             contour_item['z'] = z
             list_pixels[number_item + 1] = contour_item
 
@@ -188,7 +222,16 @@ class RTSS_Reader:
 
     #eventuellement en privé
     def get_list_points(self, number_roi, series_path):
-        pixels = self.spatial_to_pixels(number_roi, series_path) #dict 
+        """transform a list of pixels of a ROI to a list nx2 (n points, coordonate (x,y)) for each contour
+
+        Arguments:
+            number_roi {[int]} -- [description]
+            series_path {[str]} -- [description]
+
+        Returns:
+            [list] -- list of (x,y) points and list of z slices in which there is a contour
+        """
+        pixels = self.__spatial_to_pixels(number_roi, series_path) #dict 
         number_item = len(pixels)
         list_points = []
         slice = []
@@ -205,36 +248,33 @@ class RTSS_Reader:
 
         return list_points, slice 
 
-    def __create_closed_contour(self, array_points):
-        return matplotlib.patches.Polygon(array_points , closed = True)
-
-    def __mask_roi_in_slice(self, number_roi, patch, slice):
-
-        for i in range(self.image_position[0]):
-            for j in range(self.image_position[1]):
-                if patch.contains_point([i,j], radius = 0) : 
-                    slice[i,j] =  number_roi
+  
+     #Ranger chaque ROI dans une matrice 4D ! 
         
-        return slice 
+    def rtss_to_mask(self, series_path, matrix_size):
+        """Generate a mask from a DicomRT format
 
+        Arguments:
+            series_path {[str]} -- [description]
+            matrix_size {[array]} -- size of a 2D slice in a the serie
 
-
-
-    def np_array_3D_mask(self, number_roi, series_path): #pour 1 ROI 
-
+        Returns:
+            [array] -- [3D array of all of the ROI]
+        """
         series_object = Series(series_path) #celle de la CT par ex
-        number_of_slices = len(series_object.get_all_SOPInstanceIUD)
+        number_of_slices = len(series_object.get_all_SOPInstanceIUD())
+        number_of_roi = self.get_number_of_roi()
 
-        liste_points, slice = self.get_list_points(number_roi, series_path) #liste
-        number_item = len(slice)
+        np_array_3D = np.zeros(( matrix_size[0],  matrix_size[1], number_of_slices)) #(512 512 415)
+        for number_roi in range(number_of_roi) : 
+            if self.is_closed_planar == False : raise Exception ("Not CLOSED_PLANAR contour")
 
-        size = self.image_position
+            liste_points, slice = self.get_list_points(number_roi + 1, series_path) #liste
+            number_item = len(slice)
+            for item in range(number_item):
+                np_array_3D[:,:,slice[item]] = cv2.drawContours(np.float32(np_array_3D[:,:,slice[item]]), [np.asarray(liste_points[item])], -1, (255,0,0), -1)
 
-        np_array_3D = np.zeros((abs(size[0])*2, abs(size[1])*2, number_of_slices)) #(512 512 415)
-
-        for item in range(number_item):
-            patch = self.__create_closed_contour(np.asarray(liste_points[item]))
-            np_array_3D[:,:,slice[item]] = self.__mask_roi_in_slice(number_roi, patch, np_array_3D[:,:,slice[item]])
+        return np_array_3D
 
 
 
