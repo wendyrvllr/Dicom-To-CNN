@@ -54,4 +54,6 @@ class RTSS:
 
     # RTStruct => Mask 
 
+    
+
     #et series CT/PT => Mask => RTStruct

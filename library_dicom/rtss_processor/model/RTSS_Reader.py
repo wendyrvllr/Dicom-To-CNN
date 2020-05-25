@@ -2,6 +2,9 @@ from library_dicom.dicom_processor.model.Series import Series
 import pydicom
 import os
 import cv2
+import numpy as np 
+import matplotlib.patches
+
 
 class RTSS_Reader:
 
@@ -115,7 +118,7 @@ class RTSS_Reader:
         
 
     #représentation spatial => pixel 
-    #x y néagtif => a gerer : passer de -256 0 256 => 0      512 
+    #A mettre en privé
 
     def spatial_to_pixels(self, number_roi, series_path):
         """Transform contour data in spatial to contour data in pixels
@@ -141,11 +144,16 @@ class RTSS_Reader:
         data = series_object.get_series_details()
         pixel_spacing = data['instance']['PixelSpacing'] #[x,y]  distance between center of 2 pixels
         print("pixel spacing : ", pixel_spacing)
+
         image_position = data['instance']['ImagePosition']
         print("image position :", image_position)  #[-300 -300 325] coordonée x y z coin supérieur gauche
         image_position[0] = float(image_position[0]) / float(pixel_spacing[0])
         image_position[1] = float(image_position[1]) / float(pixel_spacing[1])
         print("image position :", image_position) # [-256 -256 325] 
+
+        self.image_position = image_position
+        
+
         #Image CT dans ImageJ : 512 512 (=600 600 mm)
         #-256 ... 0 ... 256
         #.
@@ -164,11 +172,12 @@ class RTSS_Reader:
             number_item = list_contour_data.index(contour_data) #0 1 2 3 ...
             contour_item = {}
             x = contour_data[::3]  #list
-            x = [int(i/ float(pixel_spacing[0]))-2 for i in x ] #pixel x
+            x = [int(i/ float(pixel_spacing[0]))-2 + 256 for i in x ] #pixel x
             #pixel int(84.5) = 85 donc -1 pour pixel 84 et -1 pour array commencant a 0 dc pixel 83
+            #+ 256 pour se replacer entre 0 et 512
             contour_item['x'] = x
             y = contour_data[1::3] #list
-            y = [int(i / float(pixel_spacing[1]))-2 for i in y ] #pixel y 
+            y = [int(i / float(pixel_spacing[1]))-2 + 256 for i in y ] #pixel y 
             contour_item['y'] = y
             z = list_referenced_SOP_instance_uid[number_item]
             z = list_all_sop_Instance_UID.index(z) #numero de coupe 
@@ -176,9 +185,64 @@ class RTSS_Reader:
             list_pixels[number_item + 1] = contour_item
 
         return list_pixels
-            
+
+    #eventuellement en privé
+    def get_list_points(self, number_roi, series_path):
+        pixels = self.spatial_to_pixels(number_roi, series_path) #dict 
+        number_item = len(pixels)
+        list_points = []
+        slice = []
+        for item in range(number_item):
+            subliste = []
+            list_x = (pixels[item + 1]['x'])
+            list_y = (pixels[item + 1]['y'])
+            for x,y in zip(list_x, list_y):
+                subliste.append([x,y])
+
+            list_points.append(subliste)
+
+            slice.append(pixels[item + 1]['z'])
+
+        return list_points, slice 
+
+    def __create_closed_contour(self, array_points):
+        return matplotlib.patches.Polygon(array_points , closed = True)
+
+    def __mask_roi_in_slice(self, number_roi, patch, slice):
+
+        for i in range(self.image_position[0]):
+            for j in range(self.image_position[1]):
+                if patch.contains_point([i,j], radius = 0) : 
+                    slice[i,j] =  number_roi
+        
+        return slice 
 
 
+
+
+    def np_array_3D_mask(self, number_roi, series_path): #pour 1 ROI 
+
+        series_object = Series(series_path) #celle de la CT par ex
+        number_of_slices = len(series_object.get_all_SOPInstanceIUD)
+
+        liste_points, slice = self.get_list_points(number_roi, series_path) #liste
+        number_item = len(slice)
+
+        size = self.image_position
+
+        np_array_3D = np.zeros((abs(size[0])*2, abs(size[1])*2, number_of_slices)) #(512 512 415)
+
+        for item in range(number_item):
+            patch = self.__create_closed_contour(np.asarray(liste_points[item]))
+            np_array_3D[:,:,slice[item]] = self.__mask_roi_in_slice(number_roi, patch, np_array_3D[:,:,slice[item]])
+
+
+
+
+
+
+
+    
 
         
 
