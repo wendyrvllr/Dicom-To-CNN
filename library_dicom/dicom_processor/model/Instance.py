@@ -28,8 +28,10 @@ class Instance:
     def get_series_tags(self):
         series_tags={}
         for tag_address in TagsSeries:
-            if tag_address.value in self.dicomData : series_tags[tag_address.name] = self.dicomData[tag_address.value].value
+            if tag_address.value in self.dicomData :
+                series_tags[tag_address.name] = self.dicomData[tag_address.value].value
             else : series_tags[tag_address.name] = "Undefined"
+        series_tags[ImageType.ImageType.name] = self.get_image_type()
         return series_tags
 
     def get_patients_tags(self):
@@ -92,9 +94,6 @@ class Instance:
     def is_secondary_capture(self):
         return True if self.get_sop_class_uid in CapturesSOPClass else False
 
-    def is_image_modality(self):
-        return True if self.get_sop_class_uid in ImageModalitiesSOPClass else False
-
     def get_SOPInstanceUID(self):
         return self.dicomData[TagsInstance.SOPInstanceUID.value].value
 
@@ -116,7 +115,7 @@ class Instance:
         return self.dicomData[TagsInstance.PixelSpacing.value].value
 
     def get_image_type(self):
-        return list(self.dicomData[TagsSeries.ImageType.value].value)
+        return list(self.dicomData[ImageType.ImageType.value].value)
 
     def is_image_modality(self):
         sop_values = set(item.value for item in ImageModalitiesSOPClass)
