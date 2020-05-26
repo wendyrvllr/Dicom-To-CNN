@@ -32,6 +32,7 @@ class Instance:
                 series_tags[tag_address.name] = self.dicomData[tag_address.value].value
             else : series_tags[tag_address.name] = "Undefined"
         series_tags[ImageType.ImageType.name] = self.get_image_type()
+        series_tags[PixelSpacing.PixelSpacing.name] = self.get_pixel_spacing()
         return series_tags
 
     def get_patients_tags(self):
@@ -53,10 +54,15 @@ class Instance:
         return studies_tags
 
     def get_instance_tags(self):
+
         instance_tags={}
-        for tag_address in TagsInstance:
-            if tag_address.value in self.dicomData : instance_tags[tag_address.name] = self.dicomData[tag_address.value].value
-            else : instance_tags[tag_address.name] = "Undefined"
+        instance_tags['PixelSpacing'] = self.get_pixel_spacing()
+        instance_tags['ImagePosition'] = self.get_image_position()
+        instance_tags['ImageOrientation'] = self.get_image_orientation()
+        instance_tags['RescaleSlope'] = self.get_rescale_slope()
+        instance_tags['RescaleIntercept'] = self.get_rescale_intercept()
+        instance_tags['SliceLocation'] = self.get_slice_location()
+        instance_tags['SOPInstanceUID'] = self.get_SOPInstanceUID()
         return instance_tags
 
     def get_sop_class_uid(self):
@@ -98,21 +104,22 @@ class Instance:
         return self.dicomData[TagsInstance.SOPInstanceUID.value].value
 
     def get_rescale_slope(self):
-        #print("slope =", self.dicomData[TagsInstance.RescaleSlope.value].value)
         return self.dicomData[TagsInstance.RescaleSlope.value].value
 
     def get_rescale_intercept(self):
-        #print("intercept =", self.dicomData[TagsInstance.RescaleIntercept.value].value)
         return self.dicomData[TagsInstance.RescaleIntercept.value].value
 
     def get_image_orientation(self):
-        return self.dicomData[TagsInstance.ImageOrientation.value].value
+        return list(self.dicomData[TagsInstance.ImageOrientation.value].value)
     
     def get_image_position(self):
-        return self.dicomData[TagsInstance.ImagePosition.value].value
+        return list(self.dicomData[TagsInstance.ImagePosition.value].value)
 
     def get_pixel_spacing(self):
-        return self.dicomData[TagsInstance.PixelSpacing.value].value
+        return list(self.dicomData[PixelSpacing.PixelSpacing.value].value)    
+        
+    def get_slice_location(self):
+        return self.dicomData[TagsInstance.SliceLocation.value].value
 
     def get_image_type(self):
         return list(self.dicomData[ImageType.ImageType.value].value)
