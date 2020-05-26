@@ -43,7 +43,6 @@ class Series():
         dicomInstance = self.get_first_instance_metadata()
 
         self.series_details = dicomInstance.get_series_tags()
-        #self.series_details['ImageType'] = dicomInstance.get_image_type()
         self.patient_details = dicomInstance.get_patients_tags()
         self.study_details = dicomInstance.get_studies_tags()
         self.instance_details = dicomInstance.get_instance_tags()

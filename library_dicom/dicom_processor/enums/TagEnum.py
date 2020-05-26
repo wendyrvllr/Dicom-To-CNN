@@ -59,6 +59,9 @@ class TagPTCorrection(Enum):
 class ImageType(Enum):
     ImageType = 0x00080008
 
+class PixelSpacing(Enum):
+    PixelSpacing = 0x00280030
+
 
 class TagsInstance(Enum):
     """Instance related tags
@@ -71,7 +74,6 @@ class TagsInstance(Enum):
     ImageOrientation = 0x00200037
     RescaleSlope = 0x00281053
     RescaleIntercept = 0x00281052
-    PixelSpacing = 0x00280030
     SliceLocation = 0x00201041
     SOPInstanceUID = 0x00080018
 

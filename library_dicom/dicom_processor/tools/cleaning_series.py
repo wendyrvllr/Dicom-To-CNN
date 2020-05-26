@@ -28,20 +28,20 @@ def generate_merged_file(json_path):
 
     return content_map
 
-def find_non_intersting_series(json_file_path):
+def find_non_intersting_series(json_merged_file_path):
     paths = []
-    data = json.load(open(json_file_path))
-    series_description = data["series"]["SeriesDescription"]
-    if("CT COUPES FINES" in series_description): 
-        paths.append( data["path"])
-    if("_wb_nac" in series_description): 
-        paths.append( data["path"])
-    if("POUMON" in series_description):
-        paths.append( data["path"])
-    if("PARENCHYME" in series_description):
-        paths.append( data["path"])
-    if("CT ORL" in series_description):
-        paths.append( data["path"])
+    data = json.load(open(json_merged_file_path))
+    for patientID in data:
+        for studyUID in data[patientID]:
+            for seriesUID in data[patientID][studyUID]['Series']:
+                path = data[patientID][studyUID]["Series"][seriesUID]["path"]
+                series_description = data[patientID][studyUID]["Series"][seriesUID]["SeriesDescription"]
+                non_interesting_key_word =("CT COUPES FINES", "_WB_NAC", "POUMON", "PARENCHYME", "ORL", "LUNG", "COMPLEMENTAIRE"
+                , "EARL", "MEMBRE", "CORO", "SAG")
+                for key_word in non_interesting_key_word:
+                    if(key_word in series_description.upper() ):
+                        paths.append( path )
+    return paths
 
 def find_studies_over_two_series(json_merged_file_path):
     data = json.load(open(json_merged_file_path))
@@ -55,8 +55,8 @@ def find_studies_over_two_series(json_merged_file_path):
                 for seriesUID in data[patientID][studyUID]['Series']:
                     series_list.append(data[patientID][studyUID]['Series'][seriesUID]['SeriesDescription'])
                     series_to_check.append(data[patientID][studyUID]['Series'])
-    print(series_list)
-    return series_to_check
+    #print(series_list)
+    return series_list
 
 def find_studies_with_two_series(json_merged_file_path):
     data = json.load(open(json_merged_file_path))
