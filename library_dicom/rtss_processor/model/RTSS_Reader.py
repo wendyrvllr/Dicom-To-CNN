@@ -249,32 +249,34 @@ class RTSS_Reader:
         return list_points, slice 
 
   
-     #Ranger chaque ROI dans une matrice 4D ! 
-        
-    def rtss_to_mask(self, series_path, matrix_size):
-        """Generate a mask from a DicomRT format
+    def rtss_to_3D_mask(self, number_roi, matrix_size, series_path):
+        series_object = Series(series_path) #celle de la CT par ex
+        number_of_slices = len(series_object.get_all_SOPInstanceIUD())
+        np_array_3D = np.zeros(( matrix_size[0],  matrix_size[1], number_of_slices))
+        if self.is_closed_planar(number_roi) == False : raise Exception ("Not CLOSED_PLANAR contour")
+        liste_points, slice = self.get_list_points(number_roi, series_path)
+        ROI_name = self.get_ROI_name(number_roi)
+        print("ROI_name :", ROI_name )
+        print("number_roi : ", number_roi)
+        print("slice : ", slice)
+        number_item = len(slice)
+        for item in range(number_item):
+            np_array_3D[:,:,slice[item]] = cv2.drawContours(np.float32(np_array_3D[:,:,slice[item]]), [np.asarray(liste_points[item])], -1, (255,0,0), -1)
 
-        Arguments:
-            series_path {[str]} -- [description]
-            matrix_size {[array]} -- size of a 2D slice in a the serie
+        return np_array_3D
 
-        Returns:
-            [array] -- [3D array of all of the ROI]
-        """
+
+    def rtss_to_4D_mask(self, matrix_size, series_path, matrix_4D = True):
         series_object = Series(series_path) #celle de la CT par ex
         number_of_slices = len(series_object.get_all_SOPInstanceIUD())
         number_of_roi = self.get_number_of_roi()
+        np_array_4D = np.zeros((matrix_size[0], matrix_size[1], number_of_slices, number_of_roi))
+        for number_roi in range(1, number_of_roi +1):
+            #print(number_roi)
+            np_array_4D[:,:,:,number_roi-1] = self.rtss_to_3D_mask(number_roi, matrix_size, series_path)
 
-        np_array_3D = np.zeros(( matrix_size[0],  matrix_size[1], number_of_slices)) #(512 512 415)
-        for number_roi in range(number_of_roi) : 
-            if self.is_closed_planar == False : raise Exception ("Not CLOSED_PLANAR contour")
+        return np_array_4D
 
-            liste_points, slice = self.get_list_points(number_roi + 1, series_path) #liste
-            number_item = len(slice)
-            for item in range(number_item):
-                np_array_3D[:,:,slice[item]] = cv2.drawContours(np.float32(np_array_3D[:,:,slice[item]]), [np.asarray(liste_points[item])], -1, (255,0,0), -1)
-
-        return np_array_3D
 
 
 
