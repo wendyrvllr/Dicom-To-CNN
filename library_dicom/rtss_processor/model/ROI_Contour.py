@@ -1,3 +1,5 @@
+import pydicom
+
 class ROI_Contour : 
     """a class to generate contour of a ROI as an object (for RoiContourSequence)
         / ensemble of contour on instance
@@ -7,45 +9,45 @@ class ROI_Contour :
         self.referenced_roi_number = referenced_roi_number
 
 
-    def set_ROI_display_color(self,ROI_display_color): #couleur [255, 0,0] par ex
-        self.ROI_display_color = ROI_display_color
+    def set_ContourImageSequence(self):
+        self.ContourImageSequence = pydicom.sequence.Sequence()
 
-    def set_referenced_SOP_class_UID(self, referenced_SOP_class_UID): #le même pour tout les rois 
-        self.referenced_SOP_class_UID = referenced_SOP_class_UID
+    #dans ContourImageSequence : ClassUID InstanceUID ->
+   
+    def set_ReferencedSOPClassUID(self, ReferencedSOPClassUID): #le même pour tout les rois 
+        self.ReferencedSOPClassUID = ReferencedSOPClassUID
 
-    def set_list_referenced_SOP_instance_UID(self, list_referenced_SOP_instance_UID): 
-        """For a ROI, set list of SOP Instance UID(slice) in which there is a contour
+    def set_ReferencedSOPInstanceUID(self, ReferencedSOPInstanceUID): #UID of the slice 
+        self.ReferencedSOPInstanceUID = ReferencedSOPInstanceUID
 
-        Arguments:
-            list_referenced_SOP_instance_UID {list} -- [description]
-        """
-        self.list_referenced_SOP_instance_UID = list_referenced_SOP_instance_UID
 
-    def set_list_contour_geometric_type(self, list_contour_geometric_type): #list de str 
-        self.list_contour_geometric_type = list_contour_geometric_type
     
-    def set_list_number_of_contour_points(self, list_number_of_contour_points): #list de int 
-        self.list_number_of_contours_points = list_number_of_contour_points
 
-    def set_list_contour_data(self, list_contour_data): #list d'array de points des contours
-        self.list_contour_data = list_contour_data
-
-
-#methode get de mes infos pour y accéder 
-    def get_ROI_display_color(self):
-        return self.ROI_display_color
+    def set_ContourGeometricType(self, ContourGeometricType):  
+        self.ContourGeometricType = ContourGeometricType
     
-    def get_referenced_SOP_class_UID(self):
-        return self.referenced_SOP_class_UID
+    def set_NumberOfContourPoints(self, NumberOfContourPoints): 
+        self.NumberOfContourPoints = NumberOfContourPoints
 
-    def get_list_referenced_SOP_instance_UID(self):
-        return self.list_referenced_SOP_instance_UID
+    def set_ContourData(self, ContourData):
+        self.ContourData = ContourData
 
-    def get_contour_geometric_type(self):
-        return self.list_contour_geometric_type
 
-    def get_list_number_of_contour_points(self):
-        return self.list_number_of_contours_points
+#methode get de mes infos pour y accéder r
+    def get_ContourImageSequence(self):
+        return self.ContourImageSequence
     
-    def get_list_contour_data(self):
-        return self.list_contour_data
+    def get_ReferencedSOPClassUID(self):
+        return self.ReferencedSOPClassUID
+
+    def get_ReferencedSOPInstanceUID(self):
+        return self.ReferencedSOPInstanceUID
+
+    def get_ContourGeometricType(self):
+        return self.ContourGeometricType
+
+    def get_NumberOfContourPoints(self):
+        return self.NumberOfContourPoints
+    
+    def get_ContourData(self):
+        return self.ContourData
