@@ -4,6 +4,7 @@ import pydicom
 import datetime
 import random 
 import warnings
+import os 
 
 from library_dicom.new_RTSTRUCT.RTROIObservations import RTROIObservations
 from library_dicom.new_RTSTRUCT.ROIContour import ROIContour
@@ -16,7 +17,7 @@ class RTSS(pydicom.dataset.FileDataset):
     """A class for DICOM RT format
     """
     
-    def __init__(self, origin, filename, heir_tags):
+    def __init__(self, origin, filename):
         self.origin = origin
         self.filename = filename
 
@@ -30,8 +31,9 @@ class RTSS(pydicom.dataset.FileDataset):
         self.is_implicit_VR = True
 
         #gather and generates tags of the RTSTRUCT file
-        self.gathering_tags(heir_tags)
-        self.generates_tags()
+        #self.gathering_tags(heir_tags)
+        #self.generates_tags()
+
 
     def generates_file_meta(self):
         """
@@ -44,6 +46,8 @@ class RTSS(pydicom.dataset.FileDataset):
                   - TransferSyntaxUID'             :
                   - ImplementationClassUID'        :
         """
+
+
         file_meta = pydicom.dataset.Dataset()
         file_meta.FileMetaInformationGroupLength = 166
         file_meta.FileMetaInformationVersion = b'\x00\x01'
@@ -55,10 +59,54 @@ class RTSS(pydicom.dataset.FileDataset):
         return file_meta
 
 
-    def gathering_tags(self,heir_tags):
+    def __GatherTags(self, serie_path): #a partir d'une CT ou PT récuperer les infos 
+        serie = Series(serie_path)
+        #first_dicom_path = os.path.join(serie_path, serie.file_names[0])
+        #print(first_dicom_path)
+        Tags = {'AccessionNumber':None,
+                #'DeviceSerialNumber':None,
+                #'Manufacturer':None,
+                #'ManufacturerModelName':None,
+                'PatientBirthDate':None,
+                'PatientBirthTime':None,
+                'PatientID':None,
+                'PatientName':None,
+                'PatientSex':None,
+                'PhysiciansOfRecord':None,
+                'ReferringPhysicianName':None,
+                #'SoftwareVersions':None,
+                'SeriesInstanceUID':None,
+                'SpecificCharacterSet':None,
+                #'StationName':None,
+                'StudyDate':None,
+                'StudyDescription':None,
+                'StudyID':None,
+                'StudyInstanceUID':None,
+                'StudyTime':None,
+                'FrameOfReferenceUID':None,
+                'SOPClassUID':None
+                }
+        
+        with pydicom.dcmread(os.path.join(serie_path, serie.file_names[0])) as dcm:
+
+            for tag in Tags.keys():
+                try:
+                    Tags[tag] = dcm.get(tag)
+                except AttributeError:
+                    warnings.warn("AttributeError with tag: %s" % tag)
+                    pass
+                except Exception:
+                    raise Exception
+
+        # force write list_SOPInstanceUID to Tags (must not be directly herited!)
+        #self.__GatherSlices() # gather and sort self.slices
+        #Tags['list_SOPInstanceUID'] = [s.SOPInstanceUID for s in self.slices]
+        
+        return Tags
+
+    def generates_tags(self,serie_path):
         """
-            Extract each tag+value from dictionnary heir_tags and
-            insert it to the FileDataset
+            
             List of tags :
                   - AccessionNumber'       :
                   - PatientBirthDate'      :
@@ -75,26 +123,30 @@ class RTSS(pydicom.dataset.FileDataset):
                   - StudyInstanceUID'      :
                   - StudyTime'             : 
         """     
+        file_meta = pydicom.dataset.Dataset()
+        tags = self.__GatherTags(serie_path)
+
+
+        file_meta.AccessionNumber = tags['AccessionNumber']
+        file_meta.PatientBirthDate = tags['PatientBirthDate']
+        file_meta.PatientBirthTime = tags['PatientBirthTime']
+        file_meta.PatientID = tags['PatientID']
+        file_meta.PatientName = tags['PatientName']
+        file_meta.PatientSex = tags['PatientSex']
+        file_meta.PhysiciansOfRecord = tags['PhysiciansOfRecord']
+        file_meta.ReferringPhysicianName = tags['ReferringPhysicianName']
+        file_meta.SpecificCharacterSet = tags['SpecificCharacterSet']
+        file_meta.StudyDate = tags['StudyDate']
+        file_meta.StudyDescription = tags['StudyDescription']
+        file_meta.StudyID = tags['StudyID']
+        file_meta.StudyInstanceUID = tags['StudyInstanceUID']
+        file_meta.StudyTime = tags['StudyTime']
         
-        self.AccessionNumber = heir_tags.get('AccessionNumber')
-        self.PatientBirthDate = heir_tags.get('PatientBirthDate')
-        self.PatientBirthTime = heir_tags.get('PatientBirthTime')
-        self.PatientID = heir_tags.get('PatientID')
-        self.PatientName = heir_tags.get('PatientName')
-        self.PatientSex = heir_tags.get('PatientSex')
-        self.PhysiciansOfRecord = heir_tags.get('PhysiciansOfRecord')
-        self.ReferringPhysicianName = heir_tags.get('ReferringPhysicianName')
-        self.SpecificCharacterSet = heir_tags.get('SpecificCharacterSet')
-        self.StudyDate = heir_tags.get('StudyDate')
-        self.StudyDescription = heir_tags.get('StudyDescription')
-        self.StudyID = heir_tags.get('StudyID')
-        self.StudyInstanceUID = heir_tags.get('StudyInstanceUID')
-        self.StudyTime = heir_tags.get('StudyTime')
 
-        return None
+        return file_meta
 
 
-    def generates_tags(self):
+    def generates_RTSTRUCT_tags(self):
         """
             Generates new values for tags specific to RTSTRUCT file
             List custom tags:
@@ -113,57 +165,111 @@ class RTSS(pydicom.dataset.FileDataset):
                   - PatientSex'            :
             
         """
-        self.ApprovalStatus = 'UNAPPROVED'
-        self.Manufacturer   = ''
+        file_meta = pydicom.dataset.Dataset()
+
+        file_meta.ApprovalStatus = 'UNAPPROVED'
+        file_meta.Manufacturer   = ''
         dt = datetime.datetime.now()
-        self.InstanceCreationDate = dt.strftime('%Y%m%d')
-        self.InstanceCreationTime = dt.strftime('%H%M%S.%f')
-        self.InstanceNumber = '1'
-        self.Modality = 'RTSTRUCT'
-        self.ReviewDate = '' #because UNAPPROVED
-        self.ReviewTime = '' #because UNAPPROVED
-        self.ReviewerName = '' #because UNAPPROVED
-        self.SeriesDescription = 'RTSTRUCT generated by library-DICOM'
-        self.SeriesInstanceUID = pydicom.uid.generate_uid()
-        self.SeriesNumber = random.randint(0,1e3)
-        self.SOPClassUID = self.file_meta.MediaStorageSOPClassUID 
-        self.SOPInstanceUID = self.file_meta.MediaStorageSOPInstanceUID 
-        self.StructureSetDate = dt.strftime('%Y%m%d')
-        self.StructureSetDescription = 'RTSTRUCT generated by library-DICOM'
-        self.StructureSetLabel = 'test'
-        self.StructureSetTime = dt.strftime('%H%M%S.%f')
+        file_meta.InstanceCreationDate = dt.strftime('%Y%m%d')
+        file_meta.InstanceCreationTime = dt.strftime('%H%M%S.%f')
+        file_meta.InstanceNumber = '1'
+        file_meta.Modality = 'RTSTRUCT'
+        file_meta.ReviewDate = '' #because UNAPPROVED
+        file_meta.ReviewTime = '' #because UNAPPROVED
+        file_meta.ReviewerName = '' #because UNAPPROVED
+        file_meta.SeriesDescription = 'RTSTRUCT generated by library-DICOM'
+        file_meta.SeriesInstanceUID = pydicom.uid.generate_uid()
+        file_meta.SeriesNumber = random.randint(0,1e3)
+        file_meta.SOPClassUID = self.file_meta.MediaStorageSOPClassUID 
+        file_meta.SOPInstanceUID = self.file_meta.MediaStorageSOPInstanceUID 
+        file_meta.StructureSetDate = dt.strftime('%Y%m%d')
+        file_meta.StructureSetDescription = 'RTSTRUCT generated by library-DICOM'
+        file_meta.StructureSetLabel = 'test'
+        file_meta.StructureSetTime = dt.strftime('%H%M%S.%f')
         
-        return None
-        
-        
-    def set_ReferencedFrameOfReferenceSequence(self, heir_tags):
-        self.ReferencedFrameOfReferenceSequence = pydicom.sequence.Sequence()
-        self.ReferencedFrameOfReferenceSequence.append(ReferencedFrameOfReference(
-            FrameOfReferenceUID=heir_tags.get('FrameOfReferenceUID'),
-            StudyInstanceUID=heir_tags.get('StudyInstanceUID'),
-            SeriesInstanceUID=heir_tags.get('SeriesInstanceUID'),
-            ReferencedSOPClassUID=heir_tags.get('SOPClassUID'),
-            list_SOPInstanceUID=heir_tags.get('list_SOPInstanceUID')))
+        return file_meta 
 
-    def set_StructureSetROISequence(self, heir_tags):
+    #StructureSetROISequence
+    def set_StructureSetROISequence(self, ROINumber, ReferencedFrameOfReferenceUID, ROIName, ROIDescription, ROIVolume, ROIGenerationAlgorithm):
+        self.StructureSetROI = pydicom.dataset.Dataset()
+        self.StructureSetROI.ROINumber = ROINumber
+        self.StructureSetROI.ReferencedFrameOfReferenceUID = ReferencedFrameOfReference
+        self.StructureSetROI.ROIName = ROIName
+        self.StructureSetROI.ROIDescription = ROIDescription
+        self.StructureSetROI.ROIVolume = ROIVolume
+        self.StructureSetROI.ROIGenerationAlgorithm = ROIGenerationAlgorithm
+
+
+    def get_StructureSetROISequence(self):
         self.StructureSetROISequence = pydicom.sequence.Sequence()
-        self.StructureSetROISequence.append(StructureSetROI(
-            ReferencedFrameOfReferenceUID = heir_tags.get('FrameOfReferenceUID')))
+        self.StructureSetROISequence.append(self.StructureSetROI)
+        return self.StructureSetROISequence
 
-    def set_ROIContourSequence(self, heir_tags): #objet ROI RTSS
+    
+
+    #RTROIObservationSequence
+    def set_RTROIObservationSequence(self, ObservationNumber, ReferencedROINumber):
+        self.RTROIObservation = pydicom.dataset.Dataset()
+        self.RTROIObservation.ObservationNumer = ObservationNumber
+        self.RTROIObservation.ReferencedROINumber = ReferencedROINumber
+        
+
+    def get_RTROIObservationSequence(self):
+        self.RTROIObservationSequence = pydicom.sequence.Sequence()
+        self.RTROIObservationSequence.append(self.RTROIObservation)
+        return self.RTROIObservationsSequence
+
+
+    #ReferencedFrameOfReferencSequence 
+    def set_ContourImageSequence(self, ReferencedSOPClassUID, list_all_SOPInstanceUID):
+        self.ContourImageSequence = pydicom.sequence.Sequence()
+        for SOPInstanceUID in list_all_SOPInstanceUID : 
+            contourImage = pydicom.dataset.Dataset()
+            contourImage.ReferencedSOPClassUID = ReferencedSOPClassUID
+            contourImage.ReferencedSOPInstanceUID = SOPInstanceUID
+            self.ContourImageSequence.append(contourImage)
+
+        return self.ContourImageSequence
+
+
+    def set_RTReferencedSeriesSequence(self, SeriesInstanceUID,ReferencedSOPClassUID, list_all_SOPInstanceUID):
+        #self.RTReferencedSeriesSequence = pydicom.sequence.Sequence()
+        self.RTReferencedSeries = pydicom.dataset.Dataset()
+        self.RTReferencedSeries.SeriesInstanceUID = SeriesInstanceUID
+        self.RTReferencedSeries.ContourImageSequence = self.set_ContourImageSequence(ReferencedSOPClassUID, list_all_SOPInstanceUID)
+
+        return self.RTReferencedSeries
+
+    def set_RTReferencedStudySequence(self, StudyInstanceUID, SeriesInstanceUID, ReferencedSOPClassUID, list_all_SOPInstanceUID):
+        self.RTReferencedStudy = pydicom.dataset.Dataset()
+        self.RTReferencedStudy.StudyInstanceUID = StudyInstanceUID
+        self.RTReferencedStudy.RTReferencedSeriesSequence = pydicom.sequence.Sequence()
+        self.RTReferencedStudy.RTReferencedSeriesSequence.append(self.set_RTReferencedSeriesSequence(SeriesInstanceUID,ReferencedSOPClassUID, list_all_SOPInstanceUID))
+        
+        return self.RTReferencedStudy
+
+    def set_ReferencedFrameOfReferenceSequence(self, FrameOfReferenceUID, StudyInstanceUID, SeriesInstanceUID, ReferencedSOPClassUID, list_all_SOPInstanceUID):
+        self.ReferencedFrameOfReference = pydicom.dataset.Dataset()
+        self.ReferencedFrameOfReference.FrameOfReferenceUID = FrameOfReferenceUID
+        self.ReferencedFrameOfReference.RTReferencedStudySequence = pydicom.sequence.Sequence()
+        self.ReferencedFrameOfReference.RTReferencedStudySequence.append(self.set_RTReferencedStudySequence(StudyInstanceUID, SeriesInstanceUID, ReferencedSOPClassUID, list_all_SOPInstanceUID))
+    
+
+    def get_ReferencedFrameOfReferenceSequence(self):
+        self.ReferencedFrameOfReferenceSequence = pydicom.sequence.Sequence()
+        self.ReferencedFrameOfReferenceSequence.append(self.ReferencedFrameOfReference)
+        return self.ReferencedFrameOfReferenceSequence
+
+
+    #ContourROISequence
+
+    def set_ROIContourSequence(self, DisplayColor, list_SliceWithContour, ReferencedSOPClassUID, ReferencedSOPInstanceUID, ContourGeometricType, NumberOfContourPoints, ContourData ):
         self.ROIContourSequence = pydicom.sequence.Sequence()
-        self.ROIContourSequence.append(ROIContour(
-            ReferencedSOPClassUID = heir_tags.get('SOPClassUID'),
-            list_SOPInstanceUID = [heir_tags.get('list_SOPInstanceUID')[0]]))
+        ROIContour = ROI_RTSS()
+        self.ROIContourSequence.append(ROIContour.set_ROIContourSequence(DisplayColor, list_SliceWithContour, ReferencedSOPClassUID, ReferencedSOPInstanceUID, ContourGeometricType, NumberOfContourPoints, ContourData))
 
-    def set_RTROIObservationsSequence(self, heir_tags):
-        self.RTROIObservationsSequence = pydicom.sequence.Sequence()
-        self.RTROIObservationsSequence.append(RTROIObservations())
-
-
-
-
-    def get_metadata(self, series_path): #patient name, sex, ID, etc 
-        serie_objet = Series(series_path)
-        return serie_objet.get_series_details() 
-
+    def get_ROIContourSequence(self):
+        return self.ROIContourSequence
+        
+        
+        

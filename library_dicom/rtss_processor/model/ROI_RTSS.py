@@ -1,35 +1,18 @@
 #classe pour 1 roi RTSS, stocker les infos d'un roi RTSS
 import pydicom
+from library_dicom.rtss_processor.model.ROI_Contour import ROI_Contour
 
-class ROI_RTSS:
-    """data of ROI RTSS
-    """
-    def __init__(self, origin, filename, number_roi):
-        self.origin = origin #DicomRT or mask 
-        self.filename = filename #original filename 
-        self.number_roi = number_roi #numero de la ROI
+class ROI_RTSS(pydicom.dataset.Dataset):
+    def __init__(self):
+        super().__init__()
+
+    def set_ROIContourSequence(self, DisplayColor, list_SliceWithContour, ReferencedSOPClassUID, ReferencedSOPInstanceUID, ContourGeometricType, NumberOfContourPoints, ContourData):
+        self.ROIContour = pydicom.dataset.Dataset()
+        self.ROIContour.DisplayColor = DisplayColor
+        self.ROIContour.ContourSequence = pydicom.sequence.Sequence()
+        roi_contour = ROI_Contour()
+
+        self.ROIContour.ContourSequence.append(roi_contour.set_ContourSequence(list_SliceWithContour, ReferencedSOPClassUID, ReferencedSOPInstanceUID, ContourGeometricType, NumberOfContourPoints, ContourData))
     
-    #setteur
-
-
-    def set_ROIDisplayColor(self,ROIDisplayColor): #couleur [255, 0,0] par ex
-        self.ROIDisplayColor = ROIDisplayColor
-
-    def set_ContourSequence(self): #OBJET ROI CONTOUR 
-        self.ContourSequence = pydicom.sequence.Sequence()
-
-    def set_ReferencedROINumber(self, ReferencedROINumber):
-        self.ReferencedROINumber = ReferencedROINumber
-
-    
-
-    def get_ROIDisplayColor(self):
-        return self.ROIDisplayColor
-
-    def get_ContourSequence(self):
-        return self.ContourSequence
-
-    def get_ReferencedROINumber(self):
-        return self.ReferencedROINumber
-
-    
+    def get_ROIContourSequence(self):
+        return self.ROIContour 

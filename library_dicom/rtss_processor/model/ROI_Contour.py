@@ -1,53 +1,25 @@
 import pydicom
 
-class ROI_Contour : 
-    """a class to generate contour of a ROI as an object (for RoiContourSequence)
-        / ensemble of contour on instance
-    """
+class ROI_Contour(pydicom.dataset.Dataset):
 
-    def __init__(self, referenced_roi_number): #numero du ROI
-        self.referenced_roi_number = referenced_roi_number
+    def __init__(self):
+        super().__init__()
 
+    def set_ContourImageSequence(self, ReferencedSOPClassUID, ReferencedSOPInstanceUID):
+        self.ContourImage = pydicom.dataset.Dataset()
+        self.ContourImage.ReferencedSOPClassUID = ReferencedSOPClassUID
+        self.ContourImage.ReferencedSOPInstanceUID = ReferencedSOPInstanceUID
+        return self.ContourImage
 
-    def set_ContourImageSequence(self):
-        self.ContourImageSequence = pydicom.sequence.Sequence()
+    def set_ContourSequence(self, list_SliceWithContour, ReferencedSOPClassUID, ReferencedSOPInstanceUID, ContourGeometricType, NumberOfContourPoints, ContourData):
+        self.ContourSequence = pydicom.sequence.Sequence()
+        for slice in (list_SliceWithContour):
+            contour = pydicom.dataset.Dataset()
+            contour.ContourImageSequence = pydicom.sequence.Sequence()
+            contour.ContourImageSequence.append(self.set_ContourImageSequence(ReferencedSOPClassUID, slice))
+            contour.ContourGeometricType = ContourGeometricType
+            contour.NumberOfContourPoints = NumberOfContourPoints
+            contour.ContourData = ContourData
+            self.ContourSequence.append(contour)
+        return self.ContourSequence 
 
-    #dans ContourImageSequence : ClassUID InstanceUID ->
-   
-    def set_ReferencedSOPClassUID(self, ReferencedSOPClassUID): #le même pour tout les rois 
-        self.ReferencedSOPClassUID = ReferencedSOPClassUID
-
-    def set_ReferencedSOPInstanceUID(self, ReferencedSOPInstanceUID): #UID of the slice 
-        self.ReferencedSOPInstanceUID = ReferencedSOPInstanceUID
-
-
-    
-
-    def set_ContourGeometricType(self, ContourGeometricType):  
-        self.ContourGeometricType = ContourGeometricType
-    
-    def set_NumberOfContourPoints(self, NumberOfContourPoints): 
-        self.NumberOfContourPoints = NumberOfContourPoints
-
-    def set_ContourData(self, ContourData):
-        self.ContourData = ContourData
-
-
-#methode get de mes infos pour y accéder r
-    def get_ContourImageSequence(self):
-        return self.ContourImageSequence
-    
-    def get_ReferencedSOPClassUID(self):
-        return self.ReferencedSOPClassUID
-
-    def get_ReferencedSOPInstanceUID(self):
-        return self.ReferencedSOPInstanceUID
-
-    def get_ContourGeometricType(self):
-        return self.ContourGeometricType
-
-    def get_NumberOfContourPoints(self):
-        return self.NumberOfContourPoints
-    
-    def get_ContourData(self):
-        return self.ContourData
