@@ -1,51 +1,25 @@
-class ROI_Contour : 
-    """a class to generate contour of a ROI as an object (for RoiContourSequence)
-        / ensemble of contour on instance
-    """
+import pydicom
 
-    def __init__(self, referenced_roi_number): #numero du ROI
-        self.referenced_roi_number = referenced_roi_number
+class ROI_Contour(pydicom.dataset.Dataset):
 
+    def __init__(self):
+        super().__init__()
 
-    def set_ROI_display_color(self,ROI_display_color): #couleur [255, 0,0] par ex
-        self.ROI_display_color = ROI_display_color
+    def set_ContourImageSequence(self, ReferencedSOPClassUID, ReferencedSOPInstanceUID):
+        self.ContourImage = pydicom.dataset.Dataset()
+        self.ContourImage.ReferencedSOPClassUID = ReferencedSOPClassUID
+        self.ContourImage.ReferencedSOPInstanceUID = ReferencedSOPInstanceUID
+        return self.ContourImage
 
-    def set_referenced_SOP_class_UID(self, referenced_SOP_class_UID): #le même pour tout les rois 
-        self.referenced_SOP_class_UID = referenced_SOP_class_UID
+    def set_ContourSequence(self, list_SliceWithContour, ReferencedSOPClassUID, ReferencedSOPInstanceUID, ContourGeometricType, NumberOfContourPoints, ContourData):
+        self.ContourSequence = pydicom.sequence.Sequence()
+        for slice in (list_SliceWithContour):
+            contour = pydicom.dataset.Dataset()
+            contour.ContourImageSequence = pydicom.sequence.Sequence()
+            contour.ContourImageSequence.append(self.set_ContourImageSequence(ReferencedSOPClassUID, slice))
+            contour.ContourGeometricType = ContourGeometricType
+            contour.NumberOfContourPoints = NumberOfContourPoints
+            contour.ContourData = ContourData
+            self.ContourSequence.append(contour)
+        return self.ContourSequence 
 
-    def set_list_referenced_SOP_instance_UID(self, list_referenced_SOP_instance_UID): 
-        """For a ROI, set list of SOP Instance UID(slice) in which there is a contour
-
-        Arguments:
-            list_referenced_SOP_instance_UID {list} -- [description]
-        """
-        self.list_referenced_SOP_instance_UID = list_referenced_SOP_instance_UID
-
-    def set_list_contour_geometric_type(self, list_contour_geometric_type): #list de str 
-        self.list_contour_geometric_type = list_contour_geometric_type
-    
-    def set_list_number_of_contour_points(self, list_number_of_contour_points): #list de int 
-        self.list_number_of_contours_points = list_number_of_contour_points
-
-    def set_list_contour_data(self, list_contour_data): #list d'array de points des contours
-        self.list_contour_data = list_contour_data
-
-
-#methode get de mes infos pour y accéder 
-    def get_ROI_display_color(self):
-        return self.ROI_display_color
-    
-    def get_referenced_SOP_class_UID(self):
-        return self.referenced_SOP_class_UID
-
-    def get_list_referenced_SOP_instance_UID(self):
-        return self.list_referenced_SOP_instance_UID
-
-    def get_contour_geometric_type(self):
-        return self.list_contour_geometric_type
-
-    def get_list_number_of_contour_points(self):
-        return self.list_number_of_contours_points
-    
-    def get_list_contour_data(self):
-        return self.list_contour_data
