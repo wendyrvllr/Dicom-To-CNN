@@ -264,13 +264,16 @@ class RTSS(pydicom.dataset.FileDataset):
 
     #ContourROISequence
 
-    def set_ROIContourSequence(self, DisplayColor, list_SliceWithContour, ReferencedSOPClassUID, ReferencedSOPInstanceUID, ContourGeometricType, NumberOfContourPoints, ContourData ):
-        self.ROIContourSequence = pydicom.sequence.Sequence()
-        ROIContour = ROI_RTSS()
-        self.ROIContourSequence.append(ROIContour.set_ROIContourSequence(DisplayColor, list_SliceWithContour, ReferencedSOPClassUID, ReferencedSOPInstanceUID, ContourGeometricType, NumberOfContourPoints, ContourData))
+    def set_ROIContourSequence(self, DisplayColor, ReferencedSOPClassUID, list_SOPInstanceUID, ContourGeometricType, list_ContourData):
+        self.ROIContour = pydicom.dataset.Dataset()
+        roi_rtss = ROI_RTSS()
+        roi_contour_sequence = roi_rtss.set_ROIContour(DisplayColor, ReferencedSOPClassUID, list_SOPInstanceUID, ContourGeometricType, list_ContourData)
+        self.ROIContour = roi_contour_sequence 
 
     def get_ROIContourSequence(self):
-        return self.ROIContourSequence
+        self.ROIContourSequence = pydicom.sequence.Sequence()
+        self.ROIContourSequence.append(self.ROIContour)
+        return self.ROIContourSequence 
         
         
         
