@@ -10,6 +10,7 @@ class CsvReader():
     def __init__(self, path):
         self.path=path
         self.__load_data()
+        self.details_rois = self.get_csv_roi_details()
 
     def __load_data(self):
         """Load data in this object, during reading, search
@@ -24,32 +25,21 @@ class CsvReader():
                     number_of_manual_roi = row[0].replace("Number of ROIs = ", "").strip()
                     self.first_line_manual_roi = index
                     self.number_of_manual_roi = int(number_of_manual_roi)
+                    #self.number_of_nifti_roi = 0
                 if(row and 'Number of Nifti ROIs = ' in row[0]) :
                     number_of_nifti_roi = row[0].replace("Number of Nifti ROIs = ", "").strip()
                     self.first_line_nifti_roi = index
                     self.number_of_nifti_roi = int(number_of_nifti_roi) 
+                    #self.number_of_manual_roi = 0 
                 csv_data.append(row) #liste de liste(chaque ligne = liste)
                 index += 1
 
         self.csv_data = csv_data
 
-    def __load_rois_results(self):
+    def get_rois_results(self):
         """Return CSV lines containing ROIs results
         """
-        return self.csv_data[0 : self.csv_data.index([]) - 2 ]
-    
-    def get_SUL(self):
-        sul =  self.csv_data[0 :  self.csv_data.index([])]
-        return float(sul[-1][3])
-    
-
-    def get_rois_result(self, number_roi):
-        data = self.__load_rois_results()
-        results = {}
-        for i in range(1,len(data[0])):
-            results[data[0][i]] = float(data[number_roi][i])
-        return results
-
+        return self.csv_data[1 : self.csv_data.index([]) - 2 ]
     
 
     def get_manual_rois(self):
@@ -85,12 +75,17 @@ class CsvReader():
         return nifti_roi_list
 
 
+    def get_SUL(self):
+        sul =  self.csv_data[0 :  self.csv_data.index([])]
+        return float(sul[-1][3])
+
+
     def get_SUVlo(self):
         last_row = self.csv_data[-1]
         return last_row[0]
 
     @classmethod 
-    def convert_manual_row_to_object(cls, manual_row):
+    def convert_manual_row_to_object(cls, manual_row, results_row):
         """Return a row manual row in an object with ROI details
 
         Arguments:
@@ -98,7 +93,9 @@ class CsvReader():
 
         Returns:
             [object] -- object describing the row
+
         """
+
         number_point_field = manual_row[4]
         number_point = int( number_point_field.replace(" num points = ", "").strip() )
         point_list_string = manual_row[ 5 : (5 + number_point) ]
@@ -106,17 +103,21 @@ class CsvReader():
 
         result_answer = {
                 'name' : manual_row[0].strip(),
+                'roi_number' : results_row[1],
                 'first_slice' : int(manual_row[2].strip()),
                 'last_slice' : int(manual_row[3].strip()),
                 'type_number' : int(manual_row[1].strip()),
-                'point_list' : point_list
+                'point_list' : point_list,
+                'suv_mean' : results_row[5],
+                'sd' : results_row[6],
+                'suv_max' : results_row[11]
         }
 
         return result_answer
 
 
     @classmethod
-    def convert_nifti_row_to_list_point(cls, nifti_row):
+    def convert_nifti_row_to_object(cls, nifti_row, results_row):
         """Return list of point included in the roi
 
         Arguments:
@@ -129,10 +130,14 @@ class CsvReader():
         point_list = CsvReader.list_string_to_point_list_int( point_list_string )
         result_answer = {
                 'name' : nifti_row[0].strip(),
+                'roi_number' : results_row[1],
                 'first_slice' : 0,
                 'last_slice' : 0,
                 'type_number' : 0,
-                'point_list' : point_list
+                'point_list' : point_list,
+                'suv_mean' : results_row[5],
+                'sd' : results_row[6],
+                'suv_max' : results_row[11]
         }
         return result_answer
 
@@ -150,4 +155,24 @@ class CsvReader():
         return point_list
 
 
-        
+    def get_csv_roi_details(self):
+        #number_of_roi = self.number_of_manual_roi + self.number_of_nifti_roi
+        rois_results = self.get_rois_results()
+        manual_rois = self.get_manual_rois() #list vide si pas de manual
+        number_of_manual_rois = len(manual_rois)
+        nifti_rois = self.get_nifti_rois() #list vide si pas de nifti
+        number_of_nifti_rois = len(nifti_rois)
+        details = {}
+        #for number_roi in range(number_of_roi):
+            #if nifti_rois == [] :
+             #   details[number_roi + 1] = self.convert_manual_row_to_object(manual_rois[number_roi], rois_results[number_roi])
+            #if manual_rois == [] : 
+             #   details[number_roi + 1] = self.convert_nifti_row_to_object(nifti_rois[number_roi], rois_results[number_roi])
+        for number_roi_manual in range(number_of_manual_rois) :
+            details[number_roi_manual + 1] = self.convert_manual_row_to_object(manual_rois[number_roi_manual], rois_results[number_roi_manual])
+        for number_roi_nifti in range(number_of_manual_rois, number_of_nifti_rois):
+            details[number_roi_nifti + 1] = self.convert_nifti_row_to_object(nifti_rois[number_roi_nifti], rois_results[number_roi_nifti])
+
+        details['SUL'] = self.get_SUL()
+        details['SUVlo'] = self.get_SUVlo()
+        return details 

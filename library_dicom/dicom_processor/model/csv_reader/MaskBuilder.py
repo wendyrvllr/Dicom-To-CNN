@@ -9,43 +9,28 @@ from library_dicom.dicom_processor.model.csv_reader.RoiNifti import RoiNifti
 from library_dicom.dicom_processor.model.SeriesPT import SeriesPT
 
 
-class MaskBuilder():
+class MaskBuilder(CsvReader):
 
-    def __init__(self, csv_file, matrix_size):
-        self.csv_file=csv_file
+    def __init__(self, path, matrix_size):
+        super().__init__(path)
         self.matrix_size=matrix_size
+        self.number_of_rois = len(self.details_rois) - 2 #moins ligne SUL + ligne SUClo
+        self.mask_array = self.build_mask()
+
 
     def initialize_mask_matrix(self):
-        self.mask_array = np.zeros( (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2], self.number_of_rois ) )
+        self.mask_array = np.zeros( (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2], self.number_of_rois ))
 
-    def read_csv(self):
-        """return 4D array of 3D roi array from un csv_file
 
-        Returns:
-            [array] -- [4D array of roi in csv_file]
-        """
-        csv_reader = CsvReader(self.csv_file)
-        manual_rois = csv_reader.get_manual_rois()
-        automatic_rois = csv_reader.get_nifti_rois()
-        
-        SUVlo = csv_reader.get_SUVlo()
-        self.SUVlo = SUVlo 
-        self.number_of_rois = len(manual_rois) + len(automatic_rois)
+
+    def build_mask(self):
         self.initialize_mask_matrix() #matrice 4D
-        number = 0
-        for automatic_roi in manual_rois:
-            roi_object = csv_reader.convert_manual_row_to_object(automatic_roi)
-            number +=1
-            self.mask_array[:, :, :, number] = RoiFactory(roi_object, (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]) , number).read_roi().calculateMaskPoint()
-
-
-        for manual_roi in manual_rois:
-            roi_object = csv_reader.convert_nifti_row_to_list_point(manual_roi)
-            number +=1
-            self.mask_array[:, :, :, number] = RoiFactory(roi_object, (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]), number ).read_roi().calculateMaskPoint() #return array 3D si nifti poly ou ellipse
+        for number_roi in range(1 , self.number_of_rois + 1):
+            self.mask_array[:,:,:,number_roi - 1] = RoiFactory(self.details_rois[number_roi], (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]) , number_roi).read_roi().calculateMaskPoint()
         
         return self.mask_array
-    
+
+
 
     #méthode d'affichage des masks
     def show_axial_to_coronal_saggital(self, mask_array, number_roi, number_slice_axial, number_slice_coronal, number_slice_saggital):
@@ -86,10 +71,9 @@ class MaskBuilder():
         """
         series_object = SeriesPT(series_path)
         nifti_array = series_object.get_numpy_array()
-        #nifti_array = np.flip(nifti_array, axis = 2)
         max_mean = {}
         #voir pour autre méthode de calcul sans trop de boucles et sans passer par tous les pixels
-        for number_roi in range(4): #self.number_of_rois
+        for number_roi in range(self.number_of_rois): 
             pixels_max = []
             pixels_mean = []
             results = {}
@@ -99,7 +83,7 @@ class MaskBuilder():
                         if self.mask_array[x,y,z, number_roi] == number_roi + 1 :
                             pixels_max.append(nifti_array[x,y,z])
             
-            seuil = self.SUVlo
+            seuil = self.details_rois['SUVlo']
             if "%" in seuil : 
                 seuil = float(seuil.strip("%"))/100 * np.max(pixels_max)
             else : 
@@ -121,16 +105,16 @@ class MaskBuilder():
 
     #parti check 
     def is_correct_suv(self, series_path):
-        csv_reader = CsvReader(self.csv_file) #object
         calculated_suv_max_mean = self.calcul_suv_max_mean_mask(series_path)#dict 
-        for number_roi in range(self.number_of_rois) :
+        for number_roi in range(1, self.number_of_rois +1) :
 
-            data_roi = csv_reader.get_rois_result(number_roi + 1)
-            if calculated_suv_max_mean[number_roi + 1]["SUV_max"] != data_roi[' SUVMax']: 
+            if calculated_suv_max_mean[number_roi]["SUV_max"] != float(self.details_rois[number_roi]['suv_max']) : 
                 return False
-            if (calculated_suv_max_mean[number_roi + 1]["SUV_mean"] < data_roi[' SUVMean'] - data_roi[' SD'] 
-                or calculated_suv_max_mean[number_roi + 1]["SUV_mean"] > data_roi[' SUVMean'] + data_roi[' SD'] ):
+
+            if (calculated_suv_max_mean[number_roi]["SUV_mean"] < float(self.details_rois[number_roi]['suv_mean']) - float(self.details_rois[number_roi]['sd'] )
+                or calculated_suv_max_mean[number_roi]["SUV_mean"] > float(self.details_rois[number_roi]['suv_mean']) + float(self.details_rois[number_roi]['sd']) ):
                 return False
+
         return True 
 
 
@@ -143,9 +127,8 @@ class MaskBuilder():
 
     def is_calcul_sul_correct(self, series_path):
         series_object = SeriesPT(series_path) 
-        csv_reader = CsvReader(self.csv_file) 
-        sul_csv = csv_reader.get_SUL() 
         sul_calculate = round(series_object.calculateSULFactor(),5) 
+        sul_csv = self.details_rois['SUL']
         if sul_calculate != sul_csv : 
             return False
         return True 
