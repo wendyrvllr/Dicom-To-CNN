@@ -50,12 +50,14 @@ class Roi():
 
     def mask_roi_in_slice(self, sliceToMask, patch, number_of_roi): #patch = ellipse ou polygone #slice = np array 256*256
         #get Roi limits in wich we will loop
+        points = []
         xmin, xmax, ymin, ymax  = self.__get_min_max_of_roi()
         for i in range(xmin-1, xmax): 
             for j in range(ymin-1, ymax) : 
                 if patch.contains_point([i,j], radius = 0) : #si vrai alors changement 
                     sliceToMask[i,j] =  number_of_roi # = 1,2,3 etc 
-        return sliceToMask
+                    points.append([i,j])
+        return sliceToMask, points
     
     def get_empty_np_array(self):
         """Return numpy array to fill given the current dimension and axis

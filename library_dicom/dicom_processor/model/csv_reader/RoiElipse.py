@@ -27,6 +27,9 @@ class RoiElipse(Roi):
         
         rad1 = ((self.last_slice - self.first_slice) / 2) - 1 
 
+        list_points = []
+        list_slices = []
+
         for number_of_slices in range(self.first_slice -1 , self.last_slice ) : 
             
             diff0 = abs(middle - number_of_slices)
@@ -38,9 +41,11 @@ class RoiElipse(Roi):
             height = np.real(factor * delta_y)
             
             roi_pixel_matplot = self.__create_elipse(2* width, 2* height)
+            mask, point = super().mask_roi_in_slice(np.zeros( (x,y) ), roi_pixel_matplot, self.roi_number)
 
-
-            np_array_3D[:,:,number_of_slices] = super().mask_roi_in_slice(np.zeros( (x,y) ), roi_pixel_matplot, self.roi_number) 
+            np_array_3D[:,:,number_of_slices] = mask
+            list_slices.append(number_of_slices)
+            list_points.append(point)
         
     
         if (self.axis == 2) : 
@@ -48,7 +53,7 @@ class RoiElipse(Roi):
         elif (self.axis == 3) :
             return super().sagittal_to_axial(np_array_3D)
 
-        return (np.transpose(np_array_3D.astype(np.uint8), (1,0,2)))
+        return np.transpose(np_array_3D.astype(np.uint8), (1,0,2)) , list_points, list_slices
 
     def __create_elipse(self, width, height): 
         points_array = self.list_point_np  

@@ -15,7 +15,19 @@ class MaskBuilder(CsvReader):
         super().__init__(csv_path)
         self.matrix_size=matrix_size
         self.number_of_rois = len(self.details_rois) - 2 #moins ligne SUL + ligne SUClo
-        self.mask_array = self.build_mask()
+        self.mask_array, self.liste = self.build_mask()
+
+    def maj_dictionnaire(self):
+        list_number_roi = self.liste[::3]
+        liste_slices = self.liste[1::3]
+        liste_points = self.liste[2::3]
+        for number_roi in list_number_roi : 
+            self.details_rois[number_roi]['liste_slices'] = liste_slices[number_roi - 1]
+            self.details_rois[number_roi]['liste_points'] = liste_points[number_roi-1]
+
+        return self.details_rois
+        
+        
 
 
     def initialize_mask_matrix(self):
@@ -25,10 +37,15 @@ class MaskBuilder(CsvReader):
 
     def build_mask(self):
         self.initialize_mask_matrix() #matrice 4D
+        liste = []
         for number_roi in range(1 , self.number_of_rois + 1):
-            self.mask_array[:,:,:,number_roi - 1] = RoiFactory(self.details_rois[number_roi], (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]) , number_roi).read_roi().calculateMaskPoint()
+            mask, list_points, list_slices = RoiFactory(self.details_rois[number_roi], (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]) , number_roi).read_roi().calculateMaskPoint()
+            self.mask_array[:,:,:,number_roi - 1] = mask
+            liste.append(number_roi)
+            liste.append(list_slices)
+            liste.append(list_points)
         
-        return self.mask_array
+        return self.mask_array, liste
 
 
 
