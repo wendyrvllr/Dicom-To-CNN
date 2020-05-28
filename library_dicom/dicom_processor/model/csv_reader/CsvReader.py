@@ -55,10 +55,12 @@ class CsvReader():
     def get_manual_rois(self):
         """return manual rois block
         """
+
         try :
             first_manual_roi = self.first_line_manual_roi + 1
         except AttributeError:
             return ([])
+        
         last_manual_row =  first_manual_roi + self.number_of_manual_roi
         return self.csv_data[ first_manual_roi : last_manual_row ]
 
@@ -70,6 +72,7 @@ class CsvReader():
             first_nifti_row = self.first_line_nifti_roi + 1
         except AttributeError:
             return ([])
+        
         nifti_roi_bloc = self.csv_data[first_nifti_row : ] 
         nifti_roi_bloc = nifti_roi_bloc[0 : nifti_roi_bloc.index([])]
         nifti_roi_list = []
@@ -77,7 +80,8 @@ class CsvReader():
             if "num points = " in row[1] : 
                 nifti_roi_list.append(row)
             else : 
-                nifti_roi_list[-1] = nifti_roi_list[-1] + row 
+                nifti_roi_list[-1] = nifti_roi_list[-1] + row
+
         return nifti_roi_list
 
 

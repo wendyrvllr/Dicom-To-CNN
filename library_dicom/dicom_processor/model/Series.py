@@ -91,7 +91,7 @@ class Series():
         #A VERIF
         self.instance_array = instance_array
 
-        return(np_array)
+        return np_array
 
     def get_z_spacing(self):
         """ called by __getMetadata """
