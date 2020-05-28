@@ -193,7 +193,7 @@ class RTSS(pydicom.dataset.FileDataset):
     def set_StructureSetROISequence(self, ROINumber, ReferencedFrameOfReferenceUID, ROIName, ROIDescription, ROIVolume, ROIGenerationAlgorithm):
         self.StructureSetROI = pydicom.dataset.Dataset()
         self.StructureSetROI.ROINumber = ROINumber
-        self.StructureSetROI.ReferencedFrameOfReferenceUID = ReferencedFrameOfReference
+        self.StructureSetROI.ReferencedFrameOfReferenceUID = str(ReferencedFrameOfReference)
         self.StructureSetROI.ROIName = ROIName
         self.StructureSetROI.ROIDescription = ROIDescription
         self.StructureSetROI.ROIVolume = ROIVolume
@@ -228,7 +228,7 @@ class RTSS(pydicom.dataset.FileDataset):
             contourImage.ReferencedSOPClassUID = ReferencedSOPClassUID
             contourImage.ReferencedSOPInstanceUID = SOPInstanceUID
             self.ContourImageSequence.append(contourImage)
-
+        #print(type(self.ContourImageSequence))
         return self.ContourImageSequence
 
 
@@ -237,7 +237,7 @@ class RTSS(pydicom.dataset.FileDataset):
         self.RTReferencedSeries = pydicom.dataset.Dataset()
         self.RTReferencedSeries.SeriesInstanceUID = SeriesInstanceUID
         self.RTReferencedSeries.ContourImageSequence = self.set_ContourImageSequence(ReferencedSOPClassUID, list_all_SOPInstanceUID)
-
+        #print(type(self.RTReferencedSeries))
         return self.RTReferencedSeries
 
     def set_RTReferencedStudySequence(self, StudyInstanceUID, SeriesInstanceUID, ReferencedSOPClassUID, list_all_SOPInstanceUID):
@@ -245,7 +245,7 @@ class RTSS(pydicom.dataset.FileDataset):
         self.RTReferencedStudy.StudyInstanceUID = StudyInstanceUID
         self.RTReferencedStudy.RTReferencedSeriesSequence = pydicom.sequence.Sequence()
         self.RTReferencedStudy.RTReferencedSeriesSequence.append(self.set_RTReferencedSeriesSequence(SeriesInstanceUID,ReferencedSOPClassUID, list_all_SOPInstanceUID))
-        
+        #print(type(self.RTReferencedStudy))
         return self.RTReferencedStudy
 
     def set_ReferencedFrameOfReferenceSequence(self, FrameOfReferenceUID, StudyInstanceUID, SeriesInstanceUID, ReferencedSOPClassUID, list_all_SOPInstanceUID):
@@ -253,11 +253,12 @@ class RTSS(pydicom.dataset.FileDataset):
         self.ReferencedFrameOfReference.FrameOfReferenceUID = FrameOfReferenceUID
         self.ReferencedFrameOfReference.RTReferencedStudySequence = pydicom.sequence.Sequence()
         self.ReferencedFrameOfReference.RTReferencedStudySequence.append(self.set_RTReferencedStudySequence(StudyInstanceUID, SeriesInstanceUID, ReferencedSOPClassUID, list_all_SOPInstanceUID))
-    
+        #print(type(self.ReferencedFrameOfReference))
 
     def get_ReferencedFrameOfReferenceSequence(self):
         self.ReferencedFrameOfReferenceSequence = pydicom.sequence.Sequence()
         self.ReferencedFrameOfReferenceSequence.append(self.ReferencedFrameOfReference)
+        #print(type(self.ReferencedFrameOfReferenceSequence))
         return self.ReferencedFrameOfReferenceSequence
 
 
