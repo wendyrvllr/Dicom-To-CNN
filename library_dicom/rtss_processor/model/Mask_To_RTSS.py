@@ -9,7 +9,13 @@ class Mask_To_RTSS:
 
 
     def get_roi_rtss_from_mask(self, label_numbers, list_SOPInstanceUID, dicom_spacing, dicom_origin):
-        return convert_MASK_to_ROI(self.mask, label_numbers, list_SOPInstanceUID, dicom_spacing, dicom_origin)
+        list_ROI = []
+        list_UID = []
+
+        x0,y0,z0 = dicom_origin
+        dx,dy,dz = dicom_spacing
+
+        
     
 
 
