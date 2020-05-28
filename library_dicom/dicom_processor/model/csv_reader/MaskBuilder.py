@@ -11,8 +11,8 @@ from library_dicom.dicom_processor.model.SeriesPT import SeriesPT
 
 class MaskBuilder(CsvReader):
 
-    def __init__(self, path, matrix_size):
-        super().__init__(path)
+    def __init__(self, csv_path, matrix_size):
+        super().__init__(csv_path)
         self.matrix_size=matrix_size
         self.number_of_rois = len(self.details_rois) - 2 #moins ligne SUL + ligne SUClo
         self.mask_array = self.build_mask()
@@ -60,7 +60,7 @@ class MaskBuilder(CsvReader):
 
 
 
-    def calcul_suv_max_mean_mask(self, series_path):
+    def calcul_suv_max_mean_mask(self, nifti_array):
         """Calcul SUV Max et SUV Mean with SUVlo of each ROI in the CSV file 
 
         Arguments:
@@ -69,8 +69,6 @@ class MaskBuilder(CsvReader):
         Returns:
             [dict] -- [for each ROIs , return SUV max et SUV mean in a dict ]
         """
-        series_object = SeriesPT(series_path)
-        nifti_array = series_object.get_numpy_array()
         max_mean = {}
         #voir pour autre méthode de calcul sans trop de boucles et sans passer par tous les pixels
         for number_roi in range(self.number_of_rois): 
@@ -104,8 +102,8 @@ class MaskBuilder(CsvReader):
 
 
     #parti check 
-    def is_correct_suv(self, series_path):
-        calculated_suv_max_mean = self.calcul_suv_max_mean_mask(series_path)#dict 
+    def is_correct_suv(self, nifti_array):
+        calculated_suv_max_mean = self.calcul_suv_max_mean_mask(nifti_array)#dict 
         for number_roi in range(1, self.number_of_rois +1) :
 
             if calculated_suv_max_mean[number_roi]["SUV_max"] != float(self.details_rois[number_roi]['suv_max']) : 
