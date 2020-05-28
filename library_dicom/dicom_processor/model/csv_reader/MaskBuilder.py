@@ -27,20 +27,22 @@ class MaskBuilder():
         csv_reader = CsvReader(self.csv_file)
         manual_rois = csv_reader.get_manual_rois()
         automatic_rois = csv_reader.get_nifti_rois()
+        
         SUVlo = csv_reader.get_SUVlo()
         self.SUVlo = SUVlo 
         self.number_of_rois = len(manual_rois) + len(automatic_rois)
         self.initialize_mask_matrix() #matrice 4D
-        
-        for number_roi in range(4) : #pour chaque ROI du fichier #self.number_of_rois
-            if len(manual_rois) == 0 : #ROI NIfti
-                roi_object = csv_reader.convert_nifti_row_to_list_point(automatic_rois[number_roi])
-                self.mask_array[:, :, :, number_roi] = RoiFactory(roi_object, (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]), number_roi+1 ).read_roi().calculateMaskPoint() #return array 3D si nifti poly ou ellipse
-            else : #ROI Poly ou ellipse
-                roi_object = csv_reader.convert_manual_row_to_object(manual_rois[number_roi])
-                self.mask_array[:, :, :, number_roi] = RoiFactory(roi_object, (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]) , number_roi+1).read_roi().calculateMaskPoint()
+        number = 0
+        for automatic_roi in manual_rois:
+            roi_object = csv_reader.convert_manual_row_to_object(automatic_roi)
+            number +=1
+            self.mask_array[:, :, :, number] = RoiFactory(roi_object, (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]) , number).read_roi().calculateMaskPoint()
 
-             
+
+        for manual_roi in manual_rois:
+            roi_object = csv_reader.convert_nifti_row_to_list_point(manual_roi)
+            number +=1
+            self.mask_array[:, :, :, number] = RoiFactory(roi_object, (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]), number ).read_roi().calculateMaskPoint() #return array 3D si nifti poly ou ellipse
         
         return self.mask_array
     
