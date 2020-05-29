@@ -12,10 +12,12 @@ class RoiElipse(Roi):
 
     def __init__(self, axis, first_slice, last_slice, roi_number, type_number, list_point, volume_dimension):
         super().__init__(axis, first_slice, last_slice, roi_number, type_number, list_point, volume_dimension)
+        self.list_points = self.calculateMaskPoint()
+
 
     def calculateMaskPoint(self):
-        np_array_3D = super().get_empty_np_array()
-        x,y,z = np_array_3D.shape
+        #np_array_3D = super().get_empty_np_array()
+        #x,y,z = np_array_3D.shape
 
         points_array = self.list_point_np - 1 
         x0 = points_array[0][0]
@@ -28,11 +30,12 @@ class RoiElipse(Roi):
         rad1 = ((self.last_slice - self.first_slice) / 2) - 1 
 
         list_points = []
-        list_slices = []
+        
 
-        for number_of_slices in range(self.first_slice -1 , self.last_slice ) : 
+        for number_slice in range(self.first_slice -1 , self.last_slice ) : 
+            #print(number_slice)
             
-            diff0 = abs(middle - number_of_slices)
+            diff0 = abs(middle - number_slice)
             
             factor = pow(rad1,2) - pow(diff0,2)
             factor = cmath.sqrt(factor) / rad1
@@ -41,19 +44,24 @@ class RoiElipse(Roi):
             height = np.real(factor * delta_y)
             
             roi_pixel_matplot = self.__create_elipse(2* width, 2* height)
-            mask, point = super().mask_roi_in_slice(np.zeros( (x,y) ), roi_pixel_matplot, self.roi_number)
+            point = super().mask_roi_in_slice(roi_pixel_matplot)
 
-            np_array_3D[:,:,number_of_slices] = mask
-            list_slices.append(number_of_slices)
-            list_points.append(point)
+            for i in range(len(point)):
+                point[i].append(number_slice)
+
+            #np_array_3D[:,:,number_of_slices] = mask
+            
+            list_points.extend(point)
         
     
-        if (self.axis == 2) : 
-            return  super().coronal_to_axial(np_array_3D)
-        elif (self.axis == 3) :
-            return super().sagittal_to_axial(np_array_3D)
+        #if (self.axis == 2) : 
+         #   return  super().coronal_to_axial(np_array_3D)
+        #elif (self.axis == 3) :
+         #   return super().sagittal_to_axial(np_array_3D)
 
-        return np.transpose(np_array_3D.astype(np.uint8), (1,0,2)) , list_points, list_slices
+        #return np.transpose(np_array_3D.astype(np.uint8), (1,0,2)) , list_points, list_slices
+
+        return list_points
 
     def __create_elipse(self, width, height): 
         points_array = self.list_point_np  

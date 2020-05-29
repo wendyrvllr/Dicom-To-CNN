@@ -48,16 +48,16 @@ class Roi():
             return xmin, xmax, ymin, ymax
 
 
-    def mask_roi_in_slice(self, sliceToMask, patch, number_of_roi): #patch = ellipse ou polygone #slice = np array 256*256
+    def mask_roi_in_slice(self, patch): #patch = ellipse ou polygone #slice = np array 256*256
         #get Roi limits in wich we will loop
         points = []
         xmin, xmax, ymin, ymax  = self.__get_min_max_of_roi()
         for i in range(xmin-1, xmax): 
             for j in range(ymin-1, ymax) : 
-                if patch.contains_point([i,j], radius = 0) : #si vrai alors changement 
-                    sliceToMask[i,j] =  number_of_roi # = 1,2,3 etc 
+                if patch.contains_point([i,j], radius = 0) : 
                     points.append([i,j])
-        return sliceToMask, points
+
+        return points
     
     def get_empty_np_array(self):
         """Return numpy array to fill given the current dimension and axis
@@ -84,3 +84,28 @@ class Roi():
         return np.transpose(np_array_3D, (0,2,1))
         #return np.transpose(np_array_3D, (1,2,0)) #sagittal x y z - > axial y z x 
         #SK A VERIF
+
+    def get_mask(self, list_points, number_roi): #list_points = [[x,y,z], [x,y,z], ...]
+        np_array_3D = self.get_empty_np_array()
+        for point in list_points:
+            np_array_3D[point[0], point[1] ,point[2]] = number_roi
+
+        if (self.axis == 2) : 
+            return self.coronal_to_axial(np_array_3D)
+        elif (self.axis == 3) :
+            return self.sagittal_to_axial(np_array_3D)
+
+        return np.transpose(np_array_3D.astype(np.uint8), (1,0,2))
+
+
+
+    
+
+        
+    
+
+
+
+
+
+
