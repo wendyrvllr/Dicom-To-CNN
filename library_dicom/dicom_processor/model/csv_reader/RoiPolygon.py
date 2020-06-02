@@ -25,7 +25,7 @@ class RoiPolygon(Roi):
         roi_pixel_matplot = self.__create_closed_polygon()
         list_points = []
         #list_slices = []
-        for number_slice in range(self.first_slice -1  , self.last_slice ) : 
+        for number_slice in range(self.first_slice - 1  , self.last_slice ) : 
             #print(number_slice)
             point = super().mask_roi_in_slice(roi_pixel_matplot)
             #np_array_3D[:,:,number_of_slices] = mask

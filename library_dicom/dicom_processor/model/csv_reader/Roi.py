@@ -37,25 +37,26 @@ class Roi():
             ymin = min(all_y)
             ymax = max(all_y)
         
-            return xmin, xmax, ymin, ymax
+            return xmin , xmax , ymin , ymax 
         else : #ellipse
-            height = 2 * abs(all_x[0] - all_x[1])
-            width = 2 * abs(all_y[0] - all_y[2])
+            height =  abs(all_x[0] - all_x[1])
+            width = abs(all_y[0] - all_y[2])
             xmin = all_x[0] - height
             xmax = all_x[0] + height
-            ymin = all_y[0] - width
-            ymax = all_y[0] + width
-            return xmin, xmax, ymin, ymax
+            ymin = all_y[0] -  width
+            ymax = all_y[0] + width 
+            return xmin , xmax , ymin, ymax
 
 
     def mask_roi_in_slice(self, patch): #patch = ellipse ou polygone #slice = np array 256*256
         #get Roi limits in wich we will loop
         points = []
         xmin, xmax, ymin, ymax  = self.__get_min_max_of_roi()
-        for i in range(xmin-1, xmax): 
-            for j in range(ymin-1, ymax) : 
-                if patch.contains_point([i,j], radius = 0) : 
-                    points.append([i,j])
+
+        for x in range(xmin-1, xmax + 1): 
+            for y in range(ymin-1, ymax + 1) : 
+                if patch.contains_point([x,y]) : #radius = 0 
+                    points.append([x,y])
 
         return points
     

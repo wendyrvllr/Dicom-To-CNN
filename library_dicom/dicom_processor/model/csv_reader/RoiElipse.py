@@ -1,7 +1,7 @@
 import matplotlib
 import numpy as np
 from library_dicom.dicom_processor.model.csv_reader.Roi import Roi
-import cmath
+import math
 
 """Derivated Class for manual Elipse ROI of PetCtViewer.org
 
@@ -18,31 +18,26 @@ class RoiElipse(Roi):
     def calculateMaskPoint(self):
         #np_array_3D = super().get_empty_np_array()
         #x,y,z = np_array_3D.shape
-
-        points_array = self.list_point_np - 1 
+        points_array = self.list_point_np #- 1 #decalage 1
         x0 = points_array[0][0]
         y0 = points_array[0][1]
-
         delta_x = points_array[1][0] - x0
         delta_y = abs(points_array[2][1] - y0)
+
         middle = ((self.first_slice + self.last_slice) / 2) - 1
-        
-        rad1 = ((self.last_slice - self.first_slice) / 2) - 1 
-
+        rad1 = ((self.last_slice - self.first_slice) / 2) 
+  
         list_points = []
-        
-
-        for number_slice in range(self.first_slice -1 , self.last_slice ) : 
-            #print(number_slice)
-            
+        for number_slice in range(self.first_slice - 1 , self.last_slice ) : 
             diff0 = abs(middle - number_slice)
-            
-            factor = pow(rad1,2) - pow(diff0,2)
-            factor = cmath.sqrt(factor) / rad1
 
-            width = np.real(factor * delta_x)
-            height = np.real(factor * delta_y)
-            
+            factor = pow(rad1,2) - pow(diff0,2)
+            factor = math.sqrt(factor) / rad1
+            print((factor))
+
+            width = (factor * delta_x)
+            height = (factor * delta_y)
+        
             roi_pixel_matplot = self.__create_elipse(2* width, 2* height)
             point = super().mask_roi_in_slice(roi_pixel_matplot)
 
@@ -52,12 +47,9 @@ class RoiElipse(Roi):
             #np_array_3D[:,:,number_of_slices] = mask
             
             list_points.extend(point)
-        
-    
-        #if (self.axis == 2) : 
-         #   return  super().coronal_to_axial(np_array_3D)
-        #elif (self.axis == 3) :
-         #   return super().sagittal_to_axial(np_array_3D)
+        list_points.append([x0, y0, self.first_slice - 1])
+        list_points.append([x0, y0, self.last_slice - 1])
+        #print(list_points)
 
         #return np.transpose(np_array_3D.astype(np.uint8), (1,0,2)) , list_points, list_slices
 

@@ -102,7 +102,7 @@ class Series():
     def get_z_spacing(self):
         """ called by __getMetadata """
         Z_positions = [ instance.get_image_position()[2] for instance in self.instance_array ]
-        print(Z_positions)
+        #print(Z_positions)
     
         initial_z_spacing = round(Z_positions[0]-Z_positions[1],2)
         
