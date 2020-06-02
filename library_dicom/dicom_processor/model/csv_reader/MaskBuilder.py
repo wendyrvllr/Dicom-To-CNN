@@ -16,19 +16,32 @@ class MaskBuilder(CsvReader):
         self.matrix_size=matrix_size
         self.number_of_rois = len(self.details_rois) - 2 #moins ligne SUL + ligne SUClo
         self.mask_array = self.build_mask()
+        self.mask_array = self.flip_z()
+
+        
 
 
     def initialize_mask_matrix(self):
         self.mask_array = np.zeros( (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2], self.number_of_rois ))
 
 
-
     def build_mask(self):
-        self.initialize_mask_matrix() #matrice 4D
-        for number_roi in range(1 , self.number_of_rois + 1):
-            self.mask_array[:,:,:,number_roi - 1] = RoiFactory(self.details_rois[number_roi], (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]) , number_roi).read_roi().calculateMaskPoint()
-        
-        return self.mask_array
+        #liste = []
+        self.initialize_mask_matrix()
+        for number_roi in range(1 ,  self.number_of_rois + 1):
+            #print(self.details_rois[number_roi])
+            roi_object = RoiFactory(self.details_rois[number_roi], (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]) , number_roi).read_roi() #.list_points
+            #print(type(liste))
+            list_points = roi_object.list_points
+            np_array_3D = roi_object.get_mask(list_points, number_roi) #3D_array
+            #liste.append(list_points)
+            self.mask_array[:,:,:,number_roi - 1] = np_array_3D
+            self.details_rois[number_roi]['list_points'] = list_points
+            
+
+        return self.mask_array #liste
+
+            
 
 
 
@@ -60,63 +73,55 @@ class MaskBuilder(CsvReader):
 
 
 
-    def calcul_suv_max_mean_mask(self, nifti_array):
-        """Calcul SUV Max et SUV Mean with SUVlo of each ROI in the CSV file 
-
-        Arguments:
-            series_path {[str]} -- [path of the PET series]
-
-        Returns:
-            [dict] -- [for each ROIs , return SUV max et SUV mean in a dict ]
-        """
+    def calcul_suv(self, nifti_array):
         max_mean = {}
-        #voir pour autre méthode de calcul sans trop de boucles et sans passer par tous les pixels
-        for number_roi in range(self.number_of_rois): 
-            pixels_max = []
-            pixels_mean = []
+        
+        for number_roi in range(1 , self.number_of_rois + 1):
+            list_points = self.details_rois[number_roi]['list_points'] #[[x,y,z], [x,y,z],...]
+            list_pixels = []
+            list_pixels_seuil = []
             results = {}
-            for z in range(self.matrix_size[2]):
-                for y in range(self.matrix_size[1]):
-                    for x in range(self.matrix_size[0]):
-                        if self.mask_array[x,y,z, number_roi] == number_roi + 1 :
-                            pixels_max.append(nifti_array[x,y,z])
-            
+            for point in list_points :
+                list_pixels.append(nifti_array[point[1], point[0], point[2]]) #matplotlip inverse x et y 
+
             seuil = self.details_rois['SUVlo']
             if "%" in seuil : 
-                seuil = float(seuil.strip("%"))/100 * np.max(pixels_max)
+                seuil = float(seuil.strip("%"))/100 * np.max(list_pixels)
             else : 
                 seuil = float(seuil)
 
+            for i in range(len(list_pixels)):
+                if list_pixels[i] >= seuil : 
+                    list_pixels_seuil.append(list_pixels[i])
 
-            for i in range(len(pixels_max)):
-                if pixels_max[i] >= seuil : 
-                    pixels_mean.append(pixels_max[i])
-            if len(pixels_mean) == 0 :
+            if len(list_pixels_seuil) == 0 :
                 results['SUV_max'] = float(0)
                 results['SUV_mean'] = float(0)
             else : 
-                results['SUV_max'] = round(np.max(pixels_mean),2)
-                results['SUV_mean'] = round(np.mean(pixels_mean),2)
-            max_mean[number_roi + 1] = results
+                results['SUV_max'] = round(np.max(list_pixels_seuil),2)
+                results['SUV_mean'] = round(np.mean(list_pixels_seuil),2)
+            
+            max_mean[number_roi] = results
+
         return max_mean
 
 
     #parti check 
     def is_correct_suv(self, nifti_array):
-        calculated_suv_max_mean = self.calcul_suv_max_mean_mask(nifti_array)#dict 
+        calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
         for number_roi in range(1, self.number_of_rois +1) :
 
-            if calculated_suv_max_mean[number_roi]["SUV_max"] != float(self.details_rois[number_roi]['suv_max']) : 
+            if calculated_suv_max_mean[number_roi]['SUV_max'] != float(self.details_rois[number_roi]['suv_max']) : 
                 return False
 
-            if (calculated_suv_max_mean[number_roi]["SUV_mean"] < float(self.details_rois[number_roi]['suv_mean']) - float(self.details_rois[number_roi]['sd'] )
-                or calculated_suv_max_mean[number_roi]["SUV_mean"] > float(self.details_rois[number_roi]['suv_mean']) + float(self.details_rois[number_roi]['sd']) ):
+            if (calculated_suv_max_mean[number_roi]['SUV_mean'] < float(self.details_rois[number_roi]['suv_mean']) - float(self.details_rois[number_roi]['sd'] )
+                or calculated_suv_max_mean[number_roi]['SUV_mean'] > float(self.details_rois[number_roi]['suv_mean']) + float(self.details_rois[number_roi]['sd']) ):
                 return False
 
         return True 
 
 
-    def flip_z(self, series_path): 
+    def flip_z(self): #a mettre dans le constructeur ? 
         if self.is_correct_suv == 'False' : 
             for number_roi in range(self.number_of_rois):
                 self.mask_array[:,:,:,number_roi] = np.flip(self.mask_array[:,:,:,number_roi], axis = 2)
