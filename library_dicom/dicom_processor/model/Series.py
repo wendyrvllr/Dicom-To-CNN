@@ -134,8 +134,8 @@ class Series():
         images = []
         for filename in filenames:
             #print(filename)
-            #images.append(imageio.imread(os.path.join(self.path,filename)))
-            images.append(imageio.imread(filename))
+            images.append(imageio.imread(os.path.join(self.path,filename)).astype(np.uint8))
+            #images.append(imageio.imread(filename))
         
         name = splitext(basename(filenames[0][:-2]))[0]
         output_file = path_gif+'/GIF_'+name+'.gif'

@@ -53,9 +53,9 @@ class Roi():
         points = []
         xmin, xmax, ymin, ymax  = self.__get_min_max_of_roi()
 
-        for x in range(xmin-1, xmax + 1): 
-            for y in range(ymin-1, ymax + 1) : 
-                if patch.contains_point([x,y]) : #radius = 0 
+        for x in range(xmin, xmax + 1): 
+            for y in range(ymin, ymax + 1) : 
+                if patch.contains_point([x,y], radius = 0) : 
                     points.append([x,y])
 
         return points
@@ -89,14 +89,14 @@ class Roi():
     def get_mask(self, list_points, number_roi): #list_points = [[x,y,z], [x,y,z], ...]
         np_array_3D = self.get_empty_np_array()
         for point in list_points:
-            np_array_3D[point[0], point[1] ,point[2]] = number_roi
+            np_array_3D[point[0], point[1] , point[2]] = number_roi
 
         if (self.axis == 2) : 
             return self.coronal_to_axial(np_array_3D)
         elif (self.axis == 3) :
             return self.sagittal_to_axial(np_array_3D)
 
-        return np.transpose(np_array_3D.astype(np.uint8), (1,0,2))
+        return np.transpose(np_array_3D.astype(np.uint8), (1,0,2)) 
 
 
 
