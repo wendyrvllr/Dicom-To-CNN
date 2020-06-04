@@ -7,6 +7,7 @@ Returns:
 """
 class CsvReader():
 
+
     def __init__(self, path):
         self.path=path
         self.__load_data()
@@ -76,11 +77,17 @@ class CsvReader():
 
 
     def get_SUL(self):
+        """return the SUL value of the CSV
+
+        """
         sul =  self.csv_data[0 :  self.csv_data.index([])]
         return float(sul[-1][3])
 
 
     def get_SUVlo(self):
+        """ return the SUVlo value of the CSV
+
+        """
         last_row = self.csv_data[-1]
         return last_row[0]
 
@@ -156,18 +163,17 @@ class CsvReader():
 
 
     def get_csv_roi_details(self):
-        #number_of_roi = self.number_of_manual_roi + self.number_of_nifti_roi
+        """return a dict with each ROI information to build the mask
+
+        """
+
         rois_results = self.get_rois_results()
         manual_rois = self.get_manual_rois() #list vide si pas de manual
         number_of_manual_rois = len(manual_rois)
         nifti_rois = self.get_nifti_rois() #list vide si pas de nifti
         number_of_nifti_rois = len(nifti_rois)
         details = {}
-        #for number_roi in range(number_of_roi):
-            #if nifti_rois == [] :
-             #   details[number_roi + 1] = self.convert_manual_row_to_object(manual_rois[number_roi], rois_results[number_roi])
-            #if manual_rois == [] : 
-             #   details[number_roi + 1] = self.convert_nifti_row_to_object(nifti_rois[number_roi], rois_results[number_roi])
+        
         for number_roi_manual in range(number_of_manual_rois) :
             details[number_roi_manual + 1] = self.convert_manual_row_to_object(manual_rois[number_roi_manual], rois_results[number_roi_manual])
         for number_roi_nifti in range(number_of_manual_rois, number_of_nifti_rois):
