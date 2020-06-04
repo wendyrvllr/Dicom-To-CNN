@@ -10,22 +10,32 @@ from library_dicom.dicom_processor.model.SeriesPT import SeriesPT
 
 
 class MaskBuilder(CsvReader):
+    """Class to build mask from a csv file 
+
+    Arguments:
+        CsvReader {[class]} -- [description]
+    """
 
     def __init__(self, csv_path, matrix_size):
         super().__init__(csv_path)
         self.matrix_size=matrix_size
         self.number_of_rois = len(self.details_rois) - 2 #moins ligne SUL + ligne SUClo
         self.mask_array = self.build_mask()
-        self.mask_array = self.flip_z()
+        #self.mask_array = self.flip_z()
 
         
 
 
     def initialize_mask_matrix(self):
+        """build empty 4D numpy array 
+        """
         self.mask_array = np.zeros( (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2], self.number_of_rois ))
 
 
     def build_mask(self):
+        """build 3D numpy array mask with ROI coordonates from a CSV, put in a 4D matrix
+
+        """
         #liste = []
         self.initialize_mask_matrix()
         for number_roi in range(1 ,  self.number_of_rois + 1):
@@ -41,39 +51,12 @@ class MaskBuilder(CsvReader):
         
         return self.mask_array #liste
 
-            
-
-
-
-    #CREATION MIP A FAIRE 
-    def show_axial_to_coronal_saggital(self, mask_array, number_roi, number_slice_axial, number_slice_coronal, number_slice_saggital):
-        """to show axial, coronal and sagittal ROI
-
-        Arguments:
-            mask_array {[array]} -- [4D array of ROIs]
-            number_roi {[int]} -- [number of one ROI]
-            number_slice_axial {[int]} -- [number of the slice _ axial of one ROI]
-            number_slice_coronal {[int]} -- [number of the slice _ coronal of one ROI]
-            number_slice_saggital {[int]} -- [number of the slice _ saggital of one ROI]
-        """
-
-        
-        roi_axial = mask_array[:,:,:,number_roi]
-        print(roi_axial.shape)
-        plt.imshow(roi_axial[:,:,number_slice_axial ])
-        plt.show()
-        roi_coronal = np.transpose(roi_axial, (2,1,0))
-        print(roi_coronal.shape)
-        roi_saggital  = np.transpose(roi_axial, (2,0,1))
-        print(roi_saggital.shape)
-        plt.imshow(roi_coronal[:,:,number_slice_coronal])
-        plt.show()
-        plt.imshow(roi_saggital[:,:,number_slice_saggital])
-        plt.show()
 
 
 
     def calcul_suv(self, nifti_array):
+        """calcul SUV Mean, SUV Max and SD from the 3D np array of a mask and put results in a dict
+        """
         max_mean = {}
     
         for number_roi in range(1 , self.number_of_rois + 1):
@@ -113,6 +96,9 @@ class MaskBuilder(CsvReader):
 
     #parti check 
     def is_correct_suv(self, nifti_array):
+        """check if calculated SUV Mean SUV Max and SD is correct 
+
+        """
         calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
         for number_roi in range(1, self.number_of_rois +1) :
             #print(number_roi)
@@ -134,6 +120,9 @@ class MaskBuilder(CsvReader):
 
 
     def flip_z(self): #a mettre dans le constructeur ? 
+        """flip z axis in the mask matrix if calculated SUV Mean SUV MAX and SD is False 
+
+        """
         if self.is_correct_suv == 'False' : 
             for number_roi in range(self.number_of_rois):
                 self.mask_array[:,:,:,number_roi] = np.flip(self.mask_array[:,:,:,number_roi], axis = 2)
@@ -141,6 +130,9 @@ class MaskBuilder(CsvReader):
             
 
     def is_calcul_sul_correct(self, series_path):
+        """check if the SUL in the CSV file and the calculated SUL is the same 
+
+        """
         series_object = SeriesPT(series_path) 
         sul_calculate = round(series_object.calculateSULFactor(),5) 
         sul_csv = self.details_rois['SUL']
