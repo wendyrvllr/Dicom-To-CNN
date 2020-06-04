@@ -23,17 +23,8 @@ def create_gif(filenames, duration, path_gif):
         return None
 
 def mip_projection(numpy_array, angle, path_image, borne_max=5.0):
-    """create MIP Projection for a given angle
+    """create MIP Projection for a given angle, create .png image
 
-    Arguments:
-        numpy_array {[array]} -- [axial view]
-        angle {[int]} -- [0-360 degree]
-
-    Keyword Arguments:
-        borne_max {float} -- [description] (default: {1.0})
-
-    Returns:
-        [array] -- [numpy array 2D MIP]
     """
 
     numpy_array = np.transpose(np.flip(numpy_array, axis = 2), (2,1,0))
@@ -56,6 +47,9 @@ def mip_projection(numpy_array, angle, path_image, borne_max=5.0):
    
 
 def create_mip_gif(numpy_array, path_image, borne_max = 5.0):
+    """return a gif of a numpy_array MIP 
+
+    """
     duration = 0.1
     number_images = 60
     
