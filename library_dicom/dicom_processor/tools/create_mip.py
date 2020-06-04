@@ -1,9 +1,7 @@
 import os
 import imageio
 from os.path import basename,splitext
-import SimpleITK as sitk 
 import scipy 
-import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -24,62 +22,52 @@ def create_gif(filenames, duration, path_gif):
     
         return None
 
-def mip_projection(numpy_array, angle, borne_max=1.0):
-    x,y,z = numpy_array.shape 
+def mip_projection(numpy_array, angle, path_image, borne_max=5.0):
+    """create MIP Projection for a given angle
 
-    for i in range(z):
-        vol_angle = scipy.ndimage.interpolation.rotate(np.array([numpy_array[i]]) , angle , reshape=False, axes = (2,1)) 
-        # (144, 144)
-        MIP = np.amax(vol_angle,axis=1) #valeur voxel max sur chaque colonne de la numpy array de la coupe
-        # [[., ., ., ., ......]]
-        plt.imshow(MIP,cmap='Greys',origin='lower',vmax=borne_max)
+    Arguments:
+        numpy_array {[array]} -- [axial view]
+        angle {[int]} -- [0-360 degree]
+
+    Keyword Arguments:
+        borne_max {float} -- [description] (default: {1.0})
+
+    Returns:
+        [array] -- [numpy array 2D MIP]
+    """
+
+    numpy_array = np.transpose(np.flip(numpy_array, axis = 2), (2,1,0))
+
+    vol_angle = scipy.ndimage.interpolation.rotate(numpy_array , angle , reshape=False, axes = (1,2))
+    MIP = np.amax(vol_angle,axis=2)
+
+    f = plt.figure(figsize=(10,10))
+    axes = plt.gca()
+    axes.set_axis_off()
+
+    plt.imshow(MIP, cmap = "Greys", vmax = borne_max)
+    angle_filename = path_image+'\\'+'mip'+"."+str(int(angle))+".png"
+    f.savefig(angle_filename, bbox_inches='tight')
+    plt.close()
             
         
-    return None
+    return angle_filename
+
+   
+
+def create_mip_gif(numpy_array, path_image, borne_max = 5.0):
+    duration = 0.1
+    number_images = 60
     
-
-#code de thomas 
-def create_MIP_projection(filenames, path_gif,borne_max=1.0):
-        """
-        From a NIFTI file filename, generates rotation MIP img .jpg
-        and generates gif associated
-        """
+    angle_filenames = []
     
-        duration = 0.1
-        number_of_img = 60
-        angle_filenames = []
-        
+    angles = np.linspace(0, 360, number_images)
+    for angle in angles:
+        path = mip_projection(numpy_array, angle, path_image, borne_max = 5.0)
+        angle_filenames.append(path)
+              
 
+    create_gif(angle_filenames, duration, path_image)
+       
     
-        for filename in filenames:
-    
-            print("\nGeneration gif patient: %s" % basename(filename))
-    
-            raw_filename = splitext(basename(filename))[0]
-            img = sitk.GetArrayFromImage(sitk.ReadImage(filename))
-
-            for i,angle in enumerate(np.linspace(0,360,number_of_img)):
-            
-            #definition of loading bar
-                length = round((i+1)/number_of_img*30)
-                loading_bar = "["+"="*length+">"+"-"*(30-length)+"]"
-                sys.stdout.write("\r%s/%s %s" % (str(i+1),str(number_of_img),loading_bar))
-
-                vol_angle= scipy.ndimage.interpolation.rotate(img,angle,reshape=False,axes=(2, 1))
-                MIP = np.amax(vol_angle,axis=1)
-
-                f = plt.figure(figsize=(10,10))
-                axes = plt.gca()
-                plt.imshow(MIP,cmap='Greys',origin='lower',vmax=borne_max)
-                axes.set_axis_off()
-                angle_filename = path_gif+'/'+raw_filename+"."+str(int(angle))+".png"
-                angle_filenames.append(angle_filename)
-                f.savefig(angle_filename, bbox_inches='tight')
-
-                plt.close()
-
-            create_gif(angle_filenames, duration, path_gif)
-        
-        return None
-
-
+    return None 
