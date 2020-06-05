@@ -3,6 +3,7 @@ import pydicom
 import os
 import cv2 as cv2
 
+
 import numpy as np 
 
 
@@ -152,12 +153,13 @@ class RTSS_Reader:
 
 
 
-    def __spatial_to_pixels(self, number_roi, series_path):
+    def __spatial_to_pixels(self, matrix_size, number_roi, series_path):
         """Transform contour data in spatial to contour data in pixels
 
         Arguments:
             number_roi {int} -- [number of roi ]
             series_path {str} -- [path of the series ]
+            slice_size{list} -- [size x, y of the slice]
 
         Returns:
             [dict] -- [{1 : { x : []
@@ -174,13 +176,16 @@ class RTSS_Reader:
         list_all_sop_Instance_UID =self.get_list_all_SOP_Instance_UID()
         series_object = Series(series_path) #celle de la CT par ex
         data = series_object.get_series_details()
+        series_object.get_numpy_array()
+        z_spacing = series_object.get_z_spacing()
+        print("z_spacing :", z_spacing)
         pixel_spacing = data['instance']['PixelSpacing'] #[x,y]  distance between center of 2 pixels
-        #print("pixel spacing : ", pixel_spacing)
+        print("pixel spacing : ", pixel_spacing)
 
         image_position = data['instance']['ImagePosition']
-        #print("image position :", image_position)  # = [-300 -300 325] coordonée x y z coin supérieur gauche
-        image_position[0] = float(image_position[0]) / float(pixel_spacing[0])
-        image_position[1] = float(image_position[1]) / float(pixel_spacing[1])
+        print("image position :", image_position)  # = [-300 -300 325] coordonée x y z coin supérieur gauche
+        #image_position[0] = float(image_position[0]) / float(pixel_spacing[0])
+        #image_position[1] = float(image_position[1]) / float(pixel_spacing[1])
         #print("image position :", image_position) # =  [-256 -256 325] 
 
         self.image_position = image_position
@@ -206,12 +211,12 @@ class RTSS_Reader:
             number_item = list_contour_data.index(contour_data) #0 1 2 3 ...
             contour_item = {}
             x = contour_data[::3]  #list
-            x = [int(i/ float(pixel_spacing[0]))-2 + 256 for i in x ] #pixel x
-            #pixel int(84.5) = 85 donc -1 pour pixel 84 et -1 pour array commencant a 0 dc pixel 83
-            #+ 256 pour se replacer entre 0 et 512
+            x = [int((i - image_position[0]) / pixel_spacing[0]  ) + 1 for i in x ]
+
             contour_item['x'] = x
             y = contour_data[1::3] #list
-            y = [int(i / float(pixel_spacing[1]))-2 + 256 for i in y ] #pixel y 
+
+            y = [int((i - image_position[1]) / pixel_spacing[1] ) + 1  for i in y ]
             contour_item['y'] = y
             z = list_referenced_SOP_instance_uid[number_item]
             z = list_all_sop_Instance_UID.index(z) #numero de coupe correspondant
@@ -221,7 +226,7 @@ class RTSS_Reader:
         return list_pixels
 
     #eventuellement en privé
-    def get_list_points(self, number_roi, series_path):
+    def get_list_points(self, matrix_size, number_roi, series_path):
         """transform a list of pixels of a ROI to a list nx2 (n points, coordonate (x,y)) for each contour
 
         Arguments:
@@ -231,7 +236,7 @@ class RTSS_Reader:
         Returns:
             [list] -- list of (x,y) points and list of z slices in which there is a contour
         """
-        pixels = self.__spatial_to_pixels(number_roi, series_path) #dict 
+        pixels = self.__spatial_to_pixels(matrix_size, number_roi, series_path) #dict 
         number_item = len(pixels)
         list_points = []
         slice = []
@@ -254,13 +259,14 @@ class RTSS_Reader:
         number_of_slices = len(series_object.get_all_SOPInstanceIUD())
         np_array_3D = np.zeros(( matrix_size[0],  matrix_size[1], number_of_slices))
         if self.is_closed_planar(number_roi) == False : raise Exception ("Not CLOSED_PLANAR contour")
-        liste_points, slice = self.get_list_points(number_roi, series_path)
+        liste_points, slice = self.get_list_points(matrix_size, number_roi, series_path)
         ROI_name = self.get_ROI_name(number_roi)
         print("ROI_name :", ROI_name )
         print("number_roi : ", number_roi)
         print("slice : ", slice)
-        number_item = len(slice)
-        for item in range(number_item):
+        
+        for item in range(len(slice)):
+            #print(slice[item])
             np_array_3D[:,:,slice[item]] = cv2.drawContours(np.float32(np_array_3D[:,:,slice[item]]), [np.asarray(liste_points[item])], -1, (255,0,0), -1)
 
         return np_array_3D
