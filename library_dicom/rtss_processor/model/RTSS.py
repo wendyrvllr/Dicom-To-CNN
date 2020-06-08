@@ -37,9 +37,6 @@ class RTSS(pydicom.dataset.FileDataset):
         self.StructureSetROISequence = pydicom.sequence.Sequence()
         self.ReferencedFrameOfReferenceSequence = pydicom.sequence.Sequence()
 
-        #gather and generates tags of the RTSTRUCT file
-        #self.gathering_tags(heir_tags)
-        #self.generates_tags()
 
 
     def generates_file_meta(self):
