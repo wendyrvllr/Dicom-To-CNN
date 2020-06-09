@@ -32,6 +32,7 @@ class New_Empty_RTSS :
 
 
         new_RTSTRUCT = RTSS(origin, filename, serie_path)
+        print(type(new_RTSTRUCT))
         new_RTSTRUCT.save_as(filename)
 
         return None 

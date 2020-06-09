@@ -220,7 +220,7 @@ class RTSS_Reader:
         
         for item in range(len(slice)):
             #print(slice[item])
-            np_array_3D[:,:,slice[item]] = cv2.drawContours(np.float32(np_array_3D[:,:,slice[item]]), [np.asarray(liste_points[item])], -1, (255,0,0), -1)
+            np_array_3D[:,:,slice[item]] = cv2.drawContours(np.float32(np_array_3D[:,:,slice[item]]), [np.asarray(liste_points[item])], -1, number_roi , -1)
 
         return np_array_3D.astype(np.uint8)
 
