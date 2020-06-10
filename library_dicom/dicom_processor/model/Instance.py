@@ -139,4 +139,10 @@ class Instance:
             resultArray = ( pixel_array * rescale_slope) + rescale_intercept
             return resultArray
     
+
+    def get_frame_of_reference_uid(self):
+        return self.dicomData.FrameOfReferenceUID 
+
+    def get_referenced_sop_class_uid(self):
+        return self.dicomData.ReferencedImageSequence[0].ReferencedSOPClassUID 
     
