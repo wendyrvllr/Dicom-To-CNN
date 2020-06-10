@@ -166,11 +166,11 @@ class RTSS_Reader:
             number_item = list_contour_data.index(contour_data) #0 1 2 3 ...
             contour_item = {}
             x = contour_data[::3]  #list
-            x = [int((i - image_position[0]) / pixel_spacing[0]  ) + 1 for i in x ]
+            x = [int((i - image_position[0]) / pixel_spacing[0] ) for i in x ] 
 
             contour_item['x'] = x
             y = contour_data[1::3] #list
-            y = [int((i - image_position[1]) / pixel_spacing[1] ) + 1  for i in y ]
+            y = [int((i - image_position[1]) / pixel_spacing[1] )  for i in y ] 
             contour_item['y'] = y
             z = list_referenced_SOP_instance_uid[number_item]
             z = list_all_SOPInstanceUID.index(z) #numero de coupe correspondant

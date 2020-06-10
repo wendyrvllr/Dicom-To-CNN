@@ -6,12 +6,6 @@ import random
 import warnings
 import os 
 
-from library_dicom.new_RTSTRUCT.RTROIObservations import RTROIObservations
-from library_dicom.new_RTSTRUCT.ROIContour import ROIContour
-from library_dicom.new_RTSTRUCT.StructureSetROI import StructureSetROI
-from library_dicom.new_RTSTRUCT.ReferencedFrameOfReference import ReferencedFrameOfReference
-
-
 
 class RTSS(pydicom.dataset.FileDataset):
     """A class for DICOM RT format
@@ -65,11 +59,6 @@ class RTSS(pydicom.dataset.FileDataset):
         
         return file_meta
 
-    def get_SOPInstanceUID(self, serie_path): #pour le set ReferencedFrameOfReferenceSequence
-        serie = Series(serie_path)
-        list_SOPInstanceUID = serie.get_all_SOPInstanceIUD()
-        return list_SOPInstanceUID
-
 
     def GatherTags(self, serie_path): #a partir d'une CT ou PT récuperer les infos 
         serie = Series(serie_path)
@@ -110,8 +99,7 @@ class RTSS(pydicom.dataset.FileDataset):
                 except Exception:
                     raise Exception
 
-        # force write list_SOPInstanceUID to Tags (must not be directly herited!)
-        #Tags['list_SOPInstanceUID'] = self.__get_SOPInstanceUID(serie_path)
+
         
         return Tags
 
@@ -204,7 +192,7 @@ class RTSS(pydicom.dataset.FileDataset):
     def set_StructureSetROISequence(self, ROINumber, ReferencedFrameOfReferenceUID, ROIName, ROIDescription, ROIVolume, ROIGenerationAlgorithm):
         self.StructureSetROI = pydicom.dataset.Dataset()
         self.StructureSetROI.ROINumber = ROINumber
-        self.StructureSetROI.ReferencedFrameOfReferenceUID = str(ReferencedFrameOfReference)
+        self.StructureSetROI.ReferencedFrameOfReferenceUID = str(ReferencedFrameOfReferenceUID)
         self.StructureSetROI.ROIName = ROIName
         self.StructureSetROI.ROIDescription = ROIDescription
         self.StructureSetROI.ROIVolume = ROIVolume
@@ -218,11 +206,13 @@ class RTSS(pydicom.dataset.FileDataset):
     
 
     #RTROIObservationSequence
-    def set_RTROIObservationSequence(self, ObservationNumber, ReferencedROINumber):
+    def set_RTROIObservationSequence(self, ObservationNumber, ReferencedROINumber, ROIObservationLabel, RTROIInterpretedType):
         self.RTROIObservation = pydicom.dataset.Dataset()
         
         self.RTROIObservation.ObservationNumber = ObservationNumber
         self.RTROIObservation.ReferencedROINumber = ReferencedROINumber
+        self.RTROIObservation.ROIObservationLabel = ROIObservationLabel
+        self.RTROIObservation.RTROIInterpretedType = RTROIInterpretedType
         self.RTROIObservationsSequence.append(self.RTROIObservation)
         #return self.RTROIObservationSequence
         
@@ -251,19 +241,19 @@ class RTSS(pydicom.dataset.FileDataset):
         #print(type(self.RTReferencedSeries))
         return self.RTReferencedSeries
 
-    def set_RTReferencedStudySequence(self, StudyInstanceUID, SeriesInstanceUID, ReferencedSOPClassUID, list_all_SOPInstanceUID):
+    def set_RTReferencedStudySequence(self, ReferencedSOPInstanceUID, SeriesInstanceUID, ReferencedSOPClassUID, list_all_SOPInstanceUID):
         self.RTReferencedStudy = pydicom.dataset.Dataset()
-        self.RTReferencedStudy.StudyInstanceUID = StudyInstanceUID
+        self.RTReferencedStudy.ReferencedSOPInstanceUID = ReferencedSOPInstanceUID
         self.RTReferencedStudy.RTReferencedSeriesSequence = pydicom.sequence.Sequence()
         self.RTReferencedStudy.RTReferencedSeriesSequence.append(self.set_RTReferencedSeriesSequence(SeriesInstanceUID,ReferencedSOPClassUID, list_all_SOPInstanceUID))
         #print(type(self.RTReferencedStudy))
         return self.RTReferencedStudy
 
-    def set_ReferencedFrameOfReferenceSequence(self, FrameOfReferenceUID, StudyInstanceUID, SeriesInstanceUID, ReferencedSOPClassUID, list_all_SOPInstanceUID):
+    def set_ReferencedFrameOfReferenceSequence(self, FrameOfReferenceUID, ReferencedSOPInstanceUID, SeriesInstanceUID, ReferencedSOPClassUID, list_all_SOPInstanceUID):
         self.ReferencedFrameOfReference = pydicom.dataset.Dataset()
         self.ReferencedFrameOfReference.FrameOfReferenceUID = FrameOfReferenceUID
         self.ReferencedFrameOfReference.RTReferencedStudySequence = pydicom.sequence.Sequence()
-        self.ReferencedFrameOfReference.RTReferencedStudySequence.append(self.set_RTReferencedStudySequence(StudyInstanceUID, SeriesInstanceUID, ReferencedSOPClassUID, list_all_SOPInstanceUID))
+        self.ReferencedFrameOfReference.RTReferencedStudySequence.append(self.set_RTReferencedStudySequence(ReferencedSOPInstanceUID, SeriesInstanceUID, ReferencedSOPClassUID, list_all_SOPInstanceUID))
         #print(type(self.ReferencedFrameOfReference))
         self.ReferencedFrameOfReferenceSequence.append(self.ReferencedFrameOfReference)
 
@@ -273,10 +263,10 @@ class RTSS(pydicom.dataset.FileDataset):
 
     #ContourROISequence
 
-    def set_ROIContourSequence(self, DisplayColor, ReferencedSOPClassUID, list_SOPInstanceUID, ContourGeometricType, list_ContourData):
+    def set_ROIContourSequence(self, ReferencedROINumber, DisplayColor, ReferencedSOPClassUID, list_SOPInstanceUID, ContourGeometricType, list_ContourData):
         self.ROIContour = pydicom.dataset.Dataset()
         roi_rtss = ROI_RTSS()
-        roi_contour_sequence = roi_rtss.set_ROIContour(DisplayColor, ReferencedSOPClassUID, list_SOPInstanceUID, ContourGeometricType, list_ContourData)
+        roi_contour_sequence = roi_rtss.set_ROIContour(ReferencedROINumber, DisplayColor, ReferencedSOPClassUID, list_SOPInstanceUID, ContourGeometricType, list_ContourData)
         #self.ROIContour.ContourSequence = roi_contour_sequence 
         #print(self.ROIContour)
         #self.ROIContourSequence.append(self.ROIContour)

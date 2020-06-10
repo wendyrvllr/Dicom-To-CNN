@@ -50,9 +50,9 @@ class Mask_To_RTSS:
 
                 for point in range(number_point_contour): #[x,y]
                     x = dict_contours[list_slice[i]][j][point][0][0]
-                    liste.append(x0 + x*dx  )
+                    liste.append(x0 + x*dx + dx/2 )
                     y = dict_contours[list_slice[i]][j][point][0][1]
-                    liste.append( y0 + y*dy)
+                    liste.append( y0 + y*dy + dy/2)
                     z = list_slice[i] 
                     liste.append(z0 + z*dz )
 
