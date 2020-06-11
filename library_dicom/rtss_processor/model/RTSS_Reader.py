@@ -157,7 +157,7 @@ class RTSS_Reader:
         """
         #frame_of_reference_UID = self.get_frame_of_reference_UID()
 
-        list_referenced_SOP_instance_uid = (self.get_list_referenced_SOP_Instance_UID(number_roi))
+        list_referenced_SOP_instance_uid = self.get_list_referenced_SOP_Instance_UID(number_roi)
         
         list_contour_data = self.get_contour_data(number_roi) #x y z en mm 
         list_pixels = {}
@@ -210,7 +210,7 @@ class RTSS_Reader:
   
     def rtss_to_3D_mask(self, number_roi, matrix_size, pixel_spacing, image_position, list_all_SOPInstanceUID):
         number_of_slices = matrix_size[2]
-        np_array_3D = np.zeros(( matrix_size[0],  matrix_size[1], number_of_slices))
+        np_array_3D = np.zeros(( matrix_size[0],  matrix_size[1], number_of_slices)).astype(np.uint8)
         if self.is_closed_planar(number_roi) == False : raise Exception ("Not CLOSED_PLANAR contour")
         liste_points, slice = self.get_list_points(matrix_size, number_roi,  pixel_spacing, image_position, list_all_SOPInstanceUID )
         #ROI_name = self.get_ROI_name(number_roi)
@@ -222,10 +222,11 @@ class RTSS_Reader:
             #print(slice[item])
             np_array_3D[:,:,slice[item]] = cv2.drawContours(np.float32(np_array_3D[:,:,slice[item]]), [np.asarray(liste_points[item])], -1, number_roi , -1)
 
-        return np_array_3D.astype(np.uint8)
+        return np_array_3D
 
 
     def rtss_to_4D_mask(self, matrix_size,  pixel_spacing, image_position, list_all_SOPInstanceUID, matrix_4D = True):
+        #SK : Peut etre simplifié, initializer une nparray vide et stacker au fil de la boucle et renvoyer la matrice finale
         number_of_slices = matrix_size[2]
         number_of_roi = self.get_number_of_roi()
         np_array_4D = np.zeros((matrix_size[0], matrix_size[1], number_of_slices, number_of_roi)).astype(np.uint8)
