@@ -23,9 +23,7 @@ class RTSS(pydicom.dataset.FileDataset):
         self.is_little_endian = True
         self.is_implicit_VR = True
 
-        #self.tags = 
         self.set_tags(serie_path)
-        #self.RTSS_tags = 
         self.set_RTSTRUCT_tags()
 
 
@@ -62,8 +60,6 @@ class RTSS(pydicom.dataset.FileDataset):
 
     def GatherTags(self, serie_path): #a partir d'une CT ou PT récuperer les infos 
         serie = Series(serie_path)
-        #first_dicom_path = os.path.join(serie_path, serie.file_names[0])
-        #print(first_dicom_path)
         Tags = {'AccessionNumber':None,
                 #'DeviceSerialNumber':None,
                 #'Manufacturer':None,
@@ -277,4 +273,4 @@ class RTSS(pydicom.dataset.FileDataset):
         
         
 
-
+    
