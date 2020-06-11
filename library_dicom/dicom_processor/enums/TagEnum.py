@@ -74,7 +74,6 @@ class TagsInstance(Enum):
     ImageOrientation = 0x00200037
     RescaleSlope = 0x00281053
     RescaleIntercept = 0x00281052
-    SliceLocation = 0x00201041
     SOPInstanceUID = 0x00080018
 
 class TagsRadioPharmaceuticals(Enum):
