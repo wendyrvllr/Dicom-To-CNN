@@ -7,17 +7,17 @@ import warnings
 import os 
 
 
-class RTSS(pydicom.dataset.FileDataset):
+class RTSS_Writer():
     """A class for DICOM RT format
     """
     
-    def __init__(self, origin, filename, serie_path):
-        self.origin = origin
+    def __init__(self, mask, serie_path):
+        self.mask = mask
 
         self.file_meta = self.generates_file_meta()
 
         #Generates FileDataset element
-        super().__init__(filename,{},file_meta=self.file_meta, preamble=b"\0" * 128)
+        #super().__init__(filename,{},file_meta=self.file_meta, preamble=b"\0" * 128)
 
         # FileDataset specific fields
         self.is_little_endian = True
@@ -270,6 +270,13 @@ class RTSS(pydicom.dataset.FileDataset):
 
     def get_ROIContourSequence(self):
         return self.ROIContourSequence 
+
+
+    def save_(self, filename):
+        filedataset = pydicom.dataset.FileDataset()
+        #put dataset in filedataset
+        #save filedataset 
+
         
         
 

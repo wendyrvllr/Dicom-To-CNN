@@ -1,4 +1,5 @@
 from library_dicom.dicom_processor.model.Series import Series
+from library_dicom.dicom_processor.model.Instance import Instance
 import pydicom
 import os
 import cv2 as cv2
@@ -6,28 +7,60 @@ import numpy as np
 
 
 
-class RTSS_Reader:
+class Instance_RTSS(Instance):
     """Class to read dicom RT file and build mask 
     """
 
-    def __init__(self, rtss_path):
-        self.rtss_path = rtss_path
-        self.filenames = os.listdir(self.rtss_path)
-        self.data = pydicom.dcmread(os.path.join(self.rtss_path, self.filenames[0]))
+    def __init__(self, rtss, serie_path):
+        super().__init__(rtss, load_image=True)
+        serie = Series(serie_path)
+        self.serie_data = serie.get_series_details()
+        self.instance_uid_serie = serie.get_all_SOPInstanceIUD()
+        #self.rtss_path = rtss_path
+        #self.filenames = os.listdir(self.rtss_path)
+        #self.data = pydicom.dcmread(os.path.join(self.rtss_path, self.filenames[0]))
+
+
+    def get_sop_instance_uid_serie(self):
+        return self.instance_uid_serie
+
+
+    def get_list_all_SOP_Instance_UID_RTSS(self):
+        number_item = len(self.dicomData[0x30060010][0].RTReferencedStudySequence[0].RTReferencedSeriesSequence[0].ContourImageSequence)
+        liste = []
+        for i in range(number_item):
+            liste.append(str(self.dicomData[0x30060010][0].RTReferencedStudySequence[0].RTReferencedSeriesSequence[0].ContourImageSequence[i].ReferencedSOPInstanceUID))
+        
+        return liste
+
+    def is_sop_instance_uid_same(self):
+        uid_serie = self.get_sop_instance_uid_serie()
+        uid_rtss = self.get_list_all_SOP_Instance_UID_RTSS()
+        print(uid_serie)
+        print(uid_rtss)
+
+
+
+
+    def get_image_position(self):
+        return self.serie_data['instance']['ImagePosition']
+
+    def get_pixel_spacing(self):
+        return self.serie_data['instance']['PixelSpacing']
 
 
 
     def get_number_of_roi(self):
-        return len(self.data.StructureSetROISequence)
+        return len(self.dicomData.StructureSetROISequence)
 
 
 
     #info from ReferencedFrameOfReferenceSequence
     def get_frame_of_reference_UID(self):
-        number_serie = len(self.data.ReferencedFrameOfReferenceSequence)
+        number_serie = len(self.dicomData.ReferencedFrameOfReferenceSequence)
         liste = []
         for i in range(number_serie):
-            liste.append(self.data[0x30060010][i].FrameOfReferenceUID)
+            liste.append(self.dicomData[0x30060010][i].FrameOfReferenceUID)
 
         return liste #les mêmes pour les 2 series 
 
@@ -36,7 +69,7 @@ class RTSS_Reader:
         """return number of series in ReferencedFrameOfReferencedSequence
 
         """
-        return len(self.data.ReferencedFrameOfReferenceSequence)
+        return len(self.dicomData.ReferencedFrameOfReferenceSequence)
 
 
 
@@ -52,50 +85,42 @@ class RTSS_Reader:
 
             
     def get_series_instance_UID(self):
-        number_serie = len(self.data.ReferencedFrameOfReferenceSequence)
+        number_serie = len(self.dicomData.ReferencedFrameOfReferenceSequence)
         liste = []
         for i in range(number_serie):
-            liste.append(self.data[0x30060010][i].RTReferencedStudySequence[0].RTReferencedSeriesSequence[0].SeriesInstanceUID)
+            liste.append(self.dicomData[0x30060010][i].RTReferencedStudySequence[0].RTReferencedSeriesSequence[0].SeriesInstanceUID)
         return liste
 
     def get_SOP_class_UID(self):
-        number_serie = len(self.data.ReferencedFrameOfReferenceSequence)
+        number_serie = len(self.dicomData.ReferencedFrameOfReferenceSequence)
         liste = []
         for i in range(number_serie):
-            liste.append(self.data[0x30060010][i].RTReferencedStudySequence[0].ReferencedSOPClassUID)
+            liste.append(self.dicomData[0x30060010][i].RTReferencedStudySequence[0].ReferencedSOPClassUID)
         return liste 
         
 
 
-    def get_list_all_SOP_Instance_UID(self):
-        number_item = len(self.data[0x30060010][0].RTReferencedStudySequence[0].RTReferencedSeriesSequence[0].ContourImageSequence)
-        liste = []
-        for i in range(number_item):
-            liste.append(str(self.data[0x30060010][0].RTReferencedStudySequence[0].RTReferencedSeriesSequence[0].ContourImageSequence[i].ReferencedSOPInstanceUID))
-        return liste
-
-
     #info from StructureSetROISequence
     def get_ROI_name(self, number_roi):
-        return self.data[0x30060020][number_roi - 1].ROIName 
+        return self.dicomData[0x30060020][number_roi - 1].ROIName 
 
     def get_ROI_volume(self, number_roi):
-        return self.data[0x30060020][number_roi - 1].ROIVolume 
+        return self.dicomData[0x30060020][number_roi - 1].ROIVolume 
 
     def get_ROI_generation_algorithm(self, number_roi):
-        return self.data[0x30060020][number_roi - 1].ROIGenerationAlgorithm 
+        return self.dicomData[0x30060020][number_roi - 1].ROIGenerationAlgorithm 
 
     #info from ROIContourSequence
 
     def get_roi_display_color(self, number_roi):
-        return self.data[0x30060039][number_roi - 1].ROIDisplayColor 
+        return self.dicomData[0x30060039][number_roi - 1].ROIDisplayColor 
 
 
     def get_list_referenced_SOP_Instance_UID(self, roi_number): #la ou il y a les contours
-        number_item = len(self.data[0x30060039][roi_number - 1].ContourSequence)
+        number_item = len(self.dicomData[0x30060039][roi_number - 1].ContourSequence)
         liste = []
         for i in range(number_item):
-            liste.append(str(self.data[0x30060039][roi_number - 1].ContourSequence[i].ContourImageSequence[0].ReferencedSOPInstanceUID))
+            liste.append(str(self.dicomData[0x30060039][roi_number - 1].ContourSequence[i].ContourImageSequence[0].ReferencedSOPInstanceUID))
         return liste 
 
     
@@ -112,17 +137,17 @@ class RTSS_Reader:
 
 
     def get_number_of_contour_points(self, roi_number):
-        number_item = len(self.data[0x30060039][roi_number - 1].ContourSequence)
+        number_item = len(self.dicomData[0x30060039][roi_number - 1].ContourSequence)
         liste = []
         for i in range(number_item):
-            liste.append(self.data[0x30060039][roi_number - 1].ContourSequence[i].NumberOfContourPoints)
+            liste.append(self.dicomData[0x30060039][roi_number - 1].ContourSequence[i].NumberOfContourPoints)
         return liste
 
     def get_list_contour_geometric_type(self, roi_number):
-        number_item = len(self.data[0x30060039][roi_number - 1].ContourSequence)
+        number_item = len(self.dicomData[0x30060039][roi_number - 1].ContourSequence)
         liste = []
         for i in range(number_item):
-            liste.append(self.data[0x30060039][roi_number - 1].ContourSequence[i].ContourGeometricType)
+            liste.append(self.dicomData[0x30060039][roi_number - 1].ContourSequence[i].ContourGeometricType)
         return liste
 
     def is_closed_planar(self, roi_number):
@@ -134,16 +159,16 @@ class RTSS_Reader:
 
 
     def get_contour_data(self, roi_number):
-        number_item = len(self.data[0x30060039][roi_number - 1].ContourSequence)
+        number_item = len(self.dicomData[0x30060039][roi_number - 1].ContourSequence)
         liste = []
         for i in range(number_item):
-            liste.append(self.data[0x30060039][roi_number - 1].ContourSequence[i].ContourData)
+            liste.append(self.dicomData[0x30060039][roi_number - 1].ContourSequence[i].ContourData)
         return liste #liste d'array 
 
 
 
 
-    def __spatial_to_pixels(self, matrix_size, number_roi, pixel_spacing, image_position, list_all_SOPInstanceUID):
+    def __spatial_to_pixels(self, matrix_size, number_roi, list_all_SOPInstanceUID):
         """Transform contour data in spatial to contour data in pixels, return a dict 
 
 
@@ -156,6 +181,9 @@ class RTSS_Reader:
                                z : []} , ...]
         """
         #frame_of_reference_UID = self.get_frame_of_reference_UID()
+
+        pixel_spacing = self.get_pixel_spacing()
+        image_position = self.get_image_position()
 
         list_referenced_SOP_instance_uid = self.get_list_referenced_SOP_Instance_UID(number_roi)
         
@@ -180,7 +208,7 @@ class RTSS_Reader:
         return list_pixels
 
     #eventuellement en privé
-    def get_list_points(self, matrix_size, number_roi, pixel_spacing, image_position, list_all_SOPInstanceUID):
+    def get_list_points(self, matrix_size, number_roi, list_all_SOPInstanceUID):
         """transform a list of pixels of a ROI to a list nx2 (n points, coordonate (x,y)) for each contour
 
         Arguments:
@@ -190,7 +218,7 @@ class RTSS_Reader:
         Returns:
             [list] -- list of (x,y) points and list of z slices in which there is a contour
         """
-        pixels = self.__spatial_to_pixels(matrix_size, number_roi, pixel_spacing, image_position, list_all_SOPInstanceUID) #dict 
+        pixels = self.__spatial_to_pixels(matrix_size, number_roi, list_all_SOPInstanceUID) #dict 
         number_item = len(pixels)
         list_points = []
         slice = []
@@ -208,16 +236,12 @@ class RTSS_Reader:
         return list_points, slice 
 
   
-    def rtss_to_3D_mask(self, number_roi, matrix_size, pixel_spacing, image_position, list_all_SOPInstanceUID):
+    def rtss_to_3D_mask(self, number_roi, matrix_size, list_all_SOPInstanceUID):
         number_of_slices = matrix_size[2]
         np_array_3D = np.zeros(( matrix_size[0],  matrix_size[1], number_of_slices)).astype(np.uint8)
         if self.is_closed_planar(number_roi) == False : raise Exception ("Not CLOSED_PLANAR contour")
-        liste_points, slice = self.get_list_points(matrix_size, number_roi,  pixel_spacing, image_position, list_all_SOPInstanceUID )
-        #ROI_name = self.get_ROI_name(number_roi)
-        #print("ROI_name :", ROI_name )
-        #print("number_roi : ", number_roi)
-        #print("slice : ", slice)
-        
+        liste_points, slice = self.get_list_points(matrix_size, number_roi, list_all_SOPInstanceUID )
+
         for item in range(len(slice)):
             #print(slice[item])
             np_array_3D[:,:,slice[item]] = cv2.drawContours(np.float32(np_array_3D[:,:,slice[item]]), [np.asarray(liste_points[item])], -1, number_roi , -1)
@@ -225,15 +249,13 @@ class RTSS_Reader:
         return np_array_3D
 
 
-    def rtss_to_4D_mask(self, matrix_size,  pixel_spacing, image_position, list_all_SOPInstanceUID, matrix_4D = True):
-        #SK : Peut etre simplifié, initializer une nparray vide et stacker au fil de la boucle et renvoyer la matrice finale
-        number_of_slices = matrix_size[2]
+    def rtss_to_4D_mask(self, matrix_size, list_all_SOPInstanceUID):
         number_of_roi = self.get_number_of_roi()
-        np_array_4D = np.zeros((matrix_size[0], matrix_size[1], number_of_slices, number_of_roi)).astype(np.uint8)
-
+        
+        np_array_3D = []
         for number_roi in range(1, number_of_roi +1):
-            np_array_3D = self.rtss_to_3D_mask(number_roi, matrix_size,  pixel_spacing, image_position, list_all_SOPInstanceUID)
-            np_array_4D[:,:,:,number_roi - 1 ] = np_array_3D
+            np_array_3D.append(self.rtss_to_3D_mask(number_roi, matrix_size, list_all_SOPInstanceUID))
+        np_array_4D = np.stack((np_array_3D), axis = 3)
 
         return np_array_4D
 
