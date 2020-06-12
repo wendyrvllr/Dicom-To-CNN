@@ -36,8 +36,11 @@ class Instance_RTSS(Instance):
     def is_sop_instance_uid_same(self):
         uid_serie = self.get_sop_instance_uid_serie()
         uid_rtss = self.get_list_all_SOP_Instance_UID_RTSS()
-        print(uid_serie)
-        print(uid_rtss)
+        for uid in uid_rtss : 
+            if uid not in uid_serie : 
+                return False
+
+        return True 
 
 
 
@@ -128,7 +131,7 @@ class Instance_RTSS(Instance):
         """check if slices in which there are a ROI is in the list of all slices of the serie
 
         """
-        all_sop = str(self.get_list_all_SOP_Instance_UID)
+        all_sop = str(self.get_list_all_SOP_Instance_UID_RTSS)
         referenced_sop = str(self.get_list_referenced_SOP_Instance_UID)
         for uid in referenced_sop : 
             if uid not in all_sop : 
