@@ -143,6 +143,19 @@ class Instance:
     def get_frame_of_reference_uid(self):
         return self.dicomData.FrameOfReferenceUID 
 
-    def get_referenced_sop_class_uid(self):
-        return self.dicomData.ReferencedImageSequence[0].ReferencedSOPClassUID 
+    def get_series_instance_uid(self):
+        return self.dicomData.SeriesInstanceUID
+
+    def get_study_instance_uid(self):
+        return self.dicomData.StudyInstanceUID
+
+    def get_SOP_class_uid(self):
+        return self.dicomData.SOPClassUID
+
+    def get_number_rows(self):
+        return self.dicomData.Rows
+
+    def get_number_columns(self):
+        return self.dicomData.Columns
+
     

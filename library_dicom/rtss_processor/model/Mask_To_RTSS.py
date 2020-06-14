@@ -1,17 +1,15 @@
 import cv2 
 import numpy as np 
+from library_dicom.dicom_processor.model.Series import Series
 
 
 class Mask_To_RTSS:
     """build a DicomRT from a Mask 
     """
     def __init__(self, mask): 
-        self.mask = mask #3D numpy array
-        self.x = mask.shape[0]
-        self.y = mask.shape[1]
-        self.z = mask.shape[2]
+        self.mask = mask #4D numpy array
+        
         self.number_of_roi = mask.shape[3]
-
 
 
     def get_contour_ROI(self, number_roi):
@@ -21,7 +19,7 @@ class Mask_To_RTSS:
 
         binary_mask = np.array(self.mask[:,:,:,number_roi - 1], dtype=np.uint8)
 
-        for s in range(self.z):
+        for s in range(self.mask.shape[2]):
             contours, _ = cv2.findContours(binary_mask[:,:, s], cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE) 
             if (contours != []) : 
                 results[s] = contours
@@ -32,7 +30,6 @@ class Mask_To_RTSS:
 
     def pixel_to_spatial(self, number_roi, dicom_origin, dicom_spacing, list_all_SOPInstanceUID):
 
-        
         list_contours = []
         list_SOPInstanceUID = []
         x0,y0,z0 = dicom_origin

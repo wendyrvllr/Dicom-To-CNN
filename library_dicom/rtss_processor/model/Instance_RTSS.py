@@ -4,6 +4,7 @@ import pydicom
 import os
 import cv2 as cv2
 import numpy as np 
+import sys 
 
 
 
@@ -16,12 +17,17 @@ class Instance_RTSS(Instance):
         serie = Series(serie_path)
         self.serie_data = serie.get_series_details()
         self.instance_uid_serie = serie.get_all_SOPInstanceIUD()
+        self.matrix_size = serie.get_size_matrix()
         #self.rtss_path = rtss_path
         #self.filenames = os.listdir(self.rtss_path)
         #self.data = pydicom.dcmread(os.path.join(self.rtss_path, self.filenames[0]))
 
+    def get_image_nparray(self):
+        sys.exit('Cannot get image numpy array from RTSTRUCT FILE')
 
-    def get_sop_instance_uid_serie(self):
+
+
+    def get_list_all_SOP_Instance_UID_serie(self):
         return self.instance_uid_serie
 
 
@@ -34,7 +40,7 @@ class Instance_RTSS(Instance):
         return liste
 
     def is_sop_instance_uid_same(self):
-        uid_serie = self.get_sop_instance_uid_serie()
+        uid_serie = self.get_list_all_SOP_Instance_UID_serie()
         uid_rtss = self.get_list_all_SOP_Instance_UID_RTSS()
         for uid in uid_rtss : 
             if uid not in uid_serie : 
@@ -59,7 +65,15 @@ class Instance_RTSS(Instance):
 
 
     #info from ReferencedFrameOfReferenceSequence
-    def get_frame_of_reference_UID(self):
+    def get_number_of_referenced_series(self):
+        """return number of series in ReferencedFrameOfReferencedSequence
+
+        """
+        return len(self.dicomData.ReferencedFrameOfReferenceSequence)
+
+
+    def get_frame_of_reference_uid(self):
+        #Doit etre le meme que FrameOfReferenceUID de la serie CT/PT
         number_serie = len(self.dicomData.ReferencedFrameOfReferenceSequence)
         liste = []
         for i in range(number_serie):
@@ -68,41 +82,49 @@ class Instance_RTSS(Instance):
         return liste #les mêmes pour les 2 series 
 
 
-    def get_number_of_series(self):
-        """return number of series in ReferencedFrameOfReferencedSequence
-
-        """
-        return len(self.dicomData.ReferencedFrameOfReferenceSequence)
-
-
 
     def is_frame_of_reference_same(self):
         """check if frame of reference is the same for the series in ReferencedOfReferencedSequence
 
         """
-        frame_of_reference_UID = self.get_frame_of_reference_UID()
+        frame_of_reference_UID = self.get_frame_of_reference_uid()
         for i in range(len(frame_of_reference_UID)):
             if frame_of_reference_UID[0] != frame_of_reference_UID[i] :
                 return False 
         return True 
 
-            
-    def get_series_instance_UID(self):
+
+    def get_referenced_series_instance_uid(self):
+        #doit être le même que SeriesInstanceUID de la CT/PT
+        """get series instance UID from the CT/PT serie 
+
+
+        """
         number_serie = len(self.dicomData.ReferencedFrameOfReferenceSequence)
         liste = []
         for i in range(number_serie):
             liste.append(self.dicomData[0x30060010][i].RTReferencedStudySequence[0].RTReferencedSeriesSequence[0].SeriesInstanceUID)
         return liste
 
-    def get_SOP_class_UID(self):
+
+    def get_referenced_study_SOP_instance_uid(self):
+        #Doit etre le meme que la StudyInstanceUID de la CT/PT
         number_serie = len(self.dicomData.ReferencedFrameOfReferenceSequence)
         liste = []
         for i in range(number_serie):
-            liste.append(self.dicomData[0x30060010][i].RTReferencedStudySequence[0].ReferencedSOPClassUID)
+            liste.append(self.dicomData[0x30060010][i].RTReferencedStudySequence[0].ReferencedSOPInstanceUID)
+        return liste
+
+
+    def get_referenced_SOP_class_UID(self):
+        #Doit etre le meme que SOPClassUID de la serie CT/PT
+        number_serie = len(self.dicomData.ReferencedFrameOfReferenceSequence)
+        liste = []
+        for i in range(number_serie):
+            liste.append(self.dicomData[0x30060010][i].RTReferencedStudySequence[0].RTReferencedSeriesSequence[0].ContourImageSequence[0].ReferencedSOPClassUID)
         return liste 
-        
 
-
+ 
     #info from StructureSetROISequence
     def get_ROI_name(self, number_roi):
         return self.dicomData[0x30060020][number_roi - 1].ROIName 
@@ -128,7 +150,7 @@ class Instance_RTSS(Instance):
 
     
     def is_referenced_SOP_Instance_UID_in_all_SOP_Instance(self):
-        """check if slices in which there are a ROI is in the list of all slices of the serie
+        """check if slices in which there is a ROI is in the list of all slices of the serie
 
         """
         all_sop = str(self.get_list_all_SOP_Instance_UID_RTSS)
@@ -252,7 +274,9 @@ class Instance_RTSS(Instance):
         return np_array_3D
 
 
-    def rtss_to_4D_mask(self, matrix_size, list_all_SOPInstanceUID):
+    def rtss_to_4D_mask(self):
+        matrix_size = self.matrix_size
+        list_all_SOPInstanceUID = self.get_list_all_SOP_Instance_UID_RTSS()
         number_of_roi = self.get_number_of_roi()
         
         np_array_3D = []
