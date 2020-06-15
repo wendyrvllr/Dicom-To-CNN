@@ -61,7 +61,7 @@ class Instance:
         instance_tags['ImageOrientation'] = self.get_image_orientation()
         instance_tags['RescaleSlope'] = self.get_rescale_slope()
         instance_tags['RescaleIntercept'] = self.get_rescale_intercept()
-        instance_tags['SliceLocation'] = self.get_slice_location()
+        #instance_tags['SliceLocation'] = self.get_slice_location()
         instance_tags['SOPInstanceUID'] = self.get_SOPInstanceUID()
         return instance_tags
 
@@ -118,8 +118,8 @@ class Instance:
     def get_pixel_spacing(self):
         return list(self.dicomData[PixelSpacing.PixelSpacing.value].value)    
         
-    def get_slice_location(self):
-        return self.dicomData[TagsInstance.SliceLocation.value].value
+    #def get_slice_location(self):
+        #return self.dicomData[TagsInstance.SliceLocation.value].value
 
     def get_image_type(self):
         return list(self.dicomData[ImageType.ImageType.value].value)
@@ -146,8 +146,8 @@ class Instance:
     def get_series_instance_uid(self):
         return self.dicomData.SeriesInstanceUID
 
-    def get_study_instance_uid(self):
-        return self.dicomData.StudyInstanceUID
+    #def get_study_instance_uid(self):
+        #return self.dicomData.StudyInstanceUID
 
     def get_SOP_class_uid(self):
         return self.dicomData.SOPClassUID
@@ -157,5 +157,58 @@ class Instance:
 
     def get_number_columns(self):
         return self.dicomData.Columns
+
+    #for RTSS Writer 
+    #check si ces informations sont bien dans le dataset sinon erreur 
+
+    def get_accession_number(self):
+        return self.dicomData[TagsStudy['AccessionNumber'].value].value 
+
+    def get_patient_name(self):
+        return self.dicomData[TagsPatient['PatientName'].value].value
+
+    def get_patient_id(self):
+        return self.dicomData[TagsPatient['PatientID'].value].value
+
+    def get_patient_birth_date(self):
+        return self.dicomData[TagsPatient['PatientBirthDate'].value].value
+
+    def get_patient_sex(self):
+        return self.dicomData[TagsPatient['PatientSex'].value].value 
+
+    #a rajouter dans TagEnum 
+
+    def get_referring_physician_name(self):
+        return self.dicomData.ReferringPhysicianName
+
+    def get_specific_character_set(self):
+        return self.dicomData.SpecificCharacterSet
+
+    def get_physicians_of_record(self):
+        return self.dicomData.PhysiciansOfRecord
+
+        
+
+    def get_study_date(self):
+        return self.dicomData[TagsStudy['StudyDate'].value].value
+
+    def get_study_description(self):
+        return self.dicomData[TagsStudy['StudyDescription'].value].value 
+
+    def get_study_id(self):
+        return self.dicomData[TagsStudy['StudyID'].value].value 
+
+    def get_study_instance_uid(self):
+        return self.dicomData[TagsStudy['StudyInstanceUID'].value].value
+
+    def get_study_time(self):
+        return self.dicomData[TagsStudy['StudyTime'].value].value
+
+    
+
+
+
+
+    
 
     

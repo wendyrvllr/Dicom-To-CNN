@@ -18,19 +18,17 @@ class RTSS_Writer:
 
         #spécifique pour calculer les contours des ROIS
         serie = Series(serie_path)
-        data = serie.get_series_details()
-        self.image_position = data['instance']['ImagePosition']
-        self.pixel_spacing = data['instance']['PixelSpacing']
+        self.first_metadata = serie.get_first_instance_metadata()
+        self.image_position = self.first_metadata.get_image_position()
+        self.pixel_spacing = self.first_metadata.get_pixel_spacing()
         serie.get_numpy_array()
         self.pixel_spacing.append(serie.get_z_spacing())
         self.list_all_SOPInstanceUID = serie.get_all_SOPInstanceIUD()
 
         #creation dataset 
 
-        self.data = pydicom.dataset.Dataset()
-
-
-
+        self.dataset  = pydicom.dataset.Dataset()
+        self.set_tags(serie_path)
 
 
         #self.file_meta = self.generates_file_meta()
@@ -40,8 +38,8 @@ class RTSS_Writer:
 
 
 
-        self.set_tags(serie_path)
-        self.set_RTSTRUCT_tags()
+        #self.set_tags(serie_path)
+        #self.set_RTSTRUCT_tags()
 
 
         self.RTROIObservationsSequence = pydicom.sequence.Sequence()
@@ -70,52 +68,13 @@ class RTSS_Writer:
         file_meta.FileMetaInformationVersion = b'\x00\x01'
         file_meta.MediaStorageSOPClassUID = '1.2.840.10008.5.1.4.1.1.481.3' # RT Structure Set Storage
         file_meta.MediaStorageSOPInstanceUID = pydicom.uid.generate_uid()
+        self.dataset.SOPInstanceUID = file_meta.MediaStorageSOPInstanceUID 
+
         file_meta.TransferSyntaxUID = '1.2.840.10008.1.2' #Implicit VR Little Endian
         file_meta.ImplementationClassUID = '1.2.246.352.70.2.1.7'
         
         return file_meta
 
-
-    def GatherTags(self, serie_path): #a partir d'une CT ou PT récuperer les infos 
-        serie = Series(serie_path)
-        Tags = {'AccessionNumber':None,
-                #'DeviceSerialNumber':None,
-                #'Manufacturer':None,
-                #'ManufacturerModelName':None,
-                'PatientBirthDate':None,
-                'PatientBirthTime':None,
-                'PatientID':None,
-                'PatientName':None,
-                'PatientSex':None,
-                'PhysiciansOfRecord':None,
-                'ReferringPhysicianName':None,
-                #'SoftwareVersions':None,
-                'SeriesInstanceUID':None,
-                'SpecificCharacterSet':None,
-                #'StationName':None,
-                'StudyDate':None,
-                'StudyDescription':None,
-                'StudyID':None,
-                'StudyInstanceUID':None,
-                'StudyTime':None,
-                'FrameOfReferenceUID':None,
-                'SOPClassUID':None
-                }
-        
-        with pydicom.dcmread(os.path.join(serie_path, serie.file_names[0])) as dcm:
-
-            for tag in Tags.keys():
-                try:
-                    Tags[tag] = dcm.get(tag)
-                except AttributeError:
-                    warnings.warn("AttributeError with tag: %s" % tag)
-                    pass
-                except Exception:
-                    raise Exception
-
-
-        
-        return Tags
 
     def set_tags(self,serie_path):
         """
@@ -136,71 +95,46 @@ class RTSS_Writer:
                   - StudyInstanceUID'      :
                   - StudyTime'             : 
         """     
-        #dataset = pydicom.dataset.Dataset()
-        tags = self.GatherTags(serie_path)
+        #from the serie 
+        self.dataset.AccessionNumber = self.first_metadata.get_accession_number()
+        self.dataset.PatientBirthData = self.first_metadata.get_patient_birth_date()
+        self.dataset.PatientID = self.first_metadata.get_patient_id()
+        self.dataset.PatientName = self.first_metadata.get_patient_name()
+        self.dataset.PatientSex = self.first_metadata.get_patient_sex()
+        #self.dataset.PysiciansOfRecord = self.first_metadata.get_physicians_of_record()
+        self.dataset.ReferringPhysicianName = self.first_metadata.get_referring_physician_name()
+        self.dataset.SpecificCharacterSet = self.first_metadata.get_specific_character_set()
+        self.dataset.StudyData = self.first_metadata.get_study_date()
+        self.dataset.StudyDescription = self.first_metadata.get_study_description()
+        self.dataset.StudyID = self.first_metadata.get_study_id()
+        self.dataset.StudyInstanceUID = self.first_metadata.get_study_instance_uid()
+        self.dataset.StudyTime = self.first_metadata.get_study_time()
 
-        self.AccessionNumber = tags['AccessionNumber']
-        #dataset.AccessionNumber = tags['AccessionNumber']
-        self.PatientBirthDate = tags['PatientBirthDate']
-        self.PatientBirthTime = tags['PatientBirthTime']
-        self.PatientID = tags['PatientID']
-        self.PatientName = tags['PatientName']
-        self.PatientSex = tags['PatientSex']
-        self.PhysiciansOfRecord = tags['PhysiciansOfRecord']
-        self.ReferringPhysicianName = tags['ReferringPhysicianName']
-        self.SpecificCharacterSet = tags['SpecificCharacterSet']
-        self.StudyDate = tags['StudyDate']
-        self.StudyDescription = tags['StudyDescription']
-        self.StudyID = tags['StudyID']
-        self.StudyInstanceUID = tags['StudyInstanceUID']
-        self.StudyTime = tags['StudyTime']
-        
-    
-        return None 
+        #specific new tags for the serie 
 
-
-    def set_RTSTRUCT_tags(self):
-        """
-            Generates new values for tags specific to RTSTRUCT file
-            List custom tags:
-                  - AccessionNumber'       :
-                  - PatientBirthDate'      :
-                  - PatientBirthTime'      :
-                  - PatientID'             :
-                  - PatientName'           :
-                  - PatientSex'            :
-            List randomly generated tags:
-                  - AccessionNumber'       :
-                  - PatientBirthDate'      :
-                  - PatientBirthTime'      :
-                  - PatientID'             :
-                  - PatientName'           :
-                  - PatientSex'            :
-            
-        """
-        #dataset = pydicom.dataset.Dataset()
-
-        self.ApprovalStatus = 'UNAPPROVED'
-        self.Manufacturer   = ''
+        self.dataset.ApprovalStatus = 'UNAPPROVED'
+        self.dataset.Manufacturer   = ''
         dt = datetime.datetime.now()
-        self.InstanceCreationDate = dt.strftime('%Y%m%d')
-        self.InstanceCreationTime = dt.strftime('%H%M%S.%f')
-        self.InstanceNumber = '1'
-        self.Modality = 'RTSTRUCT'
-        self.ReviewDate = '' #because UNAPPROVED
-        self.ReviewTime = '' #because UNAPPROVED
-        self.ReviewerName = '' #because UNAPPROVED
-        self.SeriesDescription = 'RTSTRUCT generated by library-DICOM'
-        self.SeriesInstanceUID = pydicom.uid.generate_uid()
-        self.SeriesNumber = random.randint(0,1e3)
-        self.SOPClassUID = file_meta.MediaStorageSOPClassUID 
-        self.SOPInstanceUID = file_meta.MediaStorageSOPInstanceUID 
-        self.StructureSetDate = dt.strftime('%Y%m%d')
-        self.StructureSetDescription = 'RTSTRUCT generated by library-DICOM'
-        self.StructureSetLabel = 'test'
-        self.StructureSetTime = dt.strftime('%H%M%S.%f')
-        
+        self.dataset.InstanceCreationDate = dt.strftime('%Y%m%d')
+        self.dataset.InstanceCreationTime = dt.strftime('%H%M%S.%f')
+        self.dataset.InstanceNumber = '1'
+        self.dataset.Modality = 'RTSTRUCT'
+        self.dataset.ReviewDate = '' #because UNAPPROVED
+        self.dataset.ReviewTime = '' #because UNAPPROVED
+        self.dataset.ReviewerName = '' #because UNAPPROVED
+        self.dataset.SeriesDescription = 'RTSTRUCT generated by library-DICOM'
+        self.dataset.SeriesInstanceUID = pydicom.uid.generate_uid()
+        self.dataset.SeriesNumber = random.randint(0,1e3)
+        self.dataset.SOPClassUID = '1.2.840.10008.5.1.4.1.1.481.3' 
+        #self.dataset.SOPInstanceUID = file_meta.MediaStorageSOPInstanceUID 
+        self.dataset.StructureSetDate = dt.strftime('%Y%m%d')
+        self.dataset.StructureSetDescription = 'RTSTRUCT generated by library-DICOM'
+        self.dataset.StructureSetLabel = 'test'
+        self.dataset.StructureSetTime = dt.strftime('%H%M%S.%f')
+
         return None 
+
+
 
     #StructureSetROISequence
     def set_StructureSetROISequence(self, ROINumber, ReferencedFrameOfReferenceUID, ROIName, ROIDescription, ROIVolume, ROIGenerationAlgorithm):
@@ -293,11 +227,11 @@ class RTSS_Writer:
     def save_(self, filename, directory_path):
         filemeta = self.generates_file_meta()
 
-        filedataset = pydicom.dataset.FileDataset(filename, {} #dataset ici 
+        filedataset = pydicom.dataset.FileDataset(filename, self.dataset #dataset ici 
         , preamble=b"\0" * 128, file_meta=filemeta, is_implicit_VR = True, is_little_endian = True )
         #filedataset.PatientName = ...
         #filedataset.... = ... 
-        filedataset.append(self.data)
+        #filedataset.append(self.data)
         filedataset.save_as(os.path.join(directory_path, filename))
 
         return None 

@@ -14,6 +14,7 @@ class Instance_RTSS(Instance):
 
     def __init__(self, rtss, serie_path):
         super().__init__(rtss, load_image=True)
+        
         serie = Series(serie_path)
         self.serie_data = serie.get_series_details()
         self.instance_uid_serie = serie.get_all_SOPInstanceIUD()
@@ -108,7 +109,7 @@ class Instance_RTSS(Instance):
 
 
     def get_referenced_study_SOP_instance_uid(self):
-        #Doit etre le meme que la StudyInstanceUID de la CT/PT
+        #Doit etre le meme que la StudyInstanceUID de la CT/PT + meme que StudyInstanceUID du RTSS
         number_serie = len(self.dicomData.ReferencedFrameOfReferenceSequence)
         liste = []
         for i in range(number_serie):
