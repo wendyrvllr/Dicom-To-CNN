@@ -125,13 +125,19 @@ class Series():
             liste.append(instanceData.get_SOPInstanceUID())
         return liste 
 
-    def get_FrameOfReferenceIUD(self):
-        instanceData = self.get_first_instance_metadata()
-        return instanceData.get_frame_of_reference_uid()
 
-    def get_ReferencedSOPClassUID(self):
-        instanceData = self.get_first_instance_metadata()
-        return instanceData.get_referenced_sop_class_uid()
+
+    def get_size_matrix(self):
+        size = []
+        data = self.get_first_instance_metadata()
+        x = data.get_number_rows()
+        size.append(x)
+        y = data.get_number_columns()
+        size.append(y)
+        z = len(self.get_all_SOPInstanceIUD())
+        size.append(z)
+        return size
+
 
 
     
