@@ -12,25 +12,19 @@ class Instance_RTSS(Instance):
     """Class to read dicom RT file and build mask 
     """
 
-    def __init__(self, rtss, serie_path):
-        super().__init__(rtss, load_image=True)
-        
+    def __init__(self, path_rtss, serie_path):
+        super().__init__(path_rtss, load_image=True)
+
         serie = Series(serie_path)
         self.serie_data = serie.get_series_details()
         self.instance_uid_serie = serie.get_all_SOPInstanceIUD()
         self.matrix_size = serie.get_size_matrix()
-        #self.rtss_path = rtss_path
-        #self.filenames = os.listdir(self.rtss_path)
-        #self.data = pydicom.dcmread(os.path.join(self.rtss_path, self.filenames[0]))
 
     def get_image_nparray(self):
         sys.exit('Cannot get image numpy array from RTSTRUCT FILE')
 
-
-
     def get_list_all_SOP_Instance_UID_serie(self):
         return self.instance_uid_serie
-
 
     def get_list_all_SOP_Instance_UID_RTSS(self):
         number_item = len(self.dicomData[0x30060010][0].RTReferencedStudySequence[0].RTReferencedSeriesSequence[0].ContourImageSequence)
@@ -47,17 +41,13 @@ class Instance_RTSS(Instance):
             if uid not in uid_serie : 
                 return False
 
-        return True 
-
-
-
+        return True
 
     def get_image_position(self):
         return self.serie_data['instance']['ImagePosition']
 
     def get_pixel_spacing(self):
         return self.serie_data['instance']['PixelSpacing']
-
 
 
     def get_number_of_roi(self):

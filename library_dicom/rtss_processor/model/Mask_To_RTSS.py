@@ -12,7 +12,7 @@ class Mask_To_RTSS:
         self.number_of_roi = mask.shape[3]
 
 
-    def get_contour_ROI(self, number_roi):
+    def __get_contour_ROI(self, number_roi):
 
         results = {}
         slice = []
@@ -34,7 +34,7 @@ class Mask_To_RTSS:
         list_SOPInstanceUID = []
         x0,y0,z0 = dicom_origin
         dx,dy,dz = dicom_spacing
-        dict_contours, list_slice = self.get_contour_ROI(number_roi)
+        dict_contours, list_slice = self.__get_contour_ROI(number_roi)
 
         number_contour = len(dict_contours)
 

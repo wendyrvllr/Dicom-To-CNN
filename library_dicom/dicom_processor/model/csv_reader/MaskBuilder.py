@@ -21,7 +21,6 @@ class MaskBuilder(CsvReader):
         self.matrix_size=matrix_size
         self.number_of_rois = len(self.details_rois) - 2 #moins ligne SUL + ligne SUClo
         self.mask_array = self.build_mask()
-        #self.mask_array = self.flip_z()
 
         
 
@@ -99,34 +98,65 @@ class MaskBuilder(CsvReader):
         """check if calculated SUV Mean SUV Max and SD is correct 
 
         """
+
+
         calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
         for number_roi in range(1, self.number_of_rois +1) :
             #print(number_roi)
 
             if (calculated_suv_max_mean[number_roi]['SUV_max'] < float(self.details_rois[number_roi]['suv_max']) - float(0.1) or 
-                calculated_suv_max_mean[number_roi]['SUV_max'] > float(self.details_rois[number_roi]['suv_max']) + float(0.1)  ): 
-                raise Exception("Different SUV Max")
+                calculated_suv_max_mean[number_roi]['SUV_max'] > float(self.details_rois[number_roi]['suv_max']) + float(0.1)  ):
+                #ecart_suv_max.append(float(abs(calculated_suv_max_mean[number_roi]['SUV_max'] - float(self.details_rois[number_roi]['suv_max']))))
+                return False
 
 
             if (calculated_suv_max_mean[number_roi]['SUV_mean']  < float(self.details_rois[number_roi]['suv_mean']) - float(0.1) or 
                 calculated_suv_max_mean[number_roi]['SUV_mean']  > float(self.details_rois[number_roi]['suv_mean']) + float(0.1) ) : 
-                raise Exception("Different SUV Mean")
+                return False
 
             if (calculated_suv_max_mean[number_roi]['SD'] < float(self.details_rois[number_roi]['sd']) - float(0.1) or 
                 calculated_suv_max_mean[number_roi]['SD'] > float(self.details_rois[number_roi]['sd']) + float(0.1) ) :
-                raise Exception("Different SD ")
+                return False
 
+        #return np.max(ecart_suv_max)
         return True 
 
 
-    def flip_z(self): #a mettre dans le constructeur ? 
+
+
+
+    def ecart_suv_max(self, nifti_array):
+        
+        liste = []
+        calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
+        for number_roi in range(1, self.number_of_rois +1) :
+            #print(number_roi)
+
+            if (calculated_suv_max_mean[number_roi]['SUV_max'] < float(self.details_rois[number_roi]['suv_max']) - float(0.1) or 
+                calculated_suv_max_mean[number_roi]['SUV_max'] > float(self.details_rois[number_roi]['suv_max']) + float(0.1)  ):
+                liste.append(float(abs(calculated_suv_max_mean[number_roi]['SUV_max'] - float(self.details_rois[number_roi]['suv_max']))))
+                
+
+        return liste 
+
+
+
+
+
+
+
+
+
+    def flip_z(self, mask_4D): #a mettre dans le constructeur ? 
         """flip z axis in the mask matrix if calculated SUV Mean SUV MAX and SD is False 
 
         """
-        if self.is_correct_suv == 'False' : 
-            for number_roi in range(self.number_of_rois):
-                self.mask_array[:,:,:,number_roi] = np.flip(self.mask_array[:,:,:,number_roi], axis = 2)
-        return self.mask_array
+        #if self.is_correct_suv == 'False' : 
+        for number_roi in range(self.number_of_rois):
+            mask_4D[:,:,:,number_roi] = np.flip(mask_4D[:,:,:,number_roi], axis = 0)
+
+        self.mask_array = mask_4D
+        #return self.mask_array
             
 
     def is_calcul_sul_correct(self, series_path):

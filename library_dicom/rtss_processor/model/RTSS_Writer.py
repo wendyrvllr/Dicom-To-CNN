@@ -224,7 +224,7 @@ class RTSS_Writer:
         return self.ROIContourSequence 
 
 
-    def save_(self, filename, directory_path):
+    def save_file(self, filename, directory_path):
         filemeta = self.generates_file_meta()
 
         filedataset = pydicom.dataset.FileDataset(filename, self.dataset #dataset ici 
