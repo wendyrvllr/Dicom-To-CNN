@@ -149,8 +149,8 @@ class Instance:
     #def get_study_instance_uid(self):
         #return self.dicomData.StudyInstanceUID
 
-    def get_SOP_class_uid(self):
-        return self.dicomData.SOPClassUID
+    #def get_SOP_class_uid(self):
+        #return self.dicomData.SOPClassUID
 
     def get_number_rows(self):
         return self.dicomData.Rows

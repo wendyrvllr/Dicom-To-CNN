@@ -28,7 +28,7 @@ class MaskBuilder(CsvReader):
     def initialize_mask_matrix(self):
         """build empty 4D numpy array 
         """
-        self.mask_array = np.zeros( (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2], self.number_of_rois ))
+        self.mask_array = np.zeros( (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2], self.number_of_rois )).astype(np.uint8)
 
 
     def build_mask(self):
@@ -48,7 +48,7 @@ class MaskBuilder(CsvReader):
             self.details_rois[number_roi]['list_points'] = list_points
             
         
-        return self.mask_array #liste
+        return self.mask_array.astype(np.uint8) #liste
 
 
 
