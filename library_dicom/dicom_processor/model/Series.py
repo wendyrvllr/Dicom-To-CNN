@@ -109,14 +109,21 @@ class Series():
         for i in range(2,len(Z_positions)):
             z_spacing = round(Z_positions[i-1]-Z_positions[i],2)
             if (z_spacing!=initial_z_spacing):
-                raise Exception('Unconstant Spacing')
+                try : 
+                    raise Exception('Unconstant Spacing')
+                except Exception : 
+                    return('Unconstant Spacing')
         return initial_z_spacing
 
     #check origin direction spacing de nifti
 
-    def export_nifti(self, file_path):
-        nifti_builder = NiftiBuilder(self)
-        nifti_builder.save_nifti(file_path)
+    def export_nifti(self, file_path, mask = None):
+        if (mask == None) : 
+            nifti_builder = NiftiBuilder(self)
+            nifti_builder.save_nifti(file_path)
+        else : 
+            nifti_builder = NiftiBuilder(self)
+            nifti_builder.save_nifti(file_path, mask)
 
     def get_all_SOPInstanceIUD(self):
         liste = []
