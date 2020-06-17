@@ -106,6 +106,7 @@ class Series():
     
         initial_z_spacing = round(Z_positions[0]-Z_positions[1],2)
         
+        
         for i in range(2,len(Z_positions)):
             z_spacing = round(Z_positions[i-1]-Z_positions[i],2)
             if (z_spacing!=initial_z_spacing):
@@ -114,6 +115,20 @@ class Series():
                 except Exception : 
                     return('Unconstant Spacing')
         return initial_z_spacing
+
+
+    def calculate_z_spacing(self): 
+        Z_positions = [ instance.get_image_position()[2] for instance in self.instance_array ]
+        spacing = []
+        initial_z_spacing = round(abs(Z_positions[0]-Z_positions[1]),2)
+        spacing.append(initial_z_spacing)
+        for i in range(2,len(Z_positions)):
+            z_spacing = round(abs(Z_positions[i-1]-Z_positions[i]),2)
+            spacing.append(z_spacing)  
+
+        return spacing 
+
+
 
     #check origin direction spacing de nifti
 
