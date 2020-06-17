@@ -5,7 +5,6 @@ class RTROIObservationsSequence :
 
     def __init__(self, mask_4D, dict_roi_data):
         self.mask_4D = mask_4D
-        #self.StructureSetROISequence = pydicom.sequence.Sequence()
         self.number_of_roi = self.mask_4D.shape[3]
         self.dict_roi_data = dict_roi_data
 
