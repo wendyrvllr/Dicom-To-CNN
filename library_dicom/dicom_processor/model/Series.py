@@ -7,7 +7,7 @@ import SimpleITK as sitk
 import scipy 
 import sys
 
-from library_dicom.dicom_processor.model.Instance import Instance
+from library_dicom.dicom_processor.model.reader.Instance import Instance
 from library_dicom.dicom_processor.model.NiftiBuilder import NiftiBuilder
 from library_dicom.dicom_processor.enums.TagEnum import *
 from library_dicom.dicom_processor.enums.SopClassUID import *

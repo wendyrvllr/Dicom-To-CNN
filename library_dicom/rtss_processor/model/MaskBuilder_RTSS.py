@@ -1,6 +1,6 @@
 from library_dicom.dicom_processor.model.Series import Series
-from library_dicom.dicom_processor.model.Instance import Instance
-from library_dicom.rtss_processor.model.Instance_RTSS import Instance_RTSS
+from library_dicom.dicom_processor.model.reader.Instance import Instance
+from library_dicom.dicom_processor.model.reader.Instance_RTSS import Instance_RTSS
 import pydicom
 import os
 import cv2 as cv2
