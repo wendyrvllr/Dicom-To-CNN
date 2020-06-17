@@ -95,7 +95,7 @@ class SeriesPT(Series):
 
         radiopharmaceutical_start_date_time = datetime.strptime(radiopharmaceutical_start_date_time, "%Y%m%d%H%M%S")
 
-        if manufacturer == 'Philips' :
+        if 'philips' in manufacturer.lower() :
             #philips_suv_factor = series_details['series']['PhilipsSUVFactor']
             philips_suv_bqml = series_details['philips_tags']['PhilipsBqMlFactor']
             philips_suv_factor = series_details['philips_tags']['PhilipsSUVFactor']
@@ -127,7 +127,7 @@ class SeriesPT(Series):
         
         suv_conversion_factor = (1/((total_dose * decay_factor) / patient_weight))
 
-        if manufacturer =='Philips' : return philips_suv_bqml * suv_conversion_factor
+        if 'philips' in manufacturer.lower() : return philips_suv_bqml * suv_conversion_factor
         else : return suv_conversion_factor
     
 
