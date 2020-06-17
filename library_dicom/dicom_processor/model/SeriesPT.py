@@ -98,7 +98,9 @@ class SeriesPT(Series):
         if manufacturer == 'Philips' :
             #philips_suv_factor = series_details['series']['PhilipsSUVFactor']
             philips_suv_bqml = series_details['philips_tags']['PhilipsBqMlFactor']
-            if (philips_suv_bqml == 'Undefined') : raise Exception('Missing Philips BqMl Factor')
+            philips_suv_factor = series_details['philips_tags']['PhilipsSUVFactor']
+            if (philips_suv_factor != 'Undefined') : return philips_suv_factor
+            if (philips_suv_factor == 'Undefined' and philips_suv_bqml == 'Undefined') : raise Exception('Missing Philips private Factors')
         
         if (total_dose == 'Undefined' or acquisition_time== 'Undefined' 
             or patient_weight == 'Undefined' or radionuclide_half_life == 'Undefined' ) :
