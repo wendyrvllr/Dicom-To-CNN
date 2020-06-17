@@ -140,23 +140,9 @@ class Instance:
             return resultArray
     
 
-    def get_frame_of_reference_uid(self):
-        return self.dicomData.FrameOfReferenceUID 
-
     def get_series_instance_uid(self):
-        return self.dicomData.SeriesInstanceUID
+        return self.dicomData[TagsSeries['SeriesInstanceUID'].value].value
 
-    #def get_study_instance_uid(self):
-        #return self.dicomData.StudyInstanceUID
-
-    #def get_SOP_class_uid(self):
-        #return self.dicomData.SOPClassUID
-
-    def get_number_rows(self):
-        return self.dicomData.Rows
-
-    def get_number_columns(self):
-        return self.dicomData.Columns
 
     #for RTSS Writer 
     #check si ces informations sont bien dans le dataset sinon erreur 
@@ -176,18 +162,6 @@ class Instance:
     def get_patient_sex(self):
         return self.dicomData[TagsPatient['PatientSex'].value].value 
 
-    #a rajouter dans TagEnum 
-
-    def get_referring_physician_name(self):
-        return self.dicomData.ReferringPhysicianName
-
-    def get_specific_character_set(self):
-        return self.dicomData.SpecificCharacterSet
-
-    def get_physicians_of_record(self):
-        return self.dicomData.PhysiciansOfRecord
-
-        
 
     def get_study_date(self):
         return self.dicomData[TagsStudy['StudyDate'].value].value
@@ -203,6 +177,36 @@ class Instance:
 
     def get_study_time(self):
         return self.dicomData[TagsStudy['StudyTime'].value].value
+
+
+
+
+    def get_referring_physician_name(self):
+        if "ReferringPhysisicianName" in self.dicomData : return self.dicomData.ReferringPhysicianName
+        else : return "Undefined"
+
+    def get_specific_character_set(self):
+        if "SpecificCharacterSet" in self.dicomData : return self.dicomData.SpecificCharacterSet
+        else : return "Undefined"
+
+    def get_physicians_of_record(self):
+        if "PhysiciansOfRecord" in self.dicomData : return self.dicomData.PhysiciansOfRecord
+        else : return "Undefined"
+
+    
+    def get_number_rows(self):
+        return self.dicomData.Rows
+
+    def get_number_columns(self):
+        return self.dicomData.Columns
+
+    
+    def get_frame_of_reference_uid(self):
+        return self.dicomData.FrameOfReferenceUID 
+
+
+        
+
 
     
 
