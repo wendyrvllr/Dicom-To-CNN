@@ -48,6 +48,14 @@ class SeriesPT(Series):
 
         return details
 
+    def __parse_datetime(self, date_time):
+        #remove microsecond at it is inconstant over dicom
+        if '.' in date_time : 
+            date_time = date_time[0 : date_time.index('.')]
+        #parse datetime to date objet
+        return datetime.strptime(date_time, "%Y%m%d%H%M%S")
+
+
 
     def __calculateSUVFactor(self):
         """
@@ -66,23 +74,14 @@ class SeriesPT(Series):
         series_date = series_details['series']['SeriesDate']
         series_datetime = series_date + series_time 
 
-        #Remove microseconds (after dot) as it is unconstant
-        if '.' in series_datetime : 
-            series_datetime = series_datetime[0 : series_datetime.index('.')]
-
-        
-        series_datetime = datetime.strptime(series_datetime, "%Y%m%d%H%M%S") #datetime.datetime
+        series_datetime = self.__parse_datetime(series_datetime)
 
         acquisition_time = series_details['series']['AcquisitionTime']
         acquisition_date = series_details['series']['AcquisitionDate']
         acquisition_datetime = acquisition_date + acquisition_time #str
 
-        if '.' in acquisition_datetime : 
-            acquisition_datetime = acquisition_datetime[0 : acquisition_datetime.index('.')]
-        
-        acquisition_datetime = datetime.strptime(acquisition_datetime, "%Y%m%d%H%M%S") #datetime.datetime
+        acquisition_datetime = self.__parse_datetime(acquisition_datetime)
 
-        manufacturer = series_details['series']['Manufacturer']
         decay_correction = series_details['series']['DecayCorrection']
         radionuclide_half_life = series_details['radiopharmaceutical']['RadionuclideHalfLife']
         total_dose = series_details['radiopharmaceutical']['TotalDose']
@@ -93,12 +92,9 @@ class SeriesPT(Series):
             radiopharmaceutical_start_time = series_details['radiopharmaceutical']['RadiopharmaceuticalStartTime']
             radiopharmaceutical_start_date_time = acquisition_date + radiopharmaceutical_start_time 
             
-        if '.' in radiopharmaceutical_start_date_time : 
-            radiopharmaceutical_start_date_time = radiopharmaceutical_start_date_time[0 : radiopharmaceutical_start_date_time.index('.')]
+        radiopharmaceutical_start_date_time = self.__parse_datetime(radiopharmaceutical_start_date_time)
 
-        radiopharmaceutical_start_date_time = datetime.strptime(radiopharmaceutical_start_date_time, "%Y%m%d%H%M%S")
-
-        if 'philips' in manufacturer.lower() and units == 'CNTS' :
+        if units == 'CNTS' :
             philips_suv_bqml = series_details['philips_tags']['PhilipsBqMlFactor']
             philips_suv_factor = series_details['philips_tags']['PhilipsSUVFactor']
             if (philips_suv_factor != 'Undefined') : return philips_suv_factor
@@ -129,7 +125,7 @@ class SeriesPT(Series):
         
         suv_conversion_factor = 1/((total_dose * decay_factor) / patient_weight)
 
-        if 'philips' in manufacturer.lower() and units == 'CNTS' : return philips_suv_bqml * suv_conversion_factor
+        if units == 'CNTS' : return philips_suv_bqml * suv_conversion_factor
         else : return suv_conversion_factor
         
 
