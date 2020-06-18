@@ -48,7 +48,7 @@ class Roi():
             return xmin , xmax , ymin, ymax
 
 
-    def mask_roi_in_slice(self, patch): #patch = ellipse ou polygone #slice = np array 256*256
+    def mask_roi_in_slice(self, patch): #patch = ellipse ou polygone 
         #get Roi limits in wich we will loop
         points = []
         xmin, xmax, ymin, ymax  = self.__get_min_max_of_roi()
@@ -89,14 +89,16 @@ class Roi():
     def get_mask(self, list_points, number_roi): #list_points = [[x,y,z], [x,y,z], ...]
         np_array_3D = self.get_empty_np_array()
         for point in list_points:
-            np_array_3D[point[0], point[1] , point[2]] = number_roi
+            np_array_3D[point[1], point[0] , point[2]] = number_roi
+            #x et y inversé dans matplotlib 
 
         if (self.axis == 2) : 
             return self.coronal_to_axial(np_array_3D)
         elif (self.axis == 3) :
             return self.sagittal_to_axial(np_array_3D)
 
-        return np.transpose(np_array_3D.astype(np.uint8), (1,0,2)) 
+        #return np.transpose(np_array_3D.astype(np.uint8), (1,0,2)) 
+        return np_array_3D.astype(np.uint8)
 
 
 

@@ -57,14 +57,14 @@ class MaskBuilder(CsvReader):
         """calcul SUV Mean, SUV Max and SD from the 3D np array of a mask and put results in a dict
         """
         max_mean = {}
-    
         for number_roi in range(1 , self.number_of_rois + 1):
             list_points = self.details_rois[number_roi]['list_points'] #[[x,y,z], [x,y,z],...]
             list_pixels = []
             list_pixels_seuil = []
             results = {}
             for point in list_points :
-                list_pixels.append(nifti_array[point[1], point[0], point[2]]) #matplotlip inverse x et y 
+                list_pixels.append(nifti_array[point[1], point[0], point[2]]) 
+                #transpose x et y dans les matrices 3D 
 
 
             seuil = self.details_rois['SUVlo']
