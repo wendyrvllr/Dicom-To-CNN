@@ -99,10 +99,15 @@ class MaskBuilder(CsvReader):
 
         """
 
+    #SI CONSTRUCTEUR PHILIPS ALORS ACCEPTER LES ERREURS (A RAJOUTER)
+
+
+
 
         calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
         for number_roi in range(1, self.number_of_rois +1) :
             #print(number_roi)
+
 
             if (calculated_suv_max_mean[number_roi]['SUV_max'] < float(self.details_rois[number_roi]['suv_max']) - float(0.1) or 
                 calculated_suv_max_mean[number_roi]['SUV_max'] > float(self.details_rois[number_roi]['suv_max']) + float(0.1)  ):
@@ -130,14 +135,71 @@ class MaskBuilder(CsvReader):
         liste = []
         calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
         for number_roi in range(1, self.number_of_rois +1) :
+
             #print(number_roi)
 
             if (calculated_suv_max_mean[number_roi]['SUV_max'] < float(self.details_rois[number_roi]['suv_max']) - float(0.1) or 
                 calculated_suv_max_mean[number_roi]['SUV_max'] > float(self.details_rois[number_roi]['suv_max']) + float(0.1)  ):
+                type_roi = self.details_rois[number_roi]['type_number']
+                liste.append(number_roi)
+                if type_roi == 1 or type_roi == 2 or type_roi == 3 : 
+                    liste.append("POLYGON")
+
+                if type_roi == 11 or type_roi == 12 or type_roi == 13 : 
+                    liste.append("ELLIPSE")
+
                 liste.append(float(abs(calculated_suv_max_mean[number_roi]['SUV_max'] - float(self.details_rois[number_roi]['suv_max']))))
                 
 
         return liste 
+
+    def ecart_suv_mean(self, nifti_array) : 
+        liste = []
+        calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
+        for number_roi in range(1, self.number_of_rois +1) :
+
+            #print(number_roi)
+
+            if (calculated_suv_max_mean[number_roi]['SUV_mean'] < float(self.details_rois[number_roi]['suv_mean']) - float(0.1) or 
+                calculated_suv_max_mean[number_roi]['SUV_mean'] > float(self.details_rois[number_roi]['suv_mean']) + float(0.1)):
+                type_roi = self.details_rois[number_roi]['type_number']
+                liste.append(number_roi)
+                if type_roi == 1 or type_roi == 2 or type_roi == 3 : 
+                    liste.append("POLYGON")
+
+                if type_roi == 11 or type_roi == 12 or type_roi == 13 : 
+                    liste.append("ELLIPSE")
+
+                liste.append(float(abs(calculated_suv_max_mean[number_roi]['SUV_mean'] - float(self.details_rois[number_roi]['suv_mean']))))
+                
+
+        return liste 
+
+
+    def ecart_SD(self, nifti_array) :
+        liste = []
+        calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
+        for number_roi in range(1, self.number_of_rois +1) :
+
+            #print(number_roi)
+
+            if (calculated_suv_max_mean[number_roi]['SD'] < float(self.details_rois[number_roi]['sd']) - float(0.1) or 
+                calculated_suv_max_mean[number_roi]['SD'] > float(self.details_rois[number_roi]['sd']) + float(0.1)):
+                type_roi = self.details_rois[number_roi]['type_number']
+                liste.append(number_roi)
+                if type_roi == 1 or type_roi == 2 or type_roi == 3 : 
+                    liste.append("POLYGON")
+
+                if type_roi == 11 or type_roi == 12 or type_roi == 13 : 
+                    liste.append("ELLIPSE")
+
+                liste.append(float(abs(calculated_suv_max_mean[number_roi]['SD'] - float(self.details_rois[number_roi]['sd']))))
+                
+
+        return liste 
+
+
+
 
 
 

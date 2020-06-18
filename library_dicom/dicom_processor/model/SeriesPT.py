@@ -67,6 +67,11 @@ class SeriesPT(Series):
         series_details = self.get_series_details()
         units = series_details['series']['Units']
         if units == 'GML' : return 1
+        elif units == 'CNTS' :
+            philips_suv_bqml = series_details['philips_tags']['PhilipsBqMlFactor']
+            philips_suv_factor = series_details['philips_tags']['PhilipsSUVFactor']
+            if (philips_suv_factor != 'Undefined') : return philips_suv_factor
+            if (philips_suv_factor == 'Undefined' and philips_suv_bqml == 'Undefined') : raise Exception('Missing Philips private Factors')
         
         patient_weight = series_details['study']['PatientWeight'] * 1000 #kg to g conversion
         
@@ -94,11 +99,6 @@ class SeriesPT(Series):
             
         radiopharmaceutical_start_date_time = self.__parse_datetime(radiopharmaceutical_start_date_time)
 
-        if units == 'CNTS' :
-            philips_suv_bqml = series_details['philips_tags']['PhilipsBqMlFactor']
-            philips_suv_factor = series_details['philips_tags']['PhilipsSUVFactor']
-            if (philips_suv_factor != 'Undefined') : return philips_suv_factor
-            if (philips_suv_factor == 'Undefined' and philips_suv_bqml == 'Undefined') : raise Exception('Missing Philips private Factors')
         
         if (total_dose == 'Undefined' or acquisition_time== 'Undefined' 
             or patient_weight == 'Undefined' or radionuclide_half_life == 'Undefined' ) :

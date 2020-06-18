@@ -10,7 +10,7 @@ class NiftiBuilder:
         self.series = series
     
     def save_nifti(self, filename, mask = None):
-        if( mask == None) : 
+        if( mask is None) : 
             sitk_img = sitk.GetImageFromArray( np.transpose(self.series.get_numpy_array(), (2,0,1) ))
             original_pixel_spacing = self.series.instance_array[0].get_pixel_spacing()
             #print(self.series.instance_array[0].get_image_orientation())

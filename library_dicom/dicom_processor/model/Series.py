@@ -133,7 +133,7 @@ class Series():
     #check origin direction spacing de nifti
 
     def export_nifti(self, file_path, mask = None):
-        if (mask == None) : 
+        if (mask is None) : 
             nifti_builder = NiftiBuilder(self)
             nifti_builder.save_nifti(file_path)
         else : 
