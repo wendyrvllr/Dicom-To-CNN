@@ -88,10 +88,11 @@ class Instance:
         if TagPTCorrection.CorrectedImage.value in self.dicomData :
             return list(self.dicomData[TagPTCorrection.CorrectedImage.value].value)
         else: return "Undefined"
-    
+
+
     def get_philips_private_tags(self):
         philips_tags={}
-        for tag_address in philips_tags:
+        for tag_address in PhilipsPrivateTags:
             if tag_address.value in self.dicomData : 
                 philips_tags[tag_address.name] = float(self.dicomData[tag_address.value].value)
             else : philips_tags[tag_address.name] = "Undefined"

@@ -44,11 +44,14 @@ class SeriesPT(Series):
         self.philips_tag = {}
         self.philips_tag = dicomInstance.get_philips_private_tags()
         details['philips_tags'] = self.philips_tag
+        #reste vide si pas de tags dans le dicom, voir pour mettre des undefined ici
 
         return details
 
+
     def __calculateSUVFactor(self):
-        """Calcul of  SUV factor
+        """
+        Calcul of  SUV factor
 
         Returns:
             [float] -- [return SUV factor or "Calcul SUV impossible" if there is "Undefined" value in tags]
@@ -124,11 +127,11 @@ class SeriesPT(Series):
 
         else : raise Exception('Unknown Decay Correction methode')
         
-        suv_conversion_factor = (1/((total_dose * decay_factor) / patient_weight))
+        suv_conversion_factor = 1/((total_dose * decay_factor) / patient_weight)
 
         if 'philips' in manufacturer.lower() and units == 'CNTS' : return philips_suv_bqml * suv_conversion_factor
         else : return suv_conversion_factor
-    
+        
 
     def calculateSULFactor(self):
         """Calcul SUL Factor
