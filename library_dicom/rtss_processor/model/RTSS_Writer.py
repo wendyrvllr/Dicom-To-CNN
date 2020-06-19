@@ -97,7 +97,7 @@ class RTSS_Writer:
         self.dataset.PatientID = self.first_metadata.get_patient_id()
         self.dataset.PatientName = self.first_metadata.get_patient_name()
         self.dataset.PatientSex = self.first_metadata.get_patient_sex()
-        #self.dataset.PysiciansOfRecord = self.first_metadata.get_physicians_of_record()
+        self.dataset.PysiciansOfRecord = self.first_metadata.get_physicians_of_record()
         self.dataset.ReferringPhysicianName = self.first_metadata.get_referring_physician_name()
         self.dataset.SpecificCharacterSet = self.first_metadata.get_specific_character_set()
         self.dataset.StudyData = self.first_metadata.get_study_date()
@@ -149,7 +149,7 @@ class RTSS_Writer:
         referenced_sop_class_uid = self.first_metadata.get_sop_class_uid()
         self.dataset.ROIContourSequence = ROIContourSequence(self.mask, self.dict_roi_data).create_ROIContourSequence(referenced_sop_class_uid, self.image_position, self.pixel_spacing, self.list_all_SOPInstanceUID)
 
-
+    #ReferencedFrameOfReferenceSequence 
     def set_ReferencedFrameOfReferenceSequence(self):
         frame_of_reference_uid = self.first_metadata.get_frame_of_reference_uid()
         series_instance_uid = self.first_metadata.get_series_instance_uid()
