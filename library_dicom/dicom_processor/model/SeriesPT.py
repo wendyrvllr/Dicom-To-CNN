@@ -44,7 +44,6 @@ class SeriesPT(Series):
         self.philips_tag = {}
         self.philips_tag = dicomInstance.get_philips_private_tags()
         details['philips_tags'] = self.philips_tag
-        #reste vide si pas de tags dans le dicom, voir pour mettre des undefined ici
 
         return details
 

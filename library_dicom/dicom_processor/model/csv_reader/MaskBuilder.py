@@ -196,16 +196,7 @@ class MaskBuilder(CsvReader):
 
 
 
-
-
-
-
-
-
-
-
-
-    def flip_z(self, mask_4D): #a mettre dans le constructeur ? 
+    def flip_z(self, mask_4D): 
         """flip z axis in the mask matrix if calculated SUV Mean SUV MAX and SD is False 
 
         """
