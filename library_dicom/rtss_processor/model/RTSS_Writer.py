@@ -23,7 +23,7 @@ class RTSS_Writer:
     def __init__(self, mask, serie_path, dict_roi_data):
         self.mask = mask
 
-        #spécifique pour calculer les contours des ROIS
+        #data spécifique à la série ou on dessine les contours 
         serie = Series(serie_path)
         self.first_metadata = serie.get_first_instance_metadata()
         self.image_position = self.first_metadata.get_image_position()
@@ -32,7 +32,7 @@ class RTSS_Writer:
         self.pixel_spacing.append(serie.get_z_spacing())
         self.list_all_SOPInstanceUID = serie.get_all_SOPInstanceIUD()
 
-
+        #dictionnaire entrée par l'utilisateur 
         self.dict_roi_data = dict_roi_data
 
         #creation dataset 
