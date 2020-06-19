@@ -20,7 +20,7 @@ class StructureSetROISequence :
             if self.dict_roi_data[number_roi]['ROIName'] != '' : 
                 dataset.ROIName = self.dict_roi_data[number_roi]['ROIName']
 
-            else : dataset.ROIName = str(number_roi )
+            else : dataset.ROIName = str(number_roi)
 
             if self.dict_roi_data[number_roi]['ROIVolume'] != '' : 
                 dataset.ROIVolume = self.dict_roi_data[number_roi]['ROIVolume']

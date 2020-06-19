@@ -1,5 +1,5 @@
 from library_dicom.dicom_processor.model.Series import Series
-from library_dicom.dicom_processor.model.Instance import Instance
+from library_dicom.dicom_processor.model.reader.Instance import Instance
 import pydicom
 import os
 import cv2 as cv2
@@ -15,10 +15,6 @@ class Instance_RTSS(Instance):
     def __init__(self, path_rtss):
         super().__init__(path_rtss, load_image=True)
 
-        #serie = Series(serie_path)
-        #self.serie_data = serie.get_series_details()
-        #self.instance_uid_serie = serie.get_all_SOPInstanceIUD()
-        #self.matrix_size = serie.get_size_matrix()
 
     def get_image_nparray(self):
         sys.exit('Cannot get image numpy array from RTSTRUCT FILE')
@@ -32,16 +28,6 @@ class Instance_RTSS(Instance):
         
         return liste
 
-    """
-    def is_sop_instance_uid_same(self):
-        uid_serie = self.get_list_all_SOP_Instance_UID_serie()
-        uid_rtss = self.get_list_all_SOP_Instance_UID_RTSS()
-        for uid in uid_rtss : 
-            if uid not in uid_serie : 
-                return False
-
-        return True
-        """
 
 
     def get_number_of_roi(self):

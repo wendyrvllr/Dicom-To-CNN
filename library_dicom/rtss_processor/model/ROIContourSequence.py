@@ -57,7 +57,7 @@ class ROIContourSequence :
         return list_contours, list_SOPInstanceUID
 
 
-    def create_ContourImageSequence(self, ReferencedSOPClassUID, ReferencedSOPInstanceUID):
+    def __create_ContourImageSequence(self, ReferencedSOPClassUID, ReferencedSOPInstanceUID):
         ContourImageSequence = pydicom.sequence.Sequence()
         dataset = pydicom.dataset.Dataset()
         dataset.ReferencedSOPClassUID = ReferencedSOPClassUID
@@ -65,7 +65,7 @@ class ROIContourSequence :
         ContourImageSequence.append(dataset)
         return ContourImageSequence 
 
-    def create_ContourSequence(self, ReferencedSOPClassUID, list_ReferencedSOPInstanceUID, list_ContourData):
+    def __create_ContourSequence(self, ReferencedSOPClassUID, list_ReferencedSOPInstanceUID, list_ContourData):
         ContourSequence = pydicom.sequence.Sequence()
 
         for ContourData,SOPInstanceUID in zip(list_ContourData,list_ReferencedSOPInstanceUID):
@@ -73,7 +73,7 @@ class ROIContourSequence :
             dataset.ContourData = ContourData 
             dataset.ContourGeometricType = 'CLOSED_PLANAR'
             
-            dataset.ContourImageSequence = self.create_ContourImageSequence(ReferencedSOPClassUID, SOPInstanceUID)
+            dataset.ContourImageSequence = self.__create_ContourImageSequence(ReferencedSOPClassUID, SOPInstanceUID)
             
             dataset.NumberOfContourPoints = len(ContourData)/3
 
@@ -87,6 +87,6 @@ class ROIContourSequence :
             dataset.ROIDisplayColor = [255,0,0]
             dataset.ReferencedROINumber = number_roi
             list_contour_data , list_SOP_instance_uid = self.pixel_to_spatial(number_roi, image_position, pixel_spacing, list_all_SOPInstanceUID)
-            dataset.ContourSequence = self.create_ContourSequence(ReferencedSOPClassUID, list_SOP_instance_uid, list_contour_data)
+            dataset.ContourSequence = self.__create_ContourSequence(ReferencedSOPClassUID, list_SOP_instance_uid, list_contour_data)
             ROIContourSequence.append(dataset)
         return ROIContourSequence 

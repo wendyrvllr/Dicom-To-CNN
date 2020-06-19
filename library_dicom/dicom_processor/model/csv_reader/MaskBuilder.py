@@ -106,12 +106,9 @@ class MaskBuilder(CsvReader):
 
         calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
         for number_roi in range(1, self.number_of_rois +1) :
-            #print(number_roi)
-
 
             if (calculated_suv_max_mean[number_roi]['SUV_max'] < float(self.details_rois[number_roi]['suv_max']) - float(0.1) or 
                 calculated_suv_max_mean[number_roi]['SUV_max'] > float(self.details_rois[number_roi]['suv_max']) + float(0.1)  ):
-                #ecart_suv_max.append(float(abs(calculated_suv_max_mean[number_roi]['SUV_max'] - float(self.details_rois[number_roi]['suv_max']))))
                 return False
 
 
@@ -123,7 +120,6 @@ class MaskBuilder(CsvReader):
                 calculated_suv_max_mean[number_roi]['SD'] > float(self.details_rois[number_roi]['sd']) + float(0.1) ) :
                 return False
 
-        #return np.max(ecart_suv_max)
         return True 
 
 

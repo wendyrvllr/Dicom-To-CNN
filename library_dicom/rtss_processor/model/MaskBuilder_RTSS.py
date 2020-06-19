@@ -117,7 +117,6 @@ class MaskBuilder_RTSS :
         liste_points, slice = self.get_list_points(matrix_size, number_roi, list_all_SOPInstanceUID )
 
         for item in range(len(slice)):
-            #print(slice[item])
             np_array_3D[:,:,slice[item]] = cv2.drawContours(np.float32(np_array_3D[:,:,slice[item]]), [np.asarray(liste_points[item])], -1, number_roi , -1)
 
         return np_array_3D
@@ -126,11 +125,9 @@ class MaskBuilder_RTSS :
     def rtss_to_4D_mask(self):
         matrix_size = self.matrix_size
         list_all_SOPInstanceUID = self.rtss.get_list_all_SOP_Instance_UID_RTSS()
-        #number_of_roi = self.rtss.get_number_of_roi()
-        
         np_array_3D = []
         for number_roi in range(1, self.number_of_roi +1):
             np_array_3D.append(self.rtss_to_3D_mask(number_roi, matrix_size, list_all_SOPInstanceUID))
         np_array_4D = np.stack((np_array_3D), axis = 3)
 
-        return np_array_4D
+        return np_array_4D.astype(np.uint8)

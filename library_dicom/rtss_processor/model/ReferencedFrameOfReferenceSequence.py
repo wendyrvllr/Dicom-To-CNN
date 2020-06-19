@@ -8,7 +8,7 @@ class ReferencedFrameOfReferenceSequence :
         pass
 
 
-    def create_ContourImageSequence(self, ReferencedSOPClassUID, list_all_SOPInstanceUID):
+    def __create_ContourImageSequence(self, ReferencedSOPClassUID, list_all_SOPInstanceUID):
         ContourImageSequence = pydicom.sequence.Sequence()
         for SOPInstanceUID in list_all_SOPInstanceUID : 
 
@@ -18,20 +18,20 @@ class ReferencedFrameOfReferenceSequence :
             ContourImageSequence.append(dataset)
         return ContourImageSequence 
 
-    def create_RTReferencedSeriesSequence(self, ReferencedSOPClassUID, list_all_SOPInstanceUID, SeriesInstanceUID):
+    def __create_RTReferencedSeriesSequence(self, ReferencedSOPClassUID, list_all_SOPInstanceUID, SeriesInstanceUID):
         RTReferencedSeriesSequence = pydicom.sequence.Sequence()
          
         dataset = pydicom.dataset.Dataset()
         dataset.SeriesInstanceUID = SeriesInstanceUID
-        dataset.ContourImageSequence = self.create_ContourImageSequence(ReferencedSOPClassUID, list_all_SOPInstanceUID)
+        dataset.ContourImageSequence = self.__create_ContourImageSequence(ReferencedSOPClassUID, list_all_SOPInstanceUID)
         RTReferencedSeriesSequence.append(dataset)
         return RTReferencedSeriesSequence
 
-    def create_RTReferencedStudySequence(self, ReferencedSOPClassUID, list_all_SOPInstanceUID, SeriesInstanceUID, StudyInstanceUID):
+    def __create_RTReferencedStudySequence(self, ReferencedSOPClassUID, list_all_SOPInstanceUID, SeriesInstanceUID, StudyInstanceUID):
         RTReferencedStudySequence = pydicom.sequence.Sequence()
         dataset = pydicom.dataset.Dataset()
         dataset.ReferencedSOPInstanceUID = StudyInstanceUID
-        dataset.RTReferencedSeriesSequence = self.create_RTReferencedSeriesSequence(ReferencedSOPClassUID, list_all_SOPInstanceUID, SeriesInstanceUID)
+        dataset.RTReferencedSeriesSequence = self.__create_RTReferencedSeriesSequence(ReferencedSOPClassUID, list_all_SOPInstanceUID, SeriesInstanceUID)
         RTReferencedStudySequence.append(dataset)
         return RTReferencedStudySequence
 
@@ -39,6 +39,6 @@ class ReferencedFrameOfReferenceSequence :
         ReferencedFrameOfReferenceSequence = pydicom.sequence.Sequence()
         dataset = pydicom.dataset.Dataset()
         dataset.FrameOfReferenceUID = FrameOfReferenceUID 
-        dataset.RTReferencedStudySequence = self.create_RTReferencedStudySequence(ReferencedSOPClassUID, list_all_SOPInstanceUID, SeriesInstanceUID, StudyInstanceUID)
+        dataset.RTReferencedStudySequence = self.__create_RTReferencedStudySequence(ReferencedSOPClassUID, list_all_SOPInstanceUID, SeriesInstanceUID, StudyInstanceUID)
         ReferencedFrameOfReferenceSequence.append(dataset)
         return ReferencedFrameOfReferenceSequence
