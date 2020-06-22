@@ -100,17 +100,12 @@ class MaskBuilder(CsvReader):
 
 
     #parti check 
-    def is_correct_suv(self, nifti_array):
+    def is_correct_suv(self, nifti_array, flip = False):
         """check if calculated SUV Mean SUV Max and SD is correct 
 
         """
 
-    #SI CONSTRUCTEUR PHILIPS ALORS ACCEPTER LES ERREURS (A RAJOUTER)
-
-
-
-
-        calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
+        calculated_suv_max_mean = self.calcul_suv(nifti_array, flip) #dict 
         for number_roi in range(1, self.number_of_rois +1) :
 
             if (calculated_suv_max_mean[number_roi]['SUV_max'] < float(self.details_rois[number_roi]['suv_max']) - float(0.1) or 
