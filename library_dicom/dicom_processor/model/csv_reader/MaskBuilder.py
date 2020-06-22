@@ -53,9 +53,11 @@ class MaskBuilder(CsvReader):
 
 
 
-    def calcul_suv(self, nifti_array):
+    def calcul_suv(self, nifti_array, flip = False):
         """calcul SUV Mean, SUV Max and SD from the 3D np array of a mask and put results in a dict
         """
+        slice = nifti_array.shape[2]
+        #nifti_array = np.flip(nifti_array, axis = 0)
         max_mean = {}
         for number_roi in range(1 , self.number_of_rois + 1):
             list_points = self.details_rois[number_roi]['list_points'] #[[x,y,z], [x,y,z],...]
@@ -63,8 +65,12 @@ class MaskBuilder(CsvReader):
             list_pixels_seuil = []
             results = {}
             for point in list_points :
-                list_pixels.append(nifti_array[point[1], point[0], point[2]]) 
+                if (flip == True) : 
+                    list_pixels.append(nifti_array[point[1], point[0], (slice- 1) - point[2]]) 
                 #transpose x et y dans les matrices 3D 
+                else : 
+                    list_pixels.append(nifti_array[point[1], point[0], point[2]])
+
 
 
             seuil = self.details_rois['SUVlo']
@@ -202,7 +208,7 @@ class MaskBuilder(CsvReader):
         """
         #if self.is_correct_suv == 'False' : 
         for number_roi in range(self.number_of_rois):
-            mask_4D[:,:,:,number_roi] = np.flip(mask_4D[:,:,:,number_roi], axis = 0)
+            mask_4D[:,:,:,number_roi] = np.flip(mask_4D[:,:,:,number_roi], axis = 2)
 
         self.mask_array = mask_4D
         #return self.mask_array
