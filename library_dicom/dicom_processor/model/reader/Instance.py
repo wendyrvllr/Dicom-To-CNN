@@ -206,6 +206,18 @@ class Instance:
         return self.dicomData.FrameOfReferenceUID 
 
 
+    def get_acquisition_date(self):
+        if "AcquisitionDate" in self.dicomData : 
+            return self.dicomData.AcquisitionDate
+        else : return "Undefined"
+        
+
+    def get_acquisition_time(self):
+        if 'AcquisitionTime' in self.dicomData : 
+            return self.dicomData.AcquisitionTime
+        else : return "Undefined"
+
+
         
 
 
