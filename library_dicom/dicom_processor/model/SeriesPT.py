@@ -1,4 +1,6 @@
 from library_dicom.dicom_processor.model.Series import Series
+from library_dicom.dicom_processor.model.reader.Instance import Instance 
+import os 
 from math import exp, log, pow
 from datetime import datetime, timedelta
 
@@ -27,6 +29,24 @@ class SeriesPT(Series):
         self.sul_value=sul_value
 
 
+
+
+    def get_minimum_acquisition_datetime(self):
+        liste = []
+        try : 
+            for filename in self.file_names : 
+                instanceData = Instance(os.path.join(self.path,filename), load_image=True)
+                datetime = instanceData.get_acquisition_date() + instanceData.get_acquisition_time()
+                parsed_datetime = self.__parse_datetime(datetime)
+                liste.append(parsed_datetime)
+
+                return min(liste)
+
+        except Exception : 
+            return "Undefined"
+        
+
+
     def get_series_details(self):
         """Add Pharmaceuticals data to common series details
 
@@ -47,7 +67,8 @@ class SeriesPT(Series):
 
         return details
 
-    def __parse_datetime(self, date_time):
+    @classmethod
+    def __parse_datetime(cls, date_time):
         #remove microsecond at it is inconstant over dicom
         if '.' in date_time : 
             date_time = date_time[0 : date_time.index('.')]
@@ -80,18 +101,17 @@ class SeriesPT(Series):
 
         series_datetime = self.__parse_datetime(series_datetime)
 
-        acquisition_time = series_details['series']['AcquisitionTime']
+        acquisition_datetime = self.get_minimum_acquisition_datetime()
         acquisition_date = series_details['series']['AcquisitionDate']
-        acquisition_datetime = acquisition_date + acquisition_time #str
-
-        acquisition_datetime = self.__parse_datetime(acquisition_datetime)
 
         decay_correction = series_details['series']['DecayCorrection']
         radionuclide_half_life = series_details['radiopharmaceutical']['RadionuclideHalfLife']
         total_dose = series_details['radiopharmaceutical']['TotalDose']
 
         radiopharmaceutical_start_date_time = series_details['radiopharmaceutical']['RadiopharmaceuticalStartDateTime']
+        #print(radiopharmaceutical_start_date_time)
         if radiopharmaceutical_start_date_time == 'Undefined':
+            #print("passe dans le if")
             #If startDateTime not available use the deprecated statTime assuming the injection is same day than acquisition date
             radiopharmaceutical_start_time = series_details['radiopharmaceutical']['RadiopharmaceuticalStartTime']
             radiopharmaceutical_start_date_time = acquisition_date + radiopharmaceutical_start_time 
@@ -99,15 +119,17 @@ class SeriesPT(Series):
         radiopharmaceutical_start_date_time = self.__parse_datetime(radiopharmaceutical_start_date_time)
 
         
-        if (total_dose == 'Undefined' or acquisition_time== 'Undefined' 
+        if (total_dose == 'Undefined' or acquisition_datetime== 'Undefined' 
             or patient_weight == 'Undefined' or radionuclide_half_life == 'Undefined' ) :
             raise Exception('Missing Radiopharmaceutical data or patient weight')
         
         #Determine Time reference of image acqusition 
         acquisition_hour = series_datetime
-        if (acquisition_date != 'Undefined' and acquisition_time != 'Undefined'
+        if (acquisition_datetime != 'Undefined'
              and (acquisition_datetime - series_datetime).total_seconds() < 0 and units == 'BQML') : 
             acquisition_hour = acquisition_datetime
+
+        print(acquisition_hour)
         
         #Calculate decay correction
         if decay_correction == 'START' : 
