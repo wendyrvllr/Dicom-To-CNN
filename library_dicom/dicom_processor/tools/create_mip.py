@@ -27,7 +27,7 @@ def mip_projection(numpy_array, angle, path_image, borne_max=5.0):
 
     """
 
-    numpy_array = np.transpose(np.flip(numpy_array, axis = 2), (2,1,0))
+    numpy_array = np.transpose(np.flip(numpy_array, axis = 2), (2,1,0)) #coronal
 
     vol_angle = scipy.ndimage.interpolation.rotate(numpy_array , angle , reshape=False, axes = (1,2))
     MIP = np.amax(vol_angle,axis=2)
@@ -37,7 +37,7 @@ def mip_projection(numpy_array, angle, path_image, borne_max=5.0):
     axes.set_axis_off()
 
     plt.imshow(MIP, cmap = "Greys", vmax = borne_max)
-    angle_filename = path_image+'\\'+'mip'+"."+str(int(angle))+".png"
+    angle_filename = path_image+'\\'+'mip'+"."+str(int(angle))+".png" #rajouter le study iud du patient ou numero de serie 
     f.savefig(angle_filename, bbox_inches='tight')
     plt.close()
             
