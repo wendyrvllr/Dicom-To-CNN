@@ -129,7 +129,7 @@ class SeriesPT(Series):
              and (acquisition_datetime - series_datetime).total_seconds() < 0 and units == 'BQML') : 
             acquisition_hour = acquisition_datetime
 
-        print(acquisition_hour)
+        #print(acquisition_hour)
         
         #Calculate decay correction
         if decay_correction == 'START' : 
