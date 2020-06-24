@@ -29,7 +29,10 @@ class RoiElipse(Roi):
         rad1 = ((self.last_slice - self.first_slice) / 2) 
 
         list_points = []
-        for number_slice in range(self.first_slice - 1 , self.last_slice ) : 
+        if(rad1 == 0) :
+            return list_points
+
+        for number_slice in range(self.first_slice  , self.last_slice - 1 ) : 
             diff0 = abs(middle - number_slice)
             factor = pow(rad1,2) - pow(diff0,2)
             factor = math.sqrt(factor) / rad1
@@ -47,8 +50,8 @@ class RoiElipse(Roi):
             #np_array_3D[:,:,number_of_slices] = mask
             
             list_points.extend(point)
-        list_points.append([x0, y0, self.first_slice - 1])
-        list_points.append([x0, y0, self.last_slice - 1])
+        #list_points.append([x0, y0, self.first_slice - 1])
+        #list_points.append([x0, y0, self.last_slice - 1])
         #print(list_points)
 
         #return np.transpose(np_array_3D.astype(np.uint8), (1,0,2)) , list_points, list_slices
