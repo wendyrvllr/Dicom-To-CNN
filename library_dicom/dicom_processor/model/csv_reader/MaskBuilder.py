@@ -73,26 +73,35 @@ class MaskBuilder(CsvReader):
 
 
 
-            seuil = self.details_rois['SUVlo']
-            if "%" in seuil : 
-                seuil = float(seuil.strip("%"))/100 * np.max(list_pixels)
-            else : 
-                seuil = float(seuil)
-
-            
-            for i in range(len(list_pixels)):
-                if list_pixels[i] >= seuil : 
-                    list_pixels_seuil.append(list_pixels[i])
-
-            if len(list_pixels_seuil) == 0 :
+            if list_pixels == [] : #si pas de ROI dessiné
                 results['SUV_max'] = float(0)
                 results['SUV_mean'] = float(0)
                 results['SD'] = float(0)
+
+
             else : 
-                #results['pixel_number'] = len(list_pixels_seuil)
-                results['SUV_max'] = round(np.max(list_pixels_seuil), 2)
-                results['SUV_mean'] = round(np.mean(list_pixels_seuil), 2)
-                results['SD'] = round(np.std(list_pixels_seuil), 2)
+                seuil = self.details_rois['SUVlo']
+
+
+                if "%" in seuil : 
+                    seuil = float(seuil.strip("%"))/100 * np.max(list_pixels)
+                else : 
+                    seuil = float(seuil)
+
+            
+                for i in range(len(list_pixels)):
+                    if list_pixels[i] >= seuil : 
+                        list_pixels_seuil.append(list_pixels[i])
+
+                if len(list_pixels_seuil) == 0 :
+                    results['SUV_max'] = float(0)
+                    results['SUV_mean'] = float(0)
+                    results['SD'] = float(0)
+                else : 
+                    #results['pixel_number'] = len(list_pixels_seuil)
+                    results['SUV_max'] = round(np.max(list_pixels_seuil), 2)
+                    results['SUV_mean'] = round(np.mean(list_pixels_seuil), 2)
+                    results['SD'] = round(np.std(list_pixels_seuil), 2)
             
             max_mean[number_roi] = results
 
