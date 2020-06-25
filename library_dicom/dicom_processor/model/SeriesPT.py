@@ -109,9 +109,7 @@ class SeriesPT(Series):
         total_dose = series_details['radiopharmaceutical']['TotalDose']
 
         radiopharmaceutical_start_date_time = series_details['radiopharmaceutical']['RadiopharmaceuticalStartDateTime']
-        #print(radiopharmaceutical_start_date_time)
-        if radiopharmaceutical_start_date_time == 'Undefined':
-            #print("passe dans le if")
+        if radiopharmaceutical_start_date_time == 'Undefined' or radiopharmaceutical_start_date_time == '' : 
             #If startDateTime not available use the deprecated statTime assuming the injection is same day than acquisition date
             radiopharmaceutical_start_time = series_details['radiopharmaceutical']['RadiopharmaceuticalStartTime']
             radiopharmaceutical_start_date_time = acquisition_date + radiopharmaceutical_start_time 
@@ -120,7 +118,7 @@ class SeriesPT(Series):
 
         
         if (total_dose == 'Undefined' or acquisition_datetime== 'Undefined' 
-            or patient_weight == 'Undefined' or radionuclide_half_life == 'Undefined' ) :
+            or patient_weight == 'Undefined' or patient_weight == 'None' or radionuclide_half_life == 'Undefined' ) :
             raise Exception('Missing Radiopharmaceutical data or patient weight')
         
         #Determine Time reference of image acqusition 
@@ -129,7 +127,6 @@ class SeriesPT(Series):
              and (acquisition_datetime - series_datetime).total_seconds() < 0 and units == 'BQML') : 
             acquisition_hour = acquisition_datetime
 
-        #print(acquisition_hour)
         
         #Calculate decay correction
         if decay_correction == 'START' : 
