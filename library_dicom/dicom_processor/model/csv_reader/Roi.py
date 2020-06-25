@@ -52,7 +52,6 @@ class Roi():
         #get Roi limits in wich we will loop
         points = []
         xmin, xmax, ymin, ymax  = self.__get_min_max_of_roi()
-
         for x in range(xmin, xmax + 1): 
             for y in range(ymin, ymax + 1) : 
                 if patch.contains_point([x,y], radius = 0) : 
@@ -77,17 +76,18 @@ class Roi():
 
     def coronal_to_axial(self, np_array_3D):
         return np.transpose(np_array_3D, (2,1,0))
-
-        #return np.transpose(np_array_3D, (0,2,1)) #coronnal x y z -> axial z y x 
+         #coronnal x y z -> axial z y x 
         #SK A VERIF
 
     def sagittal_to_axial(self, np_array_3D):
         return np.transpose(np_array_3D, (0,2,1))
-        #return np.transpose(np_array_3D, (1,2,0)) #sagittal x y z - > axial y z x 
+         #sagittal x y z - > axial x z y  
         #SK A VERIF
 
     def get_mask(self, list_points, number_roi): #list_points = [[x,y,z], [x,y,z], ...]
         np_array_3D = self.get_empty_np_array()
+        print("shape_matrice a remplir", np_array_3D.shape)
+        #print(list_points)
         for point in list_points:
             np_array_3D[point[1], point[0] , point[2]] = number_roi
             #x et y inversé dans matplotlib 
