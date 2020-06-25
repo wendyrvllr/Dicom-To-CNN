@@ -81,7 +81,7 @@ class Instance:
         for tag_address in TagsRadioPharmaceuticals:
             if tag_address.value in radiopharmaceutical_sequence : radiopharmaceuticals_tags[tag_address.name] = radiopharmaceutical_sequence[tag_address.value].value
             else : radiopharmaceuticals_tags[tag_address.name] = "Undefined"
-
+            
         return radiopharmaceuticals_tags
 
     def get_pet_correction_tags(self):
