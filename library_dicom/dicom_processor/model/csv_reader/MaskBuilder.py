@@ -31,6 +31,62 @@ class MaskBuilder(CsvReader):
         self.mask_array = np.zeros( (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2], self.number_of_rois )).astype(np.uint8)
 
 
+    def coronal_list_points_to_axial(self, list_points, polygone = True):
+        """
+        coronal           axial 
+          x                 z
+          y                 y
+          z                 x
+        """
+        if polygone == True : 
+            new_list_points = []
+            for point in list_points : 
+                new_point = []
+                new_point.append(point[2] + 1 )
+                new_point.append(point[1])
+                new_point.append(point[0] - 1 )
+                new_list_points.append(new_point)
+
+            return new_list_points
+
+        else : #ellipse
+            new_list_points = []
+            for point in list_points : 
+                new_point = []
+                new_point.append(point[2])
+                new_point.append(point[1])
+                new_point.append(point[0] - 1 )
+                new_list_points.append(new_point)
+
+            return new_list_points
+
+
+
+
+    def saggital_list_points_to_axial(self, list_points, polygone = True) : 
+        """
+        saggital           axial 
+          x                 z
+          y                 y
+          z                 x
+        """
+        if polygone == True : 
+            new_list_points = []
+            for point in list_points : 
+                new_point = []
+                new_point.append(point[0])
+                new_point.append(point[2])
+                new_point.append(point[1])
+                new_list_points.append(new_point)
+
+            return new_list_points
+        else : #ellipse
+            pass
+
+
+
+
+
     def build_mask(self):
         """build 3D numpy array mask with ROI coordonates from a CSV, put in a 4D matrix
 
@@ -38,14 +94,29 @@ class MaskBuilder(CsvReader):
         #liste = []
         self.initialize_mask_matrix()
         for number_roi in range(1 ,  self.number_of_rois + 1):
-            #print(self.details_rois[number_roi])
+            print(number_roi)
             roi_object = RoiFactory(self.details_rois[number_roi], (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]) , number_roi).read_roi() #.list_points
             #print(type(liste))
             list_points = roi_object.list_points
             np_array_3D = roi_object.get_mask(list_points, number_roi) #3D_array
             #liste.append(list_points)
             self.mask_array[:,:,:,number_roi - 1] = np_array_3D
-            self.details_rois[number_roi]['list_points'] = list_points
+
+            if (roi_object.type_number == 2 ): 
+                print("coronal")
+                new_list_points = self.coronal_list_points_to_axial(list_points, polygone = True)
+                self.details_rois[number_roi]['list_points'] = new_list_points
+            elif (roi_object.type_number == 12 ) : 
+                print("coronal")
+                new_list_points = self.coronal_list_points_to_axial(list_points, polygone = False)
+                self.details_rois[number_roi]['list_points'] = new_list_points
+
+            elif  (roi_object.type_number == 3 or roi_object.type_number == 13) :
+                print("saggital")
+                new_list_points = self.saggital_list_points_to_axial(list_points)
+                self.details_rois[number_roi]['list_points'] = new_list_points
+
+            else : self.details_rois[number_roi]['list_points'] = list_points
             
         
         return self.mask_array.astype(np.uint8) #liste
@@ -60,6 +131,7 @@ class MaskBuilder(CsvReader):
         #nifti_array = np.flip(nifti_array, axis = 0)
         max_mean = {}
         for number_roi in range(1 , self.number_of_rois + 1):
+            print("ROI :", number_roi)
             list_points = self.details_rois[number_roi]['list_points'] #[[x,y,z], [x,y,z],...]
             list_pixels = []
             list_pixels_seuil = []
