@@ -95,6 +95,7 @@ def PREPROCESS(data_set_ids,path_output, output_shape=None,pixel_size=None,
     preprocessed_data_set_ids = []
 
     for i,data_set_id in enumerate(data_set_ids):
+        print(data_set_id)
 
             # display a loading  bar
         display_loading_bar(iteration=i,length=n_patients,add_char=basename(data_set_id[0])+'    ')
@@ -103,8 +104,13 @@ def PREPROCESS(data_set_ids,path_output, output_shape=None,pixel_size=None,
         PET_id, CT_id, MASK_id = data_set_id
             
         PET_img  = sitk.ReadImage(PET_id ,sitk.sitkFloat32)
+        print("ReadImage PET")
         CT_img   = sitk.ReadImage(CT_id  ,sitk.sitkFloat32)
+        print("ReadImage CT")
         MASK_img = sitk.ReadImage(MASK_id,sitk.sitkUInt8)
+        print("readImage MASK") #ICI MATRICE 4D ATTENTION
+
+        print("ReadImage OK")
 
         if normalize:
             PET_img, CT_img, MASK_img = PREPROCESS_normalize(PET_img, CT_img, MASK_img)
