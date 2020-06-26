@@ -22,7 +22,7 @@ def create_gif(filenames, duration, path_gif):
     
         return None
 
-def mip_projection(numpy_array, angle, path_image, borne_max=5.0):
+def mip_projection(numpy_array, angle, path_image, study_uid, borne_max=5.0):
     """create MIP Projection for a given angle, create .png image
 
     """
@@ -37,7 +37,7 @@ def mip_projection(numpy_array, angle, path_image, borne_max=5.0):
     axes.set_axis_off()
 
     plt.imshow(MIP, cmap = "Greys", vmax = borne_max)
-    angle_filename = path_image+'\\'+'mip'+"."+str(int(angle))+".png" #rajouter le study iud du patient ou numero de serie 
+    angle_filename = path_image+'\\'+study_uid+'mip'+"."+str(int(angle))+".png" #rajouter le study iud du patient ou numero de serie 
     f.savefig(angle_filename, bbox_inches='tight')
     plt.close()
             
@@ -46,7 +46,7 @@ def mip_projection(numpy_array, angle, path_image, borne_max=5.0):
 
    
 
-def create_mip_gif(numpy_array, path_image, borne_max = 5.0):
+def create_mip_gif(numpy_array, path_image, study_uid, borne_max = 5.0):
     """return a gif of a numpy_array MIP 
 
     """
@@ -57,7 +57,7 @@ def create_mip_gif(numpy_array, path_image, borne_max = 5.0):
     
     angles = np.linspace(0, 360, number_images)
     for angle in angles:
-        path = mip_projection(numpy_array, angle, path_image, borne_max = 5.0)
+        path = mip_projection(numpy_array, angle, path_image, study_uid, borne_max = 5.0)
         angle_filenames.append(path)
               
 
