@@ -69,7 +69,8 @@ class Roi():
             return (np.zeros((self.x, self.y, self.z)))
             
         elif (self.axis == 2):
-            return (np.zeros((self.z, self.y, self.x)))
+            #return (np.zeros((self.z, self.y, self.x)))
+            return (np.zeros((self.x, self.z, self.y)))
 
         elif (self.axis == 3):
             return (np.zeros((self.y, self.z, self.x)))
@@ -93,7 +94,9 @@ class Roi():
             #x et y inversé dans matplotlib 
 
         if (self.axis == 2) : 
-            return self.coronal_to_axial(np_array_3D)
+            np_array_3D = self.coronal_to_axial(np_array_3D)
+            print("shape après coronal to axial", np_array_3D.shape)
+            return np.transpose(np_array_3D, (1,0,2)).astype(np.uint8)
         elif (self.axis == 3) :
             return self.sagittal_to_axial(np_array_3D)
 
