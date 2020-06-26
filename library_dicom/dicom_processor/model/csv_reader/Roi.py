@@ -88,7 +88,7 @@ class Roi():
 
     def get_mask(self, list_points, number_roi): #list_points = [[x,y,z], [x,y,z], ...]
         np_array_3D = self.get_empty_np_array()
-        print("shape_matrice a remplir", np_array_3D.shape)
+        #print("shape_matrice a remplir", np_array_3D.shape)
         #print(list_points)
         for point in list_points:
             np_array_3D[point[1], point[0] , point[2]] = number_roi
@@ -96,13 +96,13 @@ class Roi():
 
         if (self.axis == 2) : 
             np_array_3D = self.coronal_to_axial(np_array_3D)
-            print("shape après coronal to axial", np_array_3D.shape)
+            #print("shape après coronal to axial", np_array_3D.shape)
             #return np.transpose(np_array_3D, (1,0,2)).astype(np.uint8)
-            return np_array_3D
+            return np_array_3D.astype(np.uint8)
         elif (self.axis == 3) :
-            return self.sagittal_to_axial(np_array_3D)
+            np_array_3D = self.sagittal_to_axial(np_array_3D)
+            return np_array_3D.astype(np.uint8)
 
-        #return np.transpose(np_array_3D.astype(np.uint8), (1,0,2)) 
         return np_array_3D.astype(np.uint8)
 
 
