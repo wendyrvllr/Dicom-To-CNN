@@ -47,6 +47,7 @@ class MaskBuilder(CsvReader):
             if roi_object.type_number == 2 : 
                 print("coronal")
                 new_list_points = self.coronal_list_points_to_axial(list_points, polygone = True)
+                print(new_list_points)
                 self.details_rois[number_roi]['list_points'] = new_list_points
             elif roi_object.type_number == 12 : 
                 print("coronal")
