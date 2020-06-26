@@ -70,13 +70,14 @@ class Roi():
             
         elif (self.axis == 2):
             #return (np.zeros((self.z, self.y, self.x)))
-            return (np.zeros((self.x, self.z, self.y)))
+            return (np.zeros((self.z, self.y, self.x)))
 
         elif (self.axis == 3):
-            return (np.zeros((self.y, self.z, self.x)))
+            return (np.zeros((self.z, self.y, self.x)))
 
     def coronal_to_axial(self, np_array_3D):
-        return np.transpose(np_array_3D, (0,2,1))
+        return np.transpose(np_array_3D, (2,1,0))
+        #return np.transpose(np_array_3D, (0,2,1))
          #coronnal x y z -> axial x z y
         #SK A VERIFRO
 
@@ -94,10 +95,10 @@ class Roi():
             #x et y inversé dans matplotlib 
 
         if (self.axis == 2) : 
-            np_array_3D[point[0], point[1] , point[2]] = number_roi
             np_array_3D = self.coronal_to_axial(np_array_3D)
             print("shape après coronal to axial", np_array_3D.shape)
-            return np.transpose(np_array_3D, (1,0,2)).astype(np.uint8)
+            #return np.transpose(np_array_3D, (1,0,2)).astype(np.uint8)
+            return np_array_3D
         elif (self.axis == 3) :
             return self.sagittal_to_axial(np_array_3D)
 
