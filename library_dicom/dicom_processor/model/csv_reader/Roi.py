@@ -94,6 +94,7 @@ class Roi():
             #x et y inversé dans matplotlib 
 
         if (self.axis == 2) : 
+            np_array_3D[point[0], point[1] , point[2]] = number_roi
             np_array_3D = self.coronal_to_axial(np_array_3D)
             print("shape après coronal to axial", np_array_3D.shape)
             return np.transpose(np_array_3D, (1,0,2)).astype(np.uint8)
