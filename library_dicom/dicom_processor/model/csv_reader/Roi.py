@@ -75,9 +75,9 @@ class Roi():
             return (np.zeros((self.y, self.z, self.x)))
 
     def coronal_to_axial(self, np_array_3D):
-        return np.transpose(np_array_3D, (2,1,0))
-         #coronnal x y z -> axial z y x 
-        #SK A VERIF
+        return np.transpose(np_array_3D, (0,2,1))
+         #coronnal x y z -> axial x z y
+        #SK A VERIFRO
 
     def sagittal_to_axial(self, np_array_3D):
         return np.transpose(np_array_3D, (0,2,1))
