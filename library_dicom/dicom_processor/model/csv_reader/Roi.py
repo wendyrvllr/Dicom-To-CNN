@@ -83,13 +83,11 @@ class Roi():
 
     def sagittal_to_axial(self, np_array_3D):
         return np.transpose(np_array_3D, (0,2,1))
-         #sagittal x y z - > axial x z y  
+         #sagittal x y z - > axial y z x   
         #SK A VERIF
 
     def get_mask(self, list_points, number_roi): #list_points = [[x,y,z], [x,y,z], ...]
         np_array_3D = self.get_empty_np_array()
-        #print("shape_matrice a remplir", np_array_3D.shape)
-        #print(list_points)
         for point in list_points:
             np_array_3D[point[1], point[0] , point[2]] = number_roi
             #x et y inversé dans matplotlib 
