@@ -15,16 +15,17 @@ def get_suv_max(nifti_array, list_points, flip = False):
 
 
 
-def threshold_mask(mask_4D, threshold, details_rois, nifti_array,  flip = False):
+def threshold_mask(mask_4D, details_rois, nifti_array,  flip = False):
     number_of_roi = mask_4D.shape[3]
 
     slice = mask_4D.shape[2]
     if flip == False : 
-        for roi in number_of_roi : 
-            list_points = details_rois[roi + 1]['list_point']
+        for roi in range(number_of_roi) : 
+            list_points = details_rois[roi + 1]['list_points']
             suv_max = get_suv_max(nifti_array, list_points, flip = False)
 
             #GET THRESHOLD
+            threshold = details_rois['SUVlo']
             if "%" in threshold : 
                 threshold = float(threshold.strip("%"))/100 * suv_max
             else : 
@@ -38,10 +39,11 @@ def threshold_mask(mask_4D, threshold, details_rois, nifti_array,  flip = False)
 
     else :  
         for roi in number_of_roi : 
-            list_points = details_rois[roi + 1]['list_point']
+            list_points = details_rois[roi + 1]['list_points']
             suv_max = get_suv_max(nifti_array, list_points, flip = True)
 
             #GET THRESHOLD
+            threshold = details_rois['SUVlo']
             if "%" in threshold : 
                 threshold = float(threshold.strip("%"))/100 * suv_max
             else : 
