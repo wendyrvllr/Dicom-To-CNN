@@ -41,18 +41,21 @@ def mip_projection(numpy_array, angle, path_image, study_uid, borne_max=5.0):
     axes.set_axis_off()
 
     plt.imshow(MIP, cmap = "Greys", vmax = borne_max)
-    angle_filename = path_image+'\\'+study_uid+'mip'+"."+str(int(angle))+".png" #rajouter le study iud du patient ou numero de serie 
+    filename = study_uid+'mip_TEP'+"."+str(int(angle))+".png"
+    #angle_filename = path_image+'\\'+study_uid+'mip'+"."+str(int(angle))+".png" #rajouter le study iud du patient ou numero de serie 
+    angle_filename = os.path.join(path_image, filename)
     f.savefig(angle_filename, bbox_inches='tight')
     plt.close()
             
         
     return angle_filename
 
-def mip_projection_4D(numpy_array_4D, angle, path_image, study_uid, borne_max=5.0):
-    number_roi = numpy_array_4D.shape[3]
+def mip_projection_4D(mask_4D, angle, path_image, study_uid, number_roi, borne_max=5.0):
+    print("taille mask : ", mask_4D.shape)
     liste = []
-    for roi in range(number_roi) : 
-        liste.append(np.transpose(np.flip(numpy_array_4D[:,:,:,roi], axis = 2), (2,1,0)))
+    for roi in range(number_roi): 
+        #print(roi)
+        liste.append(np.transpose(np.flip(mask_4D[:,:,:,roi], axis = 2), (2,1,0)))
     
     new_mask = np.stack((liste), axis = 3)
     vol_angle = scipy.ndimage.interpolation.rotate(new_mask , angle , reshape=False, axes = (2,3))
@@ -64,7 +67,9 @@ def mip_projection_4D(numpy_array_4D, angle, path_image, study_uid, borne_max=5.
     axes.set_axis_off()
 
     plt.imshow(MIP2, cmap = "Greys", vmax = borne_max)
-    angle_filename = path_image+'\\'+study_uid+'mip'+"."+str(int(angle))+".png" #rajouter le study iud du patient ou numero de serie 
+    filename = study_uid+'mip_MASK'+"."+str(int(angle))+".png"
+    #angle_filename = path_image+'\\'+study_uid+'mip_MASK'+"."+str(int(angle))+".png" #rajouter le study iud du patient ou numero de serie 
+    angle_filename = os.path.join(path_image, filename)
     f.savefig(angle_filename, bbox_inches='tight')
     plt.close()
             
