@@ -5,6 +5,8 @@ import scipy
 import numpy as np
 import matplotlib.pyplot as plt
 
+from fpdf import FPDF
+
 
 
 def create_gif(filenames, duration, path_gif):
@@ -43,6 +45,56 @@ def mip_projection(numpy_array, angle, path_image, study_uid, borne_max=5.0):
             
         
     return angle_filename
+
+def mip_projection_4D(numpy_array_4D, angle, path_image, study_uid, borne_max=5.0):
+    number_roi = numpy_array_4D.shape[3]
+    liste = []
+    for roi in number_roi : 
+        liste.append(np.transpose(np.flip(numpy_array_4D[:,:,:,roi], axis = 2), (2,1,0)))
+    
+    new_mask = np.stack((liste), axis = 3)
+    vol_angle = scipy.ndimage.interpolation.rotate(new_mask , angle , reshape=False, axes = (2,3))
+    MIP = np.amax(vol_angle,axis=3)
+    MIP2 = np.amax(MIP,axis=2)
+
+    f = plt.figure(figsize=(10,10))
+    axes = plt.gca()
+    axes.set_axis_off()
+
+    plt.imshow(MIP2, cmap = "Greys", vmax = borne_max)
+    angle_filename = path_image+'\\'+study_uid+'mip'+"."+str(int(angle))+".png" #rajouter le study iud du patient ou numero de serie 
+    f.savefig(angle_filename, bbox_inches='tight')
+    plt.close()
+            
+        
+    return angle_filename
+        
+
+def create_pdf_mip(angle_filenames, output_path_name) : 
+    """angle_filenames : [[path_mip_PET 1, path_mip_MASK 1], [path_mip_PET 2, path_mip_MASK 2],... ]
+
+    """
+
+    pdf = FPDF()
+    for mip in angle_filenames : 
+        #mip = [path_mip_PET 1, path_mip_MASK 1]
+        index = angle_filenames.index(mip)
+        pdf.add_page()
+        pdf.image(mip[0], x = 0, y = 10)
+        pdf.image(mip[1], x = 100, y = 10)
+        pdf.set_font("Arial", size=12)
+    
+        pdf.cell(200, 0, txt= str(index), ln=2, align="C")
+
+    pdf.output(output_path_name)
+
+    return None 
+
+
+
+
+
+
 
    
 
