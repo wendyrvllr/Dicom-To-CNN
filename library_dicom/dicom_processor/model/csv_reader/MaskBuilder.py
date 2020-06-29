@@ -41,9 +41,7 @@ class MaskBuilder(CsvReader):
             roi_object = RoiFactory(self.details_rois[number_roi], (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]) , number_roi).read_roi() #.list_points
             list_points = roi_object.list_points
             np_array_3D = roi_object.get_mask(list_points, number_roi) #3D_array
-            #print("shape_ 3D array après get mask", np_array_3D.shape)
-            #print(self.mask_array.shape)
-            #liste.append(list_points)
+
             self.mask_array[:,:,:,number_roi - 1] = np_array_3D
 
             if roi_object.type_number == 2 : 
@@ -115,9 +113,9 @@ class MaskBuilder(CsvReader):
             new_list_points = []
             for point in list_points : 
                 new_point = []
-                new_point.append(point[0])
+                new_point.append(point[1])
                 new_point.append(point[2] + 1)
-                new_point.append(point[1] - 1)
+                new_point.append(point[0] - 1)
                 new_list_points.append(new_point)
 
             return new_list_points
@@ -125,9 +123,9 @@ class MaskBuilder(CsvReader):
             new_list_points = []
             for point in list_points : 
                 new_point = []
-                new_point.append(point[0])
+                new_point.append(point[1])
                 new_point.append(point[2])
-                new_point.append(point[1] - 1)
+                new_point.append(point[0] - 1)
                 new_list_points.append(new_point)
 
             return new_list_points
