@@ -5,6 +5,8 @@ import scipy
 import numpy as np
 import matplotlib.pyplot as plt
 
+from scipy import ndimage
+
 from fpdf import FPDF
 
 
@@ -49,7 +51,7 @@ def mip_projection(numpy_array, angle, path_image, study_uid, borne_max=5.0):
 def mip_projection_4D(numpy_array_4D, angle, path_image, study_uid, borne_max=5.0):
     number_roi = numpy_array_4D.shape[3]
     liste = []
-    for roi in number_roi : 
+    for roi in range(number_roi) : 
         liste.append(np.transpose(np.flip(numpy_array_4D[:,:,:,roi], axis = 2), (2,1,0)))
     
     new_mask = np.stack((liste), axis = 3)
