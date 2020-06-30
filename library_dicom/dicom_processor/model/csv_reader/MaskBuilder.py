@@ -289,10 +289,19 @@ class MaskBuilder(CsvReader):
         """flip z axis in the mask matrix if calculated SUV Mean SUV MAX and SD is False 
 
         """
+        slice = mask_4D.shape[2]
+        new_list_point = []
         for number_roi in range(self.number_of_rois):
             mask_4D[:,:,:,number_roi] = np.flip(mask_4D[:,:,:,number_roi], axis = 2)
+            if self.details_rois[number_roi + 1] != [] :
+                for point in self.details_rois[number_roi + 1]['list_points'] : 
+                    point[2] = slice - 1 - point[2]
 
+                    new_list_point.append(point)
+        
+            self.details_rois[number_roi + 1]['list_points'] = new_list_point
         self.mask_array = mask_4D
+
 
             
 
