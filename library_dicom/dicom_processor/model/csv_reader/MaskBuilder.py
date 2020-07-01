@@ -63,7 +63,7 @@ class MaskBuilder(CsvReader):
                 new_list_points = self.saggital_list_points_to_axial(list_points, polygone = False)
                 self.details_rois[number_roi]['list_points'] = new_list_points
 
-
+            #axial
             else : self.details_rois[number_roi]['list_points'] = list_points
             
         
@@ -290,17 +290,26 @@ class MaskBuilder(CsvReader):
 
         """
         slice = mask_4D.shape[2]
-        new_list_point = []
+    
+        liste = []
         for number_roi in range(self.number_of_rois):
-            mask_4D[:,:,:,number_roi] = np.flip(mask_4D[:,:,:,number_roi], axis = 2)
-            if self.details_rois[number_roi + 1] != [] :
+            
+            new_list_point = []
+
+            liste.append(np.flip(mask_4D[:,:,:,number_roi], axis = 2))
+            
+            if self.details_rois[number_roi + 1]['list_points'] != [] :
                 for point in self.details_rois[number_roi + 1]['list_points'] : 
-                    point[2] = slice - 1 - point[2]
+                    new_z = slice - 1 - point[2]
+                    point[2] = new_z
 
                     new_list_point.append(point)
         
             self.details_rois[number_roi + 1]['list_points'] = new_list_point
-        self.mask_array = mask_4D
+        #print(len(liste))
+        #print("après flip :", self.details_rois[1]['list_points'][0])
+        new_mask = np.stack((liste), axis = 3)
+        return new_mask
 
 
             
