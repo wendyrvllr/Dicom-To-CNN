@@ -22,10 +22,8 @@ class StructureSetROISequence :
 
             else : dataset.ROIName = str(number_roi)
 
-            if self.dict_roi_data[number_roi]['ROIVolume'] != '' : 
-                dataset.ROIVolume = self.dict_roi_data[number_roi]['ROIVolume']
-
-            else : dataset.ROIVolume = 'UNDEFINED'
+            dataset.ROIVolume = self.get_roi_volume(number_roi, pixel_spacing)
+                
              
             if self.dict_roi_data[number_roi]['ROIGenerationAlgorithm'] != '' :
                 dataset.ROIGenerationAlgorithm = self.dict_roi_data[number_roi]['ROIGenerationAlgorithm']
@@ -35,14 +33,12 @@ class StructureSetROISequence :
             StructureSetROISequence.append(dataset)
         return StructureSetROISequence 
         
-    #trop long 
+     
     def get_roi_volume(self, number_roi, pixel_spacing):
         number_pixel = 0
-        for z in range(self.mask_4D.shape[2]):
-            for y in range(self.mask_4D.shape[1]):
-                for x in range(self.mask_4D.shape[0]):
-                    if self.mask_4D[x,y,z, number_roi - 1] != 0 : 
-                        number_pixel += 1
+
+        x = np.where(self.mask_4D != 0)[0]
+        number_pixel = len(x) #same as len(y) or len(z)
         volume_pixel = pixel_spacing[0] * pixel_spacing[1] * abs(pixel_spacing[2])
         volume_pixel = volume_pixel * 10**(-3) #mm3 to ml 
         roi_volume = number_pixel * volume_pixel 
