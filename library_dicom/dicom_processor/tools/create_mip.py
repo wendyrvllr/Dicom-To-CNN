@@ -50,12 +50,13 @@ def mip_projection(numpy_array, angle, path_image, study_uid, borne_max=5.0):
         
     return angle_filename
 
-def mip_projection_4D(mask_4D, angle, path_image, study_uid, number_roi, borne_max=5.0):
-    print("taille mask : ", mask_4D.shape)
+def mip_projection_4D(mask, angle, path_image, study_uid, number_roi, borne_max=5.0):
+    print("taille mask : ", mask.shape)
     liste = []
     for roi in range(number_roi): 
         #print(roi)
-        liste.append(np.transpose(np.flip(mask_4D[:,:,:,roi], axis = 2), (2,1,0)))
+        #pour mettre en coronal 
+        liste.append(np.transpose(np.flip(mask[:,:,:,roi], axis = 2), (2,1,0)))
     
     new_mask = np.stack((liste), axis = 3)
     vol_angle = scipy.ndimage.interpolation.rotate(new_mask , angle , reshape=False, axes = (2,3))
