@@ -17,14 +17,9 @@ def threshold_mask(mask_4D, details_rois, nifti_array):
 
     number_of_roi = mask_4D.shape[3]
 
-    copy_mask = np.copy(mask_4D)
-
     for roi in range(number_of_roi) : 
         list_points = details_rois[roi + 1]['list_points']
         suv_max = get_suv_max(nifti_array, list_points)
-        #print("suv max :", suv_max)
-
-        #print("nbr pixel :", len(list_points))
 
             #GET THRESHOLD
         threshold = details_rois['SUVlo']
@@ -33,14 +28,13 @@ def threshold_mask(mask_4D, details_rois, nifti_array):
         else : 
             threshold = float(threshold)
         
-        #print("seuil :", threshold)
-        #cpt = 0
+
         for point in list_points :
             if nifti_array[point[1], point[0], point[2]] <= threshold :
-                #cpt += 1
-                copy_mask[point[1], point[0], point[2], roi] = 0
-        #print("nbr pixel en dessous seuil :", cpt)
-    return copy_mask
+
+                mask_4D[point[1], point[0], point[2], roi] = 0
+ 
+    return mask_4D
 
 
 
