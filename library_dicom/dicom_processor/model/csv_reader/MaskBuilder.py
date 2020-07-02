@@ -44,23 +44,14 @@ class MaskBuilder(CsvReader):
 
             self.mask_array[:,:,:,number_roi - 1] = np_array_3D
 
-            if roi_object.type_number == 2 : 
+            if roi_object.type_number == 2 or roi_object.type_number == 12 :  
                 #print("coronal")
-                new_list_points = self.coronal_list_points_to_axial(list_points, polygone = True)
+                new_list_points = self.coronal_list_points_to_axial(list_points)
                 self.details_rois[number_roi]['list_points'] = new_list_points
-            elif roi_object.type_number == 12 : 
-                #print("coronal")
-                new_list_points = self.coronal_list_points_to_axial(list_points, polygone = False)
-                self.details_rois[number_roi]['list_points'] = new_list_points
-
-            elif roi_object.type_number == 3 :
+            
+            elif roi_object.type_number == 3 or roi_object.type_number == 13 :
                 #print("saggital")
-                new_list_points = self.saggital_list_points_to_axial(list_points, polygone = True)
-                self.details_rois[number_roi]['list_points'] = new_list_points
-
-            elif roi_object.type_number == 13 : 
-                #print("saggital")
-                new_list_points = self.saggital_list_points_to_axial(list_points, polygone = False)
+                new_list_points = self.saggital_list_points_to_axial(list_points)
                 self.details_rois[number_roi]['list_points'] = new_list_points
 
             #axial
@@ -70,65 +61,43 @@ class MaskBuilder(CsvReader):
         return self.mask_array.astype(np.uint8) #liste
 
 
-    def coronal_list_points_to_axial(self, list_points, polygone = True):
+    def coronal_list_points_to_axial(self, list_points):
         """ Change the list_points in coronal to axial 
         coronal           axial 
           x                 z
           y                 y
           z                 x
         """
-        if polygone == True : 
-            new_list_points = []
-            for point in list_points : 
-                new_point = []
-                new_point.append(point[0])
-                new_point.append(point[2] + 1)
-                new_point.append(point[1] - 1)
-                new_list_points.append(new_point)
+ 
+        new_list_points = []
+        for point in list_points : 
+            new_point = []
+            new_point.append(point[0])
+            new_point.append(point[2])
+            new_point.append(point[1]) 
+            new_list_points.append(new_point)
 
-            return new_list_points
-
-        else : #ellipse
-            new_list_points = []
-            for point in list_points : 
-                new_point = []
-                new_point.append(point[0])
-                new_point.append(point[2])
-                new_point.append(point[1] - 1 )
-                new_list_points.append(new_point)
-
-            return new_list_points
+        return new_list_points
 
 
 
     #A REPRENDRE
-    def saggital_list_points_to_axial(self, list_points, polygone = True) : 
+    def saggital_list_points_to_axial(self, list_points) : 
         """ Change the list_points in saggital to coronal 
         saggital           axial 
           x                 x
           y                 z
           z                 y
         """
-        if polygone == True : 
-            new_list_points = []
-            for point in list_points : 
-                new_point = []
-                new_point.append(point[1])
-                new_point.append(point[2] + 1)
-                new_point.append(point[0] - 1)
-                new_list_points.append(new_point)
+        new_list_points = []
+        for point in list_points : 
+            new_point = []
+            new_point.append(point[1])
+            new_point.append(point[2])
+            new_point.append(point[0])
+            new_list_points.append(new_point)
 
-            return new_list_points
-        else : #ellipse
-            new_list_points = []
-            for point in list_points : 
-                new_point = []
-                new_point.append(point[1])
-                new_point.append(point[2])
-                new_point.append(point[0] - 1)
-                new_list_points.append(new_point)
-
-            return new_list_points
+        return new_list_points
 
 
 
@@ -308,8 +277,8 @@ class MaskBuilder(CsvReader):
             self.details_rois[number_roi + 1]['list_points'] = new_list_point
         #print(len(liste))
         #print("après flip :", self.details_rois[1]['list_points'][0])
-        new_mask = np.stack((liste), axis = 3)
-        return new_mask
+        self.mask_array = np.stack((liste), axis = 3)
+        return self.mask_array
 
 
             
