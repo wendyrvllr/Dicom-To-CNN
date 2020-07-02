@@ -26,6 +26,8 @@ def create_gif(filenames, duration, path_gif):
     
         return None
 
+
+
 def mip_projection(numpy_array, angle, path_image, study_uid, borne_max=5.0):
     """create MIP Projection for a given angle, create .png image
 
@@ -45,10 +47,10 @@ def mip_projection(numpy_array, angle, path_image, study_uid, borne_max=5.0):
     #angle_filename = path_image+'\\'+study_uid+'mip'+"."+str(int(angle))+".png" #rajouter le study iud du patient ou numero de serie 
     angle_filename = os.path.join(path_image, filename)
     f.savefig(angle_filename, bbox_inches='tight')
-    plt.close()
-            
-        
+    plt.close()   
     return angle_filename
+
+
 
 def mip_projection_4D(mask, angle, path_image, study_uid, number_roi, borne_max=5.0):
     print("taille mask : ", mask.shape)
@@ -72,9 +74,7 @@ def mip_projection_4D(mask, angle, path_image, study_uid, number_roi, borne_max=
     #angle_filename = path_image+'\\'+study_uid+'mip_MASK'+"."+str(int(angle))+".png" #rajouter le study iud du patient ou numero de serie 
     angle_filename = os.path.join(path_image, filename)
     f.savefig(angle_filename, bbox_inches='tight')
-    plt.close()
-            
-        
+    plt.close()        
     return angle_filename
         
 
@@ -97,12 +97,6 @@ def create_pdf_mip(angle_filenames, output_path_name) :
     pdf.output(output_path_name)
 
     return None 
-
-
-
-
-
-
 
    
 
