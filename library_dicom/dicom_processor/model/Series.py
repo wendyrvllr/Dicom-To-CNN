@@ -99,6 +99,9 @@ class Series():
 
         return np_array
 
+
+    #GARDER ALERTE UNCONSTANT SPACING AVEC ARRONDIS MAIS RENDRE LA MOYENNE DES ECART SANS ARRONDIS
+    #A REEECRIRE
     def get_z_spacing(self):
         """ called by __getMetadata """
         Z_positions = [ instance.get_image_position()[2] for instance in self.instance_array ]
