@@ -102,20 +102,20 @@ class Series():
     def get_z_spacing(self):
         """ called by __getMetadata """
         Z_positions = [ instance.get_image_position()[2] for instance in self.instance_array ]
-        print(len(Z_positions))
-        print(Z_positions)
+        #print(len(Z_positions))
+        #print(Z_positions)
 
         initial_z_spacing = round(abs(Z_positions[0] - Z_positions[1]), 1)
         for i in range(2,len(Z_positions)):
 
             z_spacing = round(abs(Z_positions[i - 1] - Z_positions[i]), 1)
-            if (z_spacing!=initial_z_spacing):
-                try : 
-                    raise Exception('Unconstant Spacing')
-                except Exception : 
-                    return('Unconstant Spacing') #alerte 
+            #if (z_spacing!=initial_z_spacing):
+                #try : 
+                    #raise Exception('Unconstant Spacing')
+                #except Exception : 
+                    #return('Unconstant Spacing') #alerte 
         #return initial_z_spacing
-        print(np.mean(self.calculate_z_spacing()))
+        #print(np.mean(self.calculate_z_spacing()))
         return np.mean(self.calculate_z_spacing())
 
 
