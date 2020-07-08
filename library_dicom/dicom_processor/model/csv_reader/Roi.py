@@ -86,10 +86,10 @@ class Roi():
          #sagittal x y z - > axial y z x   
         #SK A VERIF
 
-    def get_mask(self, list_points, number_roi): #list_points = [[x,y,z], [x,y,z], ...]
+    def get_mask(self, list_points): #list_points = [[x,y,z], [x,y,z], ...]
         np_array_3D = self.get_empty_np_array()
         for point in list_points:
-            np_array_3D[point[1], point[0] , point[2]] = number_roi
+            np_array_3D[point[1], point[0] , point[2]] = 1
             #x et y inversé dans matplotlib 
 
         if (self.axis == 2) : 
