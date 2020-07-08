@@ -101,40 +101,46 @@ class Series():
 
 
     #GARDER ALERTE UNCONSTANT SPACING AVEC ARRONDIS MAIS RENDRE LA MOYENNE DES ECART SANS ARRONDIS
-    #A REEECRIRE
     def get_z_spacing(self):
         """ called by __getMetadata """
         Z_positions = [ instance.get_image_position()[2] for instance in self.instance_array ]
-        #print(len(Z_positions))
         #print(Z_positions)
 
         initial_z_spacing = round(abs(Z_positions[0] - Z_positions[1]), 1)
         for i in range(2,len(Z_positions)):
 
             z_spacing = round(abs(Z_positions[i - 1] - Z_positions[i]), 1)
-            #if (z_spacing!=initial_z_spacing):
-                #try : 
-                    #raise Exception('Unconstant Spacing')
-                #except Exception : 
-                    #return('Unconstant Spacing') #alerte 
+            if (z_spacing!=initial_z_spacing):
+                try : 
+                    raise Exception('Unconstant Spacing')
+                except Exception : 
+                    print('Unconstant Spacing') #alerte #return
         #return initial_z_spacing
         #print(np.mean(self.calculate_z_spacing()))
-        return np.mean(self.calculate_z_spacing())
+        return np.mean(self.calculate_z_spacing(round=False))
 
 
-    def calculate_z_spacing(self): 
+    def calculate_z_spacing(self, round = False): 
         Z_positions = [ instance.get_image_position()[2] for instance in self.instance_array ]
         spacing = []
 
-        #initial_z_spacing = round(abs(Z_positions[0] - Z_positions[1]), 1)
-        initial_z_spacing = Z_positions[0] - Z_positions[1]
-        spacing.append(initial_z_spacing)
-        for i in range(2,len(Z_positions)):
-            #z_spacing = round(abs(Z_positions[i - 1] - Z_positions[i]), 1)
-            z_spacing = Z_positions[i - 1] - Z_positions[i]
-            spacing.append(z_spacing)  
+        if round == False : 
+            initial_z_spacing = Z_positions[0] - Z_positions[1]
+            spacing.append(initial_z_spacing)
+            for i in range(2,len(Z_positions)):
+                z_spacing = Z_positions[i - 1] - Z_positions[i]
+                spacing.append(z_spacing)
 
-        return spacing 
+            return spacing
+
+        else : 
+            initial_z_spacing = round(abs(Z_positions[0] - Z_positions[1]), 1)
+            spacing.append(initial_z_spacing)
+            for i in range(2,len(Z_positions)):
+                z_spacing = round(abs(Z_positions[i - 1] - Z_positions[i]), 1)
+                spacing.append(z_spacing)  
+
+            return spacing 
 
 
 
