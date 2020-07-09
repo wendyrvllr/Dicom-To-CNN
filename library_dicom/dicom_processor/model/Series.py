@@ -114,7 +114,7 @@ class Series():
                 try : 
                     raise Exception('Unconstant Spacing')
                 except Exception : 
-                    print('Unconstant Spacing') #alerte #return
+                    return('Unconstant Spacing') #alerte #return
         #return initial_z_spacing
         #print(np.mean(self.calculate_z_spacing()))
         return np.mean(self.calculate_z_spacing(round=False))
