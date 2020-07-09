@@ -101,7 +101,7 @@ class MaskBuilder(CsvReader):
 
 
 
-    def calcul_suv(self, nifti_array, flip = False):
+    def calcul_suv(self, nifti_array):
         """calcul SUV Mean, SUV Max and SD from the 3D np array of a mask and put results in a dict
         """
         slice = nifti_array.shape[2]
@@ -113,11 +113,7 @@ class MaskBuilder(CsvReader):
             list_pixels_seuil = []
             results = {}
             for point in list_points :
-                if (flip == True) : 
-                    list_pixels.append(nifti_array[point[1], point[0], (slice- 1) - point[2]]) 
-                #transpose x et y dans les matrices 3D 
-                else : 
-                    list_pixels.append(nifti_array[point[1], point[0], point[2]])
+                list_pixels.append(nifti_array[point[1], point[0], point[2]])
 
 
 
@@ -157,12 +153,12 @@ class MaskBuilder(CsvReader):
 
 
     #parti check 
-    def is_correct_suv(self, nifti_array, flip = False):
+    def is_correct_suv(self, nifti_array):
         """check if calculated SUV Mean SUV Max and SD is correct 
 
         """
 
-        calculated_suv_max_mean = self.calcul_suv(nifti_array, flip) #dict 
+        calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
         for number_roi in range(1, self.number_of_rois +1) :
 
             if (calculated_suv_max_mean[number_roi]['SUV_max'] < float(self.details_rois[number_roi]['suv_max']) - float(0.1) or 
@@ -184,10 +180,10 @@ class MaskBuilder(CsvReader):
 
 
 
-    def ecart_suv_max(self, nifti_array, flip = False):
+    def ecart_suv_max(self, nifti_array):
         
         liste = []
-        calculated_suv_max_mean = self.calcul_suv(nifti_array, flip) #dict 
+        calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
         for number_roi in range(1, self.number_of_rois +1) :
 
             #print(number_roi)
@@ -207,9 +203,9 @@ class MaskBuilder(CsvReader):
 
         return liste 
 
-    def ecart_suv_mean(self, nifti_array, flip = False ) : 
+    def ecart_suv_mean(self, nifti_array) : 
         liste = []
-        calculated_suv_max_mean = self.calcul_suv(nifti_array, flip) #dict 
+        calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
         for number_roi in range(1, self.number_of_rois +1) :
 
             #print(number_roi)
@@ -230,9 +226,9 @@ class MaskBuilder(CsvReader):
         return liste 
 
 
-    def ecart_SD(self, nifti_array, flip = False) :
+    def ecart_SD(self, nifti_array) :
         liste = []
-        calculated_suv_max_mean = self.calcul_suv(nifti_array, flip) #dict 
+        calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
         for number_roi in range(1, self.number_of_rois +1) :
 
             #print(number_roi)
