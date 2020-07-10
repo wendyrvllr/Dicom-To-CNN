@@ -81,7 +81,7 @@ class MaskBuilder(CsvReader):
 
     #A REPRENDRE
     def saggital_list_points_to_axial(self, list_points) : 
-        """ Change the list_points in saggital to coronal 
+        """ Change the list_points in saggital to axial
         saggital           axial 
           x                 x
           y                 z
@@ -100,7 +100,7 @@ class MaskBuilder(CsvReader):
 
 
     def calcul_suv(self, nifti_array):
-        """calcul SUV Mean, SUV Max and SD from the 3D np array of a mask and put results in a dict
+        """calcul SUV Mean, SUV Max and SD from the mask, for each ROI, and put results in a dict
         """
         max_mean = {}
         for number_roi in range(1 , self.number_of_rois + 1):
@@ -151,7 +151,7 @@ class MaskBuilder(CsvReader):
 
     #parti check 
     def is_correct_suv(self, nifti_array):
-        """check if calculated SUV Mean SUV Max and SD is correct 
+        """check if calculated SUV Mean, SUV Max and SD is correct 
 
         """
 
@@ -175,7 +175,8 @@ class MaskBuilder(CsvReader):
 
 
     def ecart_suv_max(self, nifti_array):
-        
+        """calculate the difference between calculate_SUV_MAX and csv_SUV_MAX for each ROI 
+        """
         liste = []
         calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
         for number_roi in range(1, self.number_of_rois +1) :
@@ -196,6 +197,9 @@ class MaskBuilder(CsvReader):
         return liste 
 
     def ecart_suv_mean(self, nifti_array) : 
+        """calculate the difference between calculate_SUV_MEAN and csv_SUV_MEAN for each ROI 
+
+        """
         liste = []
         calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
         for number_roi in range(1, self.number_of_rois +1) :
@@ -217,6 +221,9 @@ class MaskBuilder(CsvReader):
 
 
     def ecart_SD(self, nifti_array) :
+        """calculate the difference between calculate_SD and csv_SD for each ROI 
+
+        """
         liste = []
         calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
         for number_roi in range(1, self.number_of_rois +1) :
@@ -238,7 +245,7 @@ class MaskBuilder(CsvReader):
 
 
     def flip_z(self, mask_4D): 
-        """flip z axis in the mask matrix if calculated SUV Mean SUV MAX and SD is False 
+        """flip z axis in the mask matrix 
 
         """
         slice = mask_4D.shape[2]
