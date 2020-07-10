@@ -23,8 +23,6 @@ class MaskBuilder(CsvReader):
         self.mask_array = self.build_mask()
 
         
-
-
     def initialize_mask_matrix(self):
         """build empty 4D numpy array 
         """
@@ -37,7 +35,7 @@ class MaskBuilder(CsvReader):
         """
         self.initialize_mask_matrix()
         for number_roi in range(1 ,  self.number_of_rois + 1):
-            #print(number_roi)
+    
             roi_object = RoiFactory(self.details_rois[number_roi], (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]) , number_roi).read_roi() #.list_points
             list_points = roi_object.list_points
             np_array_3D = roi_object.get_mask(list_points) #3D_array
@@ -106,7 +104,7 @@ class MaskBuilder(CsvReader):
         """
         max_mean = {}
         for number_roi in range(1 , self.number_of_rois + 1):
-            #print("ROI :", number_roi)
+     
             list_points = self.details_rois[number_roi]['list_points'] #[[x,y,z], [x,y,z],...]
             list_pixels = []
             list_pixels_seuil = []
@@ -185,7 +183,6 @@ class MaskBuilder(CsvReader):
         calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
         for number_roi in range(1, self.number_of_rois +1) :
 
-            #print(number_roi)
 
             if (calculated_suv_max_mean[number_roi]['SUV_max'] < float(self.details_rois[number_roi]['suv_max']) - float(0.1) or 
                 calculated_suv_max_mean[number_roi]['SUV_max'] > float(self.details_rois[number_roi]['suv_max']) + float(0.1)  ):
@@ -207,7 +204,6 @@ class MaskBuilder(CsvReader):
         calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
         for number_roi in range(1, self.number_of_rois +1) :
 
-            #print(number_roi)
 
             if (calculated_suv_max_mean[number_roi]['SUV_mean'] < float(self.details_rois[number_roi]['suv_mean']) - float(0.1) or 
                 calculated_suv_max_mean[number_roi]['SUV_mean'] > float(self.details_rois[number_roi]['suv_mean']) + float(0.1)):
@@ -229,8 +225,6 @@ class MaskBuilder(CsvReader):
         liste = []
         calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
         for number_roi in range(1, self.number_of_rois +1) :
-
-            #print(number_roi)
 
             if (calculated_suv_max_mean[number_roi]['SD'] < float(self.details_rois[number_roi]['sd']) - float(0.1) or 
                 calculated_suv_max_mean[number_roi]['SD'] > float(self.details_rois[number_roi]['sd']) + float(0.1)):
@@ -270,8 +264,7 @@ class MaskBuilder(CsvReader):
                     new_list_point.append(point)
         
             self.details_rois[number_roi + 1]['list_points'] = new_list_point
-        #print(len(liste))
-        #print("après flip :", self.details_rois[1]['list_points'][0])
+
         self.mask_array = np.stack((liste), axis = 3)
         return self.mask_array
 
