@@ -1,5 +1,4 @@
 import numpy as np
-#on utilise le mask_4D déjà flippé, donc coordonées déjà flippé aussi
 
 def get_suv_max(nifti_array, list_points):
     list_suv = []

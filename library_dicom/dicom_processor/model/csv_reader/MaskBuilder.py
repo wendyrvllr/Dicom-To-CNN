@@ -23,8 +23,6 @@ class MaskBuilder(CsvReader):
         self.mask_array = self.build_mask()
 
         
-
-
     def initialize_mask_matrix(self):
         """build empty 4D numpy array 
         """
@@ -37,7 +35,7 @@ class MaskBuilder(CsvReader):
         """
         self.initialize_mask_matrix()
         for number_roi in range(1 ,  self.number_of_rois + 1):
-            #print(number_roi)
+    
             roi_object = RoiFactory(self.details_rois[number_roi], (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]) , number_roi).read_roi() #.list_points
             list_points = roi_object.list_points
             np_array_3D = roi_object.get_mask(list_points) #3D_array
@@ -83,7 +81,7 @@ class MaskBuilder(CsvReader):
 
     #A REPRENDRE
     def saggital_list_points_to_axial(self, list_points) : 
-        """ Change the list_points in saggital to coronal 
+        """ Change the list_points in saggital to axial
         saggital           axial 
           x                 x
           y                 z
@@ -102,12 +100,11 @@ class MaskBuilder(CsvReader):
 
 
     def calcul_suv(self, nifti_array):
-        """calcul SUV Mean, SUV Max and SD from the 3D np array of a mask and put results in a dict
+        """calcul SUV Mean, SUV Max and SD from the mask, for each ROI, and put results in a dict
         """
-        slice = nifti_array.shape[2]
         max_mean = {}
         for number_roi in range(1 , self.number_of_rois + 1):
-            #print("ROI :", number_roi)
+     
             list_points = self.details_rois[number_roi]['list_points'] #[[x,y,z], [x,y,z],...]
             list_pixels = []
             list_pixels_seuil = []
@@ -154,7 +151,7 @@ class MaskBuilder(CsvReader):
 
     #parti check 
     def is_correct_suv(self, nifti_array):
-        """check if calculated SUV Mean SUV Max and SD is correct 
+        """check if calculated SUV Mean, SUV Max and SD is correct 
 
         """
 
@@ -177,16 +174,13 @@ class MaskBuilder(CsvReader):
         return True 
 
 
-
-
-
     def ecart_suv_max(self, nifti_array):
-        
+        """calculate the difference between calculate_SUV_MAX and csv_SUV_MAX for each ROI 
+        """
         liste = []
         calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
         for number_roi in range(1, self.number_of_rois +1) :
 
-            #print(number_roi)
 
             if (calculated_suv_max_mean[number_roi]['SUV_max'] < float(self.details_rois[number_roi]['suv_max']) - float(0.1) or 
                 calculated_suv_max_mean[number_roi]['SUV_max'] > float(self.details_rois[number_roi]['suv_max']) + float(0.1)  ):
@@ -199,16 +193,17 @@ class MaskBuilder(CsvReader):
                     liste.append("ELLIPSE")
 
                 liste.append(float(abs(calculated_suv_max_mean[number_roi]['SUV_max'] - float(self.details_rois[number_roi]['suv_max']))))
-                
-
+            
         return liste 
 
     def ecart_suv_mean(self, nifti_array) : 
+        """calculate the difference between calculate_SUV_MEAN and csv_SUV_MEAN for each ROI 
+
+        """
         liste = []
         calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
         for number_roi in range(1, self.number_of_rois +1) :
 
-            #print(number_roi)
 
             if (calculated_suv_max_mean[number_roi]['SUV_mean'] < float(self.details_rois[number_roi]['suv_mean']) - float(0.1) or 
                 calculated_suv_max_mean[number_roi]['SUV_mean'] > float(self.details_rois[number_roi]['suv_mean']) + float(0.1)):
@@ -220,18 +215,18 @@ class MaskBuilder(CsvReader):
                 if type_roi == 11 or type_roi == 12 or type_roi == 13 : 
                     liste.append("ELLIPSE")
 
-                liste.append(float(abs(calculated_suv_max_mean[number_roi]['SUV_mean'] - float(self.details_rois[number_roi]['suv_mean']))))
-                
+                liste.append(float(abs(calculated_suv_max_mean[number_roi]['SUV_mean'] - float(self.details_rois[number_roi]['suv_mean']))))            
 
         return liste 
 
 
     def ecart_SD(self, nifti_array) :
+        """calculate the difference between calculate_SD and csv_SD for each ROI 
+
+        """
         liste = []
         calculated_suv_max_mean = self.calcul_suv(nifti_array) #dict 
         for number_roi in range(1, self.number_of_rois +1) :
-
-            #print(number_roi)
 
             if (calculated_suv_max_mean[number_roi]['SD'] < float(self.details_rois[number_roi]['sd']) - float(0.1) or 
                 calculated_suv_max_mean[number_roi]['SD'] > float(self.details_rois[number_roi]['sd']) + float(0.1)):
@@ -245,13 +240,12 @@ class MaskBuilder(CsvReader):
 
                 liste.append(float(abs(calculated_suv_max_mean[number_roi]['SD'] - float(self.details_rois[number_roi]['sd']))))
                 
-
         return liste 
 
 
 
     def flip_z(self, mask_4D): 
-        """flip z axis in the mask matrix if calculated SUV Mean SUV MAX and SD is False 
+        """flip z axis in the mask matrix 
 
         """
         slice = mask_4D.shape[2]
@@ -271,13 +265,11 @@ class MaskBuilder(CsvReader):
                     new_list_point.append(point)
         
             self.details_rois[number_roi + 1]['list_points'] = new_list_point
-        #print(len(liste))
-        #print("après flip :", self.details_rois[1]['list_points'][0])
+
         self.mask_array = np.stack((liste), axis = 3)
+
         return self.mask_array
-
-
-            
+          
 
     def is_calcul_sul_correct(self, series_path):
         """check if the SUL in the CSV file and the calculated SUL is the same 
