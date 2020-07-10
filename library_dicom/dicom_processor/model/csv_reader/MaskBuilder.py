@@ -104,7 +104,6 @@ class MaskBuilder(CsvReader):
     def calcul_suv(self, nifti_array):
         """calcul SUV Mean, SUV Max and SD from the 3D np array of a mask and put results in a dict
         """
-        slice = nifti_array.shape[2]
         max_mean = {}
         for number_roi in range(1 , self.number_of_rois + 1):
             #print("ROI :", number_roi)
