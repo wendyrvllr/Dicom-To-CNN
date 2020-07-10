@@ -174,9 +174,6 @@ class MaskBuilder(CsvReader):
         return True 
 
 
-
-
-
     def ecart_suv_max(self, nifti_array):
         
         liste = []
@@ -195,8 +192,7 @@ class MaskBuilder(CsvReader):
                     liste.append("ELLIPSE")
 
                 liste.append(float(abs(calculated_suv_max_mean[number_roi]['SUV_max'] - float(self.details_rois[number_roi]['suv_max']))))
-                
-
+            
         return liste 
 
     def ecart_suv_mean(self, nifti_array) : 
@@ -215,8 +211,7 @@ class MaskBuilder(CsvReader):
                 if type_roi == 11 or type_roi == 12 or type_roi == 13 : 
                     liste.append("ELLIPSE")
 
-                liste.append(float(abs(calculated_suv_max_mean[number_roi]['SUV_mean'] - float(self.details_rois[number_roi]['suv_mean']))))
-                
+                liste.append(float(abs(calculated_suv_max_mean[number_roi]['SUV_mean'] - float(self.details_rois[number_roi]['suv_mean']))))            
 
         return liste 
 
@@ -238,7 +233,6 @@ class MaskBuilder(CsvReader):
 
                 liste.append(float(abs(calculated_suv_max_mean[number_roi]['SD'] - float(self.details_rois[number_roi]['sd']))))
                 
-
         return liste 
 
 
@@ -266,10 +260,9 @@ class MaskBuilder(CsvReader):
             self.details_rois[number_roi + 1]['list_points'] = new_list_point
 
         self.mask_array = np.stack((liste), axis = 3)
+
         return self.mask_array
-
-
-            
+          
 
     def is_calcul_sul_correct(self, series_path):
         """check if the SUL in the CSV file and the calculated SUL is the same 
