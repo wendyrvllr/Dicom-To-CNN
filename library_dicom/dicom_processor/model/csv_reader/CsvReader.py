@@ -26,12 +26,10 @@ class CsvReader():
                     number_of_manual_roi = row[0].replace("Number of ROIs = ", "").strip()
                     self.first_line_manual_roi = index
                     self.number_of_manual_roi = int(number_of_manual_roi)
-                    #self.number_of_nifti_roi = 0
                 if(row and 'Number of Nifti ROIs = ' in row[0]) :
                     number_of_nifti_roi = row[0].replace("Number of Nifti ROIs = ", "").strip()
                     self.first_line_nifti_roi = index
                     self.number_of_nifti_roi = int(number_of_nifti_roi) 
-                    #self.number_of_manual_roi = 0 
                 csv_data.append(row) #liste de liste(chaque ligne = liste)
                 index += 1
 
