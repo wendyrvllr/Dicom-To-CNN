@@ -178,13 +178,8 @@ class CsvReader():
         for number_roi_nifti in range(number_of_nifti_rois) :
             details[number_roi_nifti + 1] = self.convert_nifti_row_to_object(nifti_rois[number_roi_nifti], rois_results[number_roi_nifti])
         for number_roi_manual in range(number_of_manual_rois):
-            details[number_of_nifti_rois + 1 + number_roi_manual]  = self.convert_manual_row_to_object(manual_rois[number_roi_manual], rois_results[number_roi_manual])
+            details[number_of_nifti_rois + 1 + number_roi_manual]  = self.convert_manual_row_to_object(manual_rois[number_roi_manual], rois_results[number_of_nifti_rois + 1 + number_roi_manual])
 
- 
-        #for number_roi_manual in range(number_of_manual_rois) :
-            #details[number_roi_manual + 1] = self.convert_manual_row_to_object(manual_rois[number_roi_manual], rois_results[number_roi_manual])
-        #for number_roi_nifti in range(number_of_nifti_rois):
-            #details[number_of_manual_rois+1 + number_roi_nifti] = self.convert_nifti_row_to_object(nifti_rois[number_roi_nifti], rois_results[number_roi_nifti])
 
         details['SUL'] = self.get_SUL()
         details['SUVlo'] = self.get_SUVlo()
