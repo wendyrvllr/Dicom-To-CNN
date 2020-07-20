@@ -142,7 +142,7 @@ class MaskBuilder(CsvReader):
                     #results['pixel_number'] = len(list_pixels_seuil)
                     results['SUV_max'] = round(np.max(list_pixels_seuil), 2)
                     results['SUV_mean'] = round(np.mean(list_pixels_seuil), 2)
-                    results['SD'] = round(np.std(list_pixels_seuil), 2)
+                    results['SD'] = round(np.std(list_pixels_seuil, ddof = 1), 2)
             
             max_mean[number_roi] = results
 
