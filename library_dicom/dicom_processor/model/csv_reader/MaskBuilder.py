@@ -33,10 +33,21 @@ class MaskBuilder(CsvReader):
         """build 3D numpy array mask with ROI coordonates from a CSV, put in a 4D matrix
 
         """
+
+        slice = self.matrix_size[2]
+
+
+        #construction du mask
         self.initialize_mask_matrix()
         for number_roi in range(1 ,  self.number_of_rois + 1):
     
             roi_object = RoiFactory(self.details_rois[number_roi], (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]) , number_roi).read_roi() #.list_points
+            #traitement si nifti = > flipper les coordonées 
+            if roi_object.type_number == 0 :  
+                for point in roi_object.list_points :
+                    new_z = slice - 1 - point[2]
+                    point[2] = new_z
+        
             list_points = roi_object.list_points
             np_array_3D = roi_object.get_mask(list_points) #3D_array
 
