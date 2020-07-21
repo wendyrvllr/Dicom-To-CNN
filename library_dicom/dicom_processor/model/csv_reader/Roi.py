@@ -54,7 +54,7 @@ class Roi():
         xmin, xmax, ymin, ymax  = self.__get_min_max_of_roi()
         for x in range(xmin, xmax + 1): 
             for y in range(ymin, ymax + 1) : 
-                if patch.contains_point([x,y], radius = 0) : 
+                if patch.contains_point([x,y], radius = -1e-9) : 
                     points.append([x,y])
 
         return points
