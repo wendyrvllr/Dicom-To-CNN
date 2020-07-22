@@ -40,7 +40,7 @@ class SeriesPT(Series):
                 parsed_datetime = self.__parse_datetime(datetime)
                 liste.append(parsed_datetime)
 
-                return min(liste)
+            return min(liste)
 
         except Exception : 
             return "Undefined"
@@ -66,6 +66,7 @@ class SeriesPT(Series):
         details['philips_tags'] = self.philips_tag
 
         return details
+        
 
     @classmethod
     def __parse_datetime(cls, date_time):
