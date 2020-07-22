@@ -162,6 +162,14 @@ class Series():
         return liste 
 
 
+    def get_all_acquisition_time(self):
+        liste = []
+        for filename in self.file_names : 
+            instanceData = Instance(os.path.join(self.path,filename), load_image=True)
+            liste.append(instanceData.get_acquisition_time())
+        return sorted(liste)
+
+
 
     def get_size_matrix(self):
         size = []
