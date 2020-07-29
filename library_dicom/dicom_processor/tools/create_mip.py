@@ -26,6 +26,18 @@ def create_gif(filenames, duration, path_gif):
     
         return None
 
+def mip_imshow(numpy_array, angle) :
+    numpy_array = np.transpose(np.flip(numpy_array, axis = 2), (2,1,0)) #coronal
+
+    vol_angle = scipy.ndimage.interpolation.rotate(numpy_array , angle , reshape=False, axes = (1,2))
+    MIP = np.amax(vol_angle,axis=2)
+
+    f = plt.figure(figsize=(10,10))
+    axes = plt.gca()
+    axes.set_axis_off()
+
+    plt.imshow(MIP, cmap = 'plasma')
+    plt.show()
 
 
 def mip_projection(numpy_array, angle, path_image, study_uid, borne_max=5.0):
