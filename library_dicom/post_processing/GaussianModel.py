@@ -18,33 +18,55 @@ class GaussianModel(PostProcess_Reader) :
     def gaussien_mixture_model(self) : 
         parameters = {}
         for key in range(1, len(self.features) + 1) : 
-            X_train = np.asarray(self.features[key]['suv_values']).reshape((-1,1))
-
             subdict = {}
+            X_train = np.asarray(self.features[key]['suv_values']).reshape((-1,1))
+            #si volume plus petit que 30ml, on laisse
+            if self.features[key]['volume'] < float(30) : 
 
-            #find best parameters for model 
-
-            lowest_bic = np.infty
-            bic = []
-            n_components_range = range(1, 8)
-            cv_types = ['spherical', 'tied', 'diag', 'full']
-            for cv_type in cv_types : 
-                for n_components in n_components_range : 
-                    gmm = mixture.GaussianMixture(n_components=n_components, covariance_type=cv_type, random_state = 0)
+                lowest_bic = np.infty
+                bic = []
+                for cv_type in cv_types : 
+                    gmm = mixture.GaussianMixture(n_components= 1, covariance_type=cv_type, random_state = 0)
                     gmm.fit(X_train)
                     bic.append(gmm.bic(X_train))
                     if bic[-1] < lowest_bic : 
                         lowest_bic = bic[-1]
                         best_gmm = gmm 
-                        best_n_components = n_components
+                        best_n_components = 1
                         best_cv_type = cv_type
                         labels = best_gmm.predict(X_train) #ndarray
-                        
-            subdict['best_n_components'] = best_n_components
-            subdict['best_cv_type'] = best_cv_type
-            subdict['label'] = labels
 
-            parameters[key] = subdict
+                subdict['best_n_components'] = best_n_components
+                subdict['best_cv_type'] = best_cv_type
+                subdict['label'] = labels
+
+                parameters[key] = subdict
+
+            else : 
+
+                #find best parameters for model 
+
+                lowest_bic = np.infty
+                bic = []
+                n_components_range = range(1, 8)
+                cv_types = ['spherical', 'tied', 'diag', 'full']
+                for cv_type in cv_types : 
+                    for n_components in n_components_range : 
+                        gmm = mixture.GaussianMixture(n_components=n_components, covariance_type=cv_type, random_state = 0)
+                        gmm.fit(X_train)
+                        bic.append(gmm.bic(X_train))
+                        if bic[-1] < lowest_bic : 
+                            lowest_bic = bic[-1]
+                            best_gmm = gmm 
+                            best_n_components = n_components
+                            best_cv_type = cv_type
+                            labels = best_gmm.predict(X_train) #ndarray
+                            
+                subdict['best_n_components'] = best_n_components
+                subdict['best_cv_type'] = best_cv_type
+                subdict['label'] = labels
+
+                parameters[key] = subdict
 
         return parameters
 
