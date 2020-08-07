@@ -66,10 +66,14 @@ class CsvReader():
         nifti_roi_bloc = nifti_roi_bloc[0 : nifti_roi_bloc.index([])]
         nifti_roi_list = []
         for row in nifti_roi_bloc :
+            if len(row) == 1 :
+                row.append(' ')
             if "num points = " in row[1] : 
                 nifti_roi_list.append(row)
             else : 
                 nifti_roi_list[-1] = nifti_roi_list[-1] + row
+                if ' ' in row : 
+                    row.remove(' ')
 
         return nifti_roi_list
 
