@@ -119,9 +119,9 @@ class MaskBuilder(CsvReader):
         new_list_points = []
         for point in list_points : 
             new_point = []
-            new_point.append(point[1])
             new_point.append(point[2])
             new_point.append(point[0])
+            new_point.append(point[1])
             new_list_points.append(new_point)
 
         return new_list_points
