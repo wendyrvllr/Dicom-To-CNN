@@ -100,7 +100,7 @@ class Series():
         return np_array
 
 
-    #GARDER ALERTE UNCONSTANT SPACING AVEC ARRONDIS MAIS RENDRE LA MOYENNE DES ECART SANS ARRONDIS
+    
     def get_z_spacing(self):
         """ called by __getMetadata """
         Z_positions = [ instance.get_image_position()[2] for instance in self.instance_array ]
@@ -115,16 +115,14 @@ class Series():
                     raise Exception('Unconstant Spacing')
                 except Exception : 
                     return('Unconstant Spacing') #alerte #return
-        #return initial_z_spacing
-        #print(np.mean(self.calculate_z_spacing()))
-        return np.mean(self.calculate_z_spacing(round=False))
+        return np.mean(self.calculate_z_spacing(round_=False))
 
 
-    def calculate_z_spacing(self, round = False): 
+    def calculate_z_spacing(self, round_): 
         Z_positions = [ instance.get_image_position()[2] for instance in self.instance_array ]
         spacing = []
 
-        if round == False : 
+        if round_ == False : 
             initial_z_spacing = Z_positions[0] - Z_positions[1]
             spacing.append(initial_z_spacing)
             for i in range(2,len(Z_positions)):
@@ -134,6 +132,7 @@ class Series():
             return spacing
 
         else : 
+            #print(abs(Z_positions[0] - Z_positions[1]))
             initial_z_spacing = round(abs(Z_positions[0] - Z_positions[1]), 1)
             spacing.append(initial_z_spacing)
             for i in range(2,len(Z_positions)):
