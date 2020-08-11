@@ -36,7 +36,7 @@ def mip_imshow(numpy_array, angle) :
     axes = plt.gca()
     axes.set_axis_off()
 
-    plt.imshow(MIP, cmap = 'plasma')
+    plt.imshow(MIP, cmap = 'cividis')
     plt.show()
 
 
