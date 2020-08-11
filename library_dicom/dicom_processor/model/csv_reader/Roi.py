@@ -65,15 +65,18 @@ class Roi():
         Returns:
             numpy array -- zero filled numpy array
         """
-        if (self.axis == 1):
-            return (np.zeros((self.x, self.y, self.z)))
-            
-        elif (self.axis == 2):
-            #return (np.zeros((self.z, self.y, self.x)))
-            return (np.zeros((self.z, self.y, self.x)))
 
-        elif (self.axis == 3):
-            return (np.zeros((self.z, self.y, self.x)))
+        #change les coordonnées dans mask_builder pour passer en axial directement donc pas besoin 
+        #ici de différencier axial, saggital et coronal 
+        #if (self.axis == 1):
+        return (np.zeros((self.x, self.y, self.z)))
+            
+       # elif (self.axis == 2):
+            #return (np.zeros((self.z, self.y, self.x)))
+            
+
+        #elif (self.axis == 3):
+            #return (np.zeros((self.z, self.y, self.x)))
 
     def coronal_to_axial(self, np_array_3D):
         return np.transpose(np_array_3D, (2,1,0))
@@ -92,14 +95,14 @@ class Roi():
             np_array_3D[point[1], point[0] , point[2]] = 1
             #x et y inversé dans matplotlib 
 
-        if (self.axis == 2) : 
-            np_array_3D = self.coronal_to_axial(np_array_3D)
+        #if (self.axis == 2) : 
+            #np_array_3D = self.coronal_to_axial(np_array_3D)
             #print("shape après coronal to axial", np_array_3D.shape)
             #return np.transpose(np_array_3D, (1,0,2)).astype(np.uint8)
-            return np_array_3D.astype(np.uint8)
-        elif (self.axis == 3) :
-            np_array_3D = self.sagittal_to_axial(np_array_3D)
-            return np_array_3D.astype(np.uint8)
+            #return np_array_3D.astype(np.uint8)
+        #elif (self.axis == 3) :
+            #np_array_3D = self.sagittal_to_axial(np_array_3D)
+            #return np_array_3D.astype(np.uint8)
 
         return np_array_3D.astype(np.uint8)
 
