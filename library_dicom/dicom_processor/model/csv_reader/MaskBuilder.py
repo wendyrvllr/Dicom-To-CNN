@@ -23,10 +23,10 @@ class MaskBuilder(CsvReader):
         self.mask_array = self.build_mask()
 
         
-    def initialize_mask_matrix(self):
-        """build empty 4D numpy array 
-        """
-        self.mask_array = np.zeros( (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2], self.number_of_rois )).astype(np.uint8)
+    #def initialize_mask_matrix(self):
+     #   """build empty 4D numpy array 
+      #  """
+       # self.mask_array = np.zeros( (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2], self.number_of_rois )).astype(np.uint8)
 
 
     def build_mask(self):
@@ -35,10 +35,10 @@ class MaskBuilder(CsvReader):
         """
 
         slice = self.matrix_size[2]
-
+        liste = []
 
         #construction du mask
-        self.initialize_mask_matrix()
+        #self.initialize_mask_matrix()
         for number_roi in range(1 ,  self.number_of_rois + 1):
     
             roi_object = RoiFactory(self.details_rois[number_roi], (self.matrix_size[0], self.matrix_size[1], self.matrix_size[2]) , number_roi).read_roi() #.list_points
@@ -48,63 +48,53 @@ class MaskBuilder(CsvReader):
                     new_z = slice - 1 - point[2]
                     point[2] = new_z
         
-            list_points = roi_object.list_points
-            np_array_3D = roi_object.get_mask(list_points) #3D_array AXIAL 
+                list_points = roi_object.list_points
+                self.details_rois[number_roi]['list_points'] = list_points
+                np_array_3D = roi_object.get_mask(list_points) #3D_array AXIAL 
+                liste.append(np_array_3D)
             #np.where(np_array_3D == 1) = x, y, z en AXIAL 
 
 
-            #if coronal ou saggital : flip en z de la matrice 3d axis = 2 
-            #np.where (flip_np_array_3D == 1) = x, y , z
-            if roi_object.type_number == 2 or roi_object.type_number == 12 :  
+            elif roi_object.type_number == 2 or roi_object.type_number == 12 :  
                 #coronal
-                new_list_points = []
-                flip_np_array_3D = np.flip(np_array_3D, axis=2)
-                x,y,z = np.where(flip_np_array_3D == 1)
-                for i in range(len(x)): 
-                    new_list_points.append([x[i], y[i], z[i]])
+                axial_list_points = self.coronal_list_points_to_axial(roi_object.list_points)
+                for point in axial_list_points : 
+                    new_z = slice - 1 - point[2]
+                    point[2] = new_z 
 
-                self.details_rois[number_roi]['list_points'] = new_list_points
-                self.mask_array[:,:,:,number_roi - 1] = flip_np_array_3D
+                self.details_rois[number_roi]['list_points'] = axial_list_points
+                np_array_3D = roi_object.get_mask(axial_list_points)
+                liste.append(np_array_3D)
 
-            
+                         
             elif roi_object.type_number == 3 or roi_object.type_number == 13 :  
                 #saggital
-                new_list_points = []
-                flip_np_array_3D = np.flip(flip_np_array_3D, axis=2)
-                x,y,z = np.where(np_array_3D == 1)
-                for i in range(len(x)): 
-                    new_list_points.append([x[i], y[i], z[i]])
+                axial_list_points = self.saggital_list_points_to_axial(roi_object.list_points)
+                for point in axial_list_points : 
+                    new_z = slice - 1 - point[2]
+                    point[2] = new_z 
 
-                self.details_rois[number_roi]['list_points'] = new_list_points
-                self.mask_array[:,:,:,number_roi - 1] = flip_np_array_3D
+                self.details_rois[number_roi]['list_points'] = axial_list_points
+                np_array_3D = roi_object.get_mask(axial_list_points)
+                liste.append(np_array_3D)
+                
                 
             else : 
-                self.details_rois[number_roi]['list_points'] = list_points
-                self.mask_array[:,:,:,number_roi - 1] = np_array_3D
+                self.details_rois[number_roi]['list_points'] = roi_object.list_points
+                np_array_3D = roi_object.get_mask(roi_object.list_points)
+                liste.append(np_array_3D)
 
-            #if roi_object.type_number == 2 or roi_object.type_number == 12 :  
-                #print("coronal")
-                #new_list_points = self.coronal_list_points_to_axial(list_points)
-                #self.details_rois[number_roi]['list_points'] = new_list_points
             
-            #elif roi_object.type_number == 3 or roi_object.type_number == 13 :
-                #print("saggital")
-                #new_list_points = self.saggital_list_points_to_axial(list_points)
-                #self.details_rois[number_roi]['list_points'] = new_list_points
-
-            #axial
-            #else : self.details_rois[number_roi]['list_points'] = list_points
-            
-        
-        return self.mask_array.astype(np.uint8) #liste
+        mask_array = np.stack((liste), axis = 3)
+        return mask_array.astype(np.uint8) #liste
 
 
     def coronal_list_points_to_axial(self, list_points):
         """ Change the list_points in coronal to axial 
         coronal           axial 
-          x                 z
-          y                 y
-          z                 x
+          x                 x
+          y                 z
+          z                 y
         """
  
         new_list_points = []
@@ -119,13 +109,12 @@ class MaskBuilder(CsvReader):
 
 
 
-    #A REPRENDRE
     def saggital_list_points_to_axial(self, list_points) : 
         """ Change the list_points in saggital to axial
         saggital           axial 
-          x                 x
+          x                 y
           y                 z
-          z                 y
+          z                 x
         """
         new_list_points = []
         for point in list_points : 
