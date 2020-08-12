@@ -39,6 +39,12 @@ class CsvReader():
         """Return CSV lines containing ROIs results
         """
         return self.csv_data[1 : self.csv_data.index([]) - 2 ]
+
+    def get_sum_row(self) :
+        """ return csv line containing sum rois results
+        """
+
+        return self.csv_data[self.csv_data.index([]) - 2 ]
     
 
     def get_manual_rois(self):
