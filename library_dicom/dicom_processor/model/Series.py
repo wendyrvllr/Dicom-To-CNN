@@ -99,6 +99,9 @@ class Series():
 
         return np_array
 
+    def get_z_positions(self):
+        Z_positions = [ instance.get_image_position()[2] for instance in self.instance_array ]
+        return Z_positions
 
     
     def get_z_spacing(self):
