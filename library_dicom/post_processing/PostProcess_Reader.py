@@ -22,11 +22,14 @@ class PostProcess_Reader :
 
         self.mask_object = self.get_mask_object()
         self.binary_mask = self.get_binary_mask()
+        self.binary_mask_img = self.get_binary_mask_img()
 
         self.labelled_mask, self.number_of_label = self.get_labelled_mask()
         self.labelled_mask_img = self.get_labelled_mask_img()
+
+        self.new_pet_img = self.get_new_pet_array_img()
         
-        self.features = self.extract_features(self.pet_img, self.labelled_mask_img)
+        #self.features = self.extract_features(self.pet_img, self.labelled_mask_img)
 
 
 
@@ -55,6 +58,15 @@ class PostProcess_Reader :
         
     def get_binary_mask(self):
         return self.mask_object.binary_mask
+
+
+    def get_binary_mask_img(self):
+        new_mask_img = sitk.GetImageFromArray(self.binary_mask.transpose())
+        new_mask_img.SetOrigin(self.pet_origin)
+        new_mask_img.SetSpacing(self.pet_spacing)
+        new_mask_img.SetDirection(self.pet_direction)
+        return new_mask_img 
+
 
 
     def get_mask_img_spacing(self):
@@ -86,7 +98,18 @@ class PostProcess_Reader :
             raise Exception("Not a 3D mask, need to transform into 3D binary mask")
         
         else : 
-            return label(self.binary_mask, return_num = True)
+            return label(self.binary_mask, return_num = True, neighbors=4)
+
+
+    def get_new_pet_array_img(self) : 
+        self.pet_array[np.where(self.labelled_mask == 0)] = 0 
+        pet_array = self.pet_array
+        new_pet_img = sitk.GetImageFromArray(pet_array.transpose())
+        new_pet_img.SetOrigin(self.pet_origin)
+        new_pet_img.SetSpacing(self.pet_spacing)
+        new_pet_img.SetDirection(self.pet_direction)
+        return new_pet_img
+
 
 
 
