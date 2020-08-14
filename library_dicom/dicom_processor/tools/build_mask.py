@@ -15,13 +15,22 @@ def read_mask_nifti(mask_path):
 
 
 def build_nifti_mask(mask, mask_path, pixel_spacing, origin, direction) : 
+
     number_of_roi = mask.shape[3]
+
     slices = []
     for number_roi in range(number_of_roi):
 
         sitk_img = sitk.GetImageFromArray( np.transpose(mask[:,:,:,number_roi], (2,0,1) ))
         
-        sitk_img.SetDirection( (float(direction[0]), float(direction[1]), float(direction[2]), 
+        if len(direction) == 9 : #mask3D => 1 ROI
+            sitk_img.SetDirection( (float(direction[0]), float(direction[1]), float(direction[2]), 
+                                    float(direction[3]), float(direction[4]), float(direction[5]), 
+                                    float(direction[6]), float(direction[7]), float(direction[8]) ))
+        
+        
+        else : 
+            sitk_img.SetDirection( (float(direction[0]), float(direction[1]), float(direction[2]), 
                                     float(direction[4]), float(direction[5]), float(direction[6]), 
                                     float(direction[8]), float(direction[9]), float(direction[10]) ))
         sitk_img.SetOrigin( (origin[0], origin[1], origin[2] ))
