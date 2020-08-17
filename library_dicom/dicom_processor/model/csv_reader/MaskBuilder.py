@@ -112,9 +112,9 @@ class MaskBuilder(CsvReader):
     def saggital_list_points_to_axial(self, list_points) : 
         """ Change the list_points in saggital to axial
         saggital           axial 
-          x                 y
-          y                 z
-          z                 x
+          x                 z
+          y                 x
+          z                 y
         """
         new_list_points = []
         for point in list_points : 

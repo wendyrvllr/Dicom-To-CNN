@@ -39,7 +39,7 @@ def mip_imshow(numpy_array, angle, cmap, type) :
         plt.imshow(MIP, cmap = cmap)
         plt.show()
     else : 
-        plt.imshow(MIP, cmap = cmap, vmax = 5.0)
+        plt.imshow(MIP, cmap = cmap, vmax = 3.5) #vmax = 3.0
         plt.show()
 
 

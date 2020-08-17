@@ -61,7 +61,6 @@ class Instance:
         instance_tags['ImageOrientation'] = self.get_image_orientation()
         instance_tags['RescaleSlope'] = self.get_rescale_slope()
         instance_tags['RescaleIntercept'] = self.get_rescale_intercept()
-        #instance_tags['SliceLocation'] = self.get_slice_location()
         instance_tags['SOPInstanceUID'] = self.get_SOPInstanceUID()
         return instance_tags
 
@@ -119,8 +118,6 @@ class Instance:
     def get_pixel_spacing(self):
         return list(self.dicomData[PixelSpacing.PixelSpacing.value].value)    
         
-    #def get_slice_location(self):
-        #return self.dicomData[TagsInstance.SliceLocation.value].value
 
     def get_image_type(self):
         return list(self.dicomData[ImageType.ImageType.value].value)
@@ -144,6 +141,23 @@ class Instance:
     def get_series_instance_uid(self):
         return self.dicomData[TagsSeries['SeriesInstanceUID'].value].value
 
+    def get_number_rows(self):
+        return self.dicomData.Rows
+
+    def get_number_columns(self):
+        return self.dicomData.Columns
+
+    def get_acquisition_date(self):
+        if "AcquisitionDate" in self.dicomData : 
+            return self.dicomData.AcquisitionDate
+        else : return "Undefined"
+        
+
+    def get_acquisition_time(self):
+        if 'AcquisitionTime' in self.dicomData : 
+            return self.dicomData.AcquisitionTime
+        else : return "Undefined"
+
 
     #for RTSS Writer 
     #check si ces informations sont bien dans le dataset sinon erreur 
@@ -162,7 +176,6 @@ class Instance:
 
     def get_patient_sex(self):
         return self.dicomData[TagsPatient['PatientSex'].value].value 
-
 
     def get_study_date(self):
         return self.dicomData[TagsStudy['StudyDate'].value].value
@@ -192,27 +205,10 @@ class Instance:
         else : return "Undefined"
 
     
-    def get_number_rows(self):
-        return self.dicomData.Rows
-
-    def get_number_columns(self):
-        return self.dicomData.Columns
-
-    
     def get_frame_of_reference_uid(self):
         return self.dicomData.FrameOfReferenceUID 
 
 
-    def get_acquisition_date(self):
-        if "AcquisitionDate" in self.dicomData : 
-            return self.dicomData.AcquisitionDate
-        else : return "Undefined"
-        
-
-    def get_acquisition_time(self):
-        if 'AcquisitionTime' in self.dicomData : 
-            return self.dicomData.AcquisitionTime
-        else : return "Undefined"
 
 
         
