@@ -64,7 +64,8 @@ class WatershedModel(PostProcess_Reader):
             localMax = self.get_local_peak(distance_map)
             number_localMax = self.get_number_of_localMax(localMax)
             marker_array = self.define_marker_array(localMax)
-            new_label_mask = self.watershed_segmentation(-distance_map, marker_array, new_mask)
+            new_distance_map = -1 * distance_map
+            new_label_mask = self.watershed_segmentation(new_distance_map, marker_array, new_mask)
 
             new_coordonate = []
             for new_label in range(1, number_localMax + 1):
@@ -84,9 +85,6 @@ class WatershedModel(PostProcess_Reader):
         liste_label = liste_label = np.arange(1, number_total_of_label + 1, 1)
 
         return self.watershed_matrix(liste_coordonate, liste_label), label_coordonate
-
-
-
 
 
     def extract_coordonate(self, results):
