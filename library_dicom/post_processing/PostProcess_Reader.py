@@ -114,6 +114,7 @@ class PostProcess_Reader :
         stats.Execute(labelled_threshold_img, self.pet_img)
         number_of_label = stats.GetNumberOfLabels()
         results['number_of_label'] =  number_of_label
+        volume = 0
         for i in range(1, number_of_label + 1) :
             subresult = {}
             subresult['max'] = stats.GetMaximum(i)
@@ -125,8 +126,9 @@ class PostProcess_Reader :
             volume_voxel = self.pet_spacing[0] * self.pet_spacing[1] * self.pet_spacing[2] * 10**(-3) #ml
             subresult['volume'] = stats.GetNumberOfPixels(i) * volume_voxel
             subresult['centroid'] = stats.GetCentroid(i)
-
+            volume += stats.GetNumberOfPixels(i) * volume_voxel
             results[i] = subresult
+        results['total_vol'] = volume
         return results
 
     def label_coordonate(self, labelled_mask, stats_results):

@@ -15,7 +15,7 @@ class WatershedModel(PostProcess_Reader):
     def get_labels_for_model(self, labelled_threshold_img):
         label = []
         results = self.label_stat_results(labelled_threshold_img)
-        for key in range(1, len(results)) :
+        for key in range(1, len(results) - 1) :
             if results[key]['volume'] > float(40) :
                 label.append(key)
 
@@ -94,4 +94,19 @@ class WatershedModel(PostProcess_Reader):
             ws_matrix[coordonate] = label
 
         return ws_matrix.astype(np.uint8)
+
+    def rois_details(self, ws_array, number_of_label) : 
+        dic = {}
+        vol_tot = 0
+        volume_voxel = self.pet_spacing[0] * self.pet_spacing[1] * self.pet_spacing[2] * 10**(-3)
+        for i in range(1, number_of_label + 1) : 
+            number_pixel = len(np.where(ws_array == i)[0])
+            dic[i] = volume_voxel * number_pixel
+            vol_tot += volume_voxel * number_pixel
+
+        dic['vol_tot'] = vol_tot
+
+        return dic 
+
+
 

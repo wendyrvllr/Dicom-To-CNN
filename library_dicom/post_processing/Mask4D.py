@@ -36,6 +36,7 @@ class Mask4D :
 
             maxi = np.max(suv_values)
             seuil = maxi * threshold
+            #seuil = float(threshold)
             x,y,z = np.where(mask_4D[:,:,:,roi] != 0)
             for j in range(len(x)) :
                 if pet_array[x[j],y[j],z[j]] <= seuil :
