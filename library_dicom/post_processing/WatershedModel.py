@@ -73,18 +73,11 @@ class WatershedModel(PostProcess_Reader):
 
             label_coordonate[label] = new_coordonate
 
-        #number_total_of_label = 0
-        #for key in range(len(label_coordonate)) :
-            #number_total_of_label += len(label_coordonate[key])
-
-        #liste_label = np.arange(1, number_total_of_label + 1, 1)
-
         liste_coordonate = self.extract_coordonate(label_coordonate)
         number_total_of_label = len(liste_coordonate)
-        print(number_total_of_label)
-        liste_label = liste_label = np.arange(1, number_total_of_label + 1, 1)
+        liste_label = np.arange(1, number_total_of_label + 1, 1)
 
-        return self.watershed_matrix(liste_coordonate, liste_label), label_coordonate
+        return self.watershed_matrix(liste_coordonate, liste_label), len(liste_label)
 
 
     def extract_coordonate(self, results):
