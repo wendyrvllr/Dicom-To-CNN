@@ -173,8 +173,8 @@ def transparent_1(myimage) :
     newData = []
     for item in datas:
         #print(item)
-        #if item[0] > 200 and item[1] > 200 and item[2] > 200:
-        if item[0] < 88 and item[1] < 88  and item[2] < 88:
+        if item[0] > 200 and item[1] > 200 and item[2] > 200:
+        #if item[0] < 88 and item[1] < 88  and item[2] < 88:
             newData.append((0, 0, 0, 0))
         else:
             newData.append(item)
@@ -231,8 +231,8 @@ def create_mip_superpose_gif(numpy_array_mask, numpy_array_tep, directory, study
 
     create_gif(angle_filenames, duration, directory)
 
-    for path in angle_filenames : 
-        os.remove(path)
+    #for path in angle_filenames : 
+        #os.remove(path)
        
     
     return None
