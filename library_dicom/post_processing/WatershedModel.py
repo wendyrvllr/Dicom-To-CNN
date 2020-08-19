@@ -31,17 +31,19 @@ class WatershedModel(PostProcess_Reader):
         return ndimage.distance_transform_edt(threshold_matrix)
 
     def get_local_peak(self, distance_map):
-        return peak_local_max(distance_map, indices = True, min_distance=41)
+        return peak_local_max(distance_map, indices = False, min_distance=20)
 
     def define_marker_array(self, localMax):
-        marker_array = np.zeros(self.size_matrix)
-        for marker in range(len(localMax)) : 
-            marker_array[localMax[marker][0], localMax[marker][1], localMax[marker][2]] = marker + 1
+        #marker_array = np.zeros(self.size_matrix)
+        #for marker in range(len(localMax)) : 
+            #marker_array[localMax[marker][0], localMax[marker][1], localMax[marker][2]] = marker + 1
 
-        return marker_array.astype(np.uint8)
+        marker_array, num_features = ndimage.label(localMax, structure=np.ones((3,3,3)))
 
-    def get_number_of_localMax(self, localMax):
-        return len(localMax)
+        return marker_array.astype(np.uint8), num_features
+
+    #def get_number_of_localMax(self, localMax):
+        #return len(localMax)
 
     def watershed_segmentation(self, distance_map, marker_array, mask) : 
         labels = segmentation.watershed(distance_map, marker_array, mask = mask)
@@ -62,13 +64,13 @@ class WatershedModel(PostProcess_Reader):
             new_mask = self.get_label_threshold_matrix(label, labelled_threshold_array)
             distance_map = self.get_distance_map(new_mask)
             localMax = self.get_local_peak(distance_map)
-            number_localMax = self.get_number_of_localMax(localMax)
-            marker_array = self.define_marker_array(localMax)
+            #number_localMax = self.get_number_of_localMax(localMax)
+            marker_array, num_features = self.define_marker_array(localMax)
             new_distance_map = -1 * distance_map
             new_label_mask = self.watershed_segmentation(new_distance_map, marker_array, new_mask)
 
             new_coordonate = []
-            for new_label in range(1, number_localMax + 1):
+            for new_label in range(1, num_features + 1):
                 new_coordonate.append(np.where(new_label_mask == new_label))
 
             label_coordonate[label] = new_coordonate
