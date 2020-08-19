@@ -35,7 +35,7 @@ class PostProcess_Reader :
 
     def get_mask_array(self):
         """
-        Image to array mask with no threshold 3D or 4D
+        return mask array from image with no threshold, 3D or 4D
         """
         return self.mask_object.read_mask_array()
 
@@ -58,7 +58,7 @@ class PostProcess_Reader :
         if self.type == '4d' : 
             return self.mask_object.get_binary_threshold_mask(self.pet_array, threshold)
         elif self.type == '3d' : 
-            return self.mask_object.get_binary_threshold_mask()
+            return self.mask_object.get_binary_threshold_mask(threshold)
         else : 
             raise Exception ('not a 3d or 4d mask')
 
