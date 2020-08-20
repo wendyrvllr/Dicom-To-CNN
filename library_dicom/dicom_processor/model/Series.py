@@ -113,7 +113,7 @@ class Series():
         for i in range(2,len(Z_positions)):
 
             z_spacing = round(abs(Z_positions[i - 1] - Z_positions[i]), 1)
-            if (z_spacing!=initial_z_spacing):
+            if z_spacing < initial_z_spacing - float(0.1) or z_spacing > initial_z_spacing + float(0.1) :
                 try : 
                     raise Exception('Unconstant Spacing')
                 except Exception : 
