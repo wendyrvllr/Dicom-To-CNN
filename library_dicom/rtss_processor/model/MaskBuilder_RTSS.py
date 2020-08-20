@@ -119,7 +119,7 @@ class MaskBuilder_RTSS :
         for item in range(len(slice)):
             np_array_3D[:,:,slice[item]] = cv2.drawContours(np.float32(np_array_3D[:,:,slice[item]]), [np.asarray(liste_points[item])], -1, number_roi , -1)
 
-        return np_array_3D
+        return np_array_3D.astype(np.uint8)
 
 
     def rtss_to_4D_mask(self):
