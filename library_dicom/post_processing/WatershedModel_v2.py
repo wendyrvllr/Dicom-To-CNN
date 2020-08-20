@@ -12,15 +12,11 @@ class WatershedModel_v2(PostProcess_Reader):
         super().__init__(mask_path, pet_path, type)
     
 
-    
-    #def get_number_of_localMax(self, localMax):
-        #return len(localMax)
-
     def watershed_segmentation(self, pet_array, binary_mask_array) : 
         pet_values = np.zeros(self.size_matrix)
         pet_values[np.where(binary_mask_array == 1)] = pet_array[np.where(binary_mask_array == 1)]
         D = ndimage.distance_transform_edt(pet_values)
-        localMax2 = peak_local_max(D, indices = False, min_distance= 5)
+        localMax2 = peak_local_max(D, indices = False, min_distance= 20)
         structure = np.ones((3,3,3))
         markers, num_features = ndimage.label(localMax2, structure=structure)
 
