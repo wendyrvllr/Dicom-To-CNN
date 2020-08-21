@@ -26,7 +26,7 @@ def create_gif(filenames, duration, path_gif):
     
         return None
 
-def mip_imshow(numpy_array, angle, cmap, type) :
+def mip_imshow(numpy_array, angle, cmap, type, vmin, vmax) :
     numpy_array = np.transpose(np.flip(numpy_array, axis = 2), (2,1,0)) #coronal
 
     vol_angle = scipy.ndimage.interpolation.rotate(numpy_array , angle , reshape=False, axes = (1,2))
@@ -39,7 +39,7 @@ def mip_imshow(numpy_array, angle, cmap, type) :
         plt.imshow(MIP, cmap = cmap)
         plt.show()
     else : 
-        plt.imshow(MIP, cmap = cmap, vmax = 3.5) #vmax = 3.0
+        plt.imshow(MIP, cmap = cmap, vmin = vmin, vmax = vmax) #vmax = 3.0
         plt.show()
 
 
@@ -65,7 +65,7 @@ def mip_imshow_4D(mask, angle, cmap) :
     
 
 
-def mip_projection(numpy_array, angle, path_image, study_uid, type, cmap, borne_max = 5.0):
+def mip_projection(numpy_array, angle, path_image, study_uid, type, cmap, vmin, vmax):
     """create MIP Projection for a given angle, create .png image
 
     """
@@ -78,13 +78,13 @@ def mip_projection(numpy_array, angle, path_image, study_uid, type, cmap, borne_
     f = plt.figure(figsize=(10,10))
     axes = plt.gca()
     axes.set_axis_off()
-    if type == 'tep' :
-        plt.imshow(MIP, cmap = cmap, vmax = borne_max)
-        filename = study_uid+'mip_'+type+"_"+str(int(angle))+".png"
+    if type == 'pet' :
+        plt.imshow(MIP, cmap = 'Greys', vmin = vmin, vmax = vmax)
+        filename = study_uid+'_mip_'+type+"_"+str(int(angle))+".png"
 
     else : 
         plt.imshow(MIP, cmap = cmap)
-        filename = study_uid+'mip_'+type+"_"+str(int(angle))+".png"
+        filename = study_uid+'_mip_'+type+"_"+str(int(angle))+".png"
 
     #angle_filename = path_image+'\\'+study_uid+'mip'+"."+str(int(angle))+".png" #rajouter le study iud du patient ou numero de serie 
     angle_filename = os.path.join(path_image, filename)
@@ -121,7 +121,7 @@ def mip_projection_4D(mask, angle, path_image, study_uid, number_roi, cmap,  bor
         
 
 def create_pdf_mip(angle_filenames, output_path_name) : 
-    """angle_filenames : [[path_mip_PET 1, path_mip_MASK 1], [path_mip_PET 2, path_mip_MASK 2],... ]
+    """angle_filenames : [[path_mip_PET 1, path_mip_MASK 1, study_uid], [path_mip_PET 2, path_mip_MASK 2, study_uid],... ]
 
     """
 
@@ -134,7 +134,7 @@ def create_pdf_mip(angle_filenames, output_path_name) :
         pdf.image(mip[1], x = 100, y = 10, w = 100, h = 190)
         pdf.set_font("Arial", size=12)
     
-        pdf.cell(200, 0, txt= str(index), ln=2, align="C")
+        pdf.cell(200, 0, txt= str(mip[2]), ln=2, align="C")
 
     pdf.output(output_path_name)
 
