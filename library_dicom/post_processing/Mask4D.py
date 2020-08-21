@@ -31,11 +31,11 @@ class Mask4D :
         mask_4D =  self.read_mask_array()
         number_of_roi = mask_4D.shape[3]
         for roi in range(number_of_roi) :
-            suv_values = []
-            suv_values.append(pet_array[np.where(mask_4D[:,:,:,roi] != 0 )])
+            #suv_values = []
+            #suv_values.append(pet_array[np.where(mask_4D[:,:,:,roi] != 0 )])
 
-            maxi = np.max(suv_values)
-            seuil = maxi * threshold
+            #maxi = np.max(suv_values)
+            seuil = threshold
             #seuil = float(threshold)
             x,y,z = np.where(mask_4D[:,:,:,roi] != 0)
             for j in range(len(x)) :

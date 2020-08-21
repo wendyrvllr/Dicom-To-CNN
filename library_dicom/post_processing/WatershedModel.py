@@ -16,7 +16,7 @@ class WatershedModel(PostProcess_Reader):
         label = []
         results = self.label_stat_results(labelled_threshold_img)
         for key in range(1, len(results) - 1) :
-            if results[key]['volume'] > float(40) :
+            if results[key]['volume'] > float(30) :
                 label.append(key)
 
         return label
@@ -42,8 +42,6 @@ class WatershedModel(PostProcess_Reader):
 
         return marker_array.astype(np.uint8), num_features
 
-    #def get_number_of_localMax(self, localMax):
-        #return len(localMax)
 
     def watershed_segmentation(self, distance_map, marker_array, mask) : 
         labels = segmentation.watershed(distance_map, marker_array, mask = mask)
@@ -52,8 +50,9 @@ class WatershedModel(PostProcess_Reader):
 
     def watershed_model(self, threshold) : 
         binary_threshold_mask_img = self.get_binary_threshold_mask_img(threshold)
-
+        binary_threshold_mask_img = self.remove_small_roi(binary_threshold_mask_img)
         labelled_threshold_img = self.get_labelled_threshold_mask_img(binary_threshold_mask_img)
+
         labelled_threshold_array = self.get_labelled_threshold_mask_array(labelled_threshold_img)
 
 
