@@ -120,7 +120,7 @@ class PostProcess_Reader :
             new_binary_array = np.zeros((self.size_matrix))
             new_binary_array[np.where(labelled_array != 0)] = 1
 
-            new_binary_img = sitk.GetImageFromArray(new_binary_array.transpose())
+            new_binary_img = sitk.GetImageFromArray(new_binary_array.transpose().astype(np.uint8))
             new_binary_img.SetOrigin(self.pet_origin)
             new_binary_img.SetSpacing(self.pet_spacing)
             new_binary_img.SetDirection(self.pet_direction)

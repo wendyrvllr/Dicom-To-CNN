@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from scipy import ndimage
 from skimage.feature import peak_local_max
 from skimage import segmentation
+import scipy
 from library_dicom.post_processing.PostProcess_Reader import PostProcess_Reader
 
 class WatershedModel(PostProcess_Reader):
@@ -25,13 +26,33 @@ class WatershedModel(PostProcess_Reader):
         x,y,z = self.size_matrix
         new_matrix = np.zeros((x,y,z))
         new_matrix[np.where(labelled_threshold_mask == label)] = self.pet_array[np.where(labelled_threshold_mask== label)]
-        return new_matrix
+        return new_matrix.astype(np.uint8)
+
+    def get_pet_view(self, pet_array, labelled_mask):
+        new_mask = np.zeros(self.size_matrix)
+        new_mask[np.where(labelled_mask != 0)] = pet_array[np.where(labelled_mask !=0)]
+        return new_mask.astype(np.uint8)
+
+
+    def imshow_matrix(self, pet_array, labelled_threshold_array, angle, cmap, vmin, vmax):
+        new_mask = np.zeros(self.size_matrix)
+        new_mask[np.where(labelled_threshold_array != 0)] = pet_array[np.where(labelled_threshold_array !=0)]
+        new = np.transpose(np.flip(new_mask, axis = 2), (2,1,0)) #coronal
+        vol_angle = scipy.ndimage.interpolation.rotate(new, angle , reshape=False, axes = (1,2))
+        MIP = np.amax(vol_angle,axis=2)
+        f = plt.figure(figsize=(10,10))
+        axes = plt.gca()
+        axes.set_axis_off()
+        plt.imshow(MIP, cmap=cmap, vmin = vmin, vmax = vmax)
+
+        return new_mask.astype(np.uint8) 
+
 
     def get_distance_map(self, threshold_matrix):
         return ndimage.distance_transform_edt(threshold_matrix)
 
     def get_local_peak(self, distance_map):
-        return peak_local_max(distance_map, indices = False, min_distance=20)
+        return peak_local_max(distance_map, indices = False, min_distance=16)
 
     def define_marker_array(self, localMax):
         #marker_array = np.zeros(self.size_matrix)
