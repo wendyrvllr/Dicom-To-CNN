@@ -62,6 +62,7 @@ class WatershedModel(PostProcess_Reader):
         marker_array, num_features = ndimage.label(localMax, structure=np.ones((3,3,3)))
 
         return marker_array.astype(np.uint8), num_features
+ 
 
 
     def watershed_segmentation(self, distance_map, marker_array, mask) : 
@@ -87,8 +88,8 @@ class WatershedModel(PostProcess_Reader):
             #number_localMax = self.get_number_of_localMax(localMax)
             marker_array, num_features = self.define_marker_array(localMax)
             new_distance_map = -1 * distance_map
+            #new_label_mask = self.watershed_segmentation(new_distance_map, marker_array, new_mask)
             new_label_mask = self.watershed_segmentation(new_distance_map, marker_array, new_mask)
-
             new_coordonate = []
             for new_label in range(1, num_features + 1):
                 new_coordonate.append(np.where(new_label_mask == new_label))

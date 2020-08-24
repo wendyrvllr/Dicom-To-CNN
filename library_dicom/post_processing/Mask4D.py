@@ -54,8 +54,6 @@ class Mask4D :
 
 
 
-
-
     def get_binary_mask(self) :
         shape_mask = self.mask.shape
         binary_mask = np.zeros((shape_mask[0], shape_mask[1], shape_mask[2]))
