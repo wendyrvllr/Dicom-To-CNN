@@ -52,14 +52,14 @@ class WatershedModel(PostProcess_Reader):
         return ndimage.distance_transform_edt(threshold_matrix)
 
     def get_local_peak(self, distance_map):
-        return peak_local_max(distance_map, indices = False, min_distance=12)
+        return peak_local_max(distance_map, indices = False, min_distance=25)
 
     def define_marker_array(self, localMax):
         #marker_array = np.zeros(self.size_matrix)
         #for marker in range(len(localMax)) : 
             #marker_array[localMax[marker][0], localMax[marker][1], localMax[marker][2]] = marker + 1
 
-        marker_array, num_features = ndimage.label(localMax, structure=np.ones((3,3,3)))
+        marker_array, num_features = ndimage.label(localMax, structure=np.ones((3,3,3))) #structure=np.ones((3,3,3))
 
         return marker_array.astype(np.uint8), num_features
  
