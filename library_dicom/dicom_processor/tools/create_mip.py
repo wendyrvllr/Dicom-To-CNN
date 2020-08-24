@@ -134,7 +134,7 @@ def create_pdf_mip(angle_filenames, output_path_name) :
         pdf.image(mip[1], x = 100, y = 10, w = 100, h = 190)
         pdf.set_font("Arial", size=12)
     
-        pdf.cell(200, 0, txt= str(mip[2]), ln=2, align="C")
+        pdf.cell(200, 0, txt= str(mip[2])+str(mip[3]), ln=2, align="C")
 
     pdf.output(output_path_name)
 
