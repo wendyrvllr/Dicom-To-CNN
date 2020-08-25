@@ -3,6 +3,7 @@ import SimpleITK as sitk
 import matplotlib.pyplot as plt
 import scipy as sc
 from sklearn import mixture
+from skimage.measure import label
 from library_dicom.post_processing.Mask3D import Mask3D
 from library_dicom.post_processing.Mask4D import Mask4D
 
@@ -120,27 +121,35 @@ class PostProcess_Reader :
             new_binary_array = np.zeros((self.size_matrix))
             new_binary_array[np.where(labelled_array != 0)] = 1
 
-            new_binary_img = sitk.GetImageFromArray(new_binary_array.transpose().astype(np.uint8))
-            new_binary_img.SetOrigin(self.pet_origin)
-            new_binary_img.SetSpacing(self.pet_spacing)
-            new_binary_img.SetDirection(self.pet_direction)
+            #new_binary_img = sitk.GetImageFromArray(new_binary_array.transpose().astype(np.uint8))
+            #new_binary_img.SetOrigin(self.pet_origin)
+            #new_binary_img.SetSpacing(self.pet_spacing)
+            #new_binary_img.SetDirection(self.pet_direction)
 
-            return new_binary_img
+            #return new_binary_img
+            return new_binary_array.astype(np.uint8)
 
     #get labelled array/img with threshold
-    def get_labelled_threshold_mask_img(self, binary_img) : 
-        if len(binary_img.GetSize()) != 3 : 
+    def get_labelled_threshold_mask_array(self, binary_array) : 
+        if len(binary_array.shape) != 3 : 
             raise Exception("Not a 3D mask, need to transform into 3D binary mask")
 
         else : 
-            labelled_threshold_img = sitk.ConnectedComponent(binary_img)
-            return labelled_threshold_img
+            labelled_threshold_array, number_features = label(binary_array, connectivity=1, return_num = True)
+            #labelled_threshold_img = sitk.ConnectedComponent(binary_img)
+            return labelled_threshold_array, number_features
 
 
-    def get_labelled_threshold_mask_array(self, labelled_threshold_img):
-        return sitk.GetArrayFromImage(labelled_threshold_img).transpose()
+    def get_labelled_threshold_mask_img(self, labelled_threshold_array):
+        img = sitk.GetImageFromArray(labelled_threshold_array.transpose())
+        img.SetDirection(self.pet_direction)
+        img.SetOrigin(self.pet_origin)
+        img.SetSpacing(self.pet_spacing)
+        return img
 
-    #get stats about labelled imd
+ 
+
+    #get stats results
     def label_stat_results(self, labelled_threshold_img) :
         results = {} 
         stats = sitk.LabelIntensityStatisticsImageFilter()
@@ -165,9 +174,8 @@ class PostProcess_Reader :
         return results
 
     #get coordonate of each roi 
-    def label_coordonate(self, labelled_mask, stats_results):
+    def label_coordonate(self, labelled_mask, number_of_label):
         results = {}
-        number_of_label = stats_results['number_of_label']
         for i in range(1, number_of_label + 1) :
             subliste = []
             subliste.append(np.where(labelled_mask == i))
