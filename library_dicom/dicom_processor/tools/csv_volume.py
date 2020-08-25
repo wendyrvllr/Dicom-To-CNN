@@ -16,6 +16,6 @@ def get_difference_volume(csv_path) :
     liste = csv_objet.get_rois_results()
 
     sum_volume = get_sum_rois_volume(liste)
-    return abs(sum_volume - total_volume)
+    return total_volume, sum_volume, abs(sum_volume - total_volume)
 
 
