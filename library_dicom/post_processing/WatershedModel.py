@@ -26,6 +26,7 @@ class WatershedModel(PostProcess_Reader):
 
     def get_labels_for_model(self, labelled_threshold_array, num_labels):
         label = []
+        vol_roi = []
         for key in range(1, num_labels + 1) :
             volume_voxel = self.pet_spacing[0] * self.pet_spacing[1] * self.pet_spacing[2] * 10**(-3)
             number_pixel = len(np.where(labelled_threshold_array == key)[0])
@@ -33,7 +34,8 @@ class WatershedModel(PostProcess_Reader):
 
             if volume_roi > float(30) :
                 label.append(key)
-        return label
+                vol_roi.append(volume_roi)
+        return label, vol_roi
 
     def get_pet_view(self, pet_array, labelled_mask):
         new_mask = np.zeros(self.size_matrix)
@@ -49,10 +51,26 @@ class WatershedModel(PostProcess_Reader):
 
 
     def get_distance_map(self, threshold_matrix):
+
         return ndimage.distance_transform_edt(threshold_matrix)
 
+    #def get_local_peak(self, distance_map, number_max_peak):
+        #min_dist = int(2/np.mean(self.pet_spacing))
+        #if min_dist == 0 : 
+        #    return peak_local_max(distance_map, indices = False)
+        #else : 
+
+        #return peak_local_max(distance_map, indices = False, num_peaks= number_max_peak)
+
     def get_local_peak(self, distance_map):
-        return peak_local_max(distance_map, indices = False, min_distance=12)
+        spacing = []
+        spacing.append(float(self.pet_spacing[0]) * 10**(-1))
+        spacing.append(float(self.pet_spacing[1]) * 10**(-1))
+        spacing.append(float(self.pet_spacing[2]) * 10**(-1))
+        
+        min_dist = int(1/np.mean(spacing))
+        return peak_local_max(distance_map, indices = False, min_distance=min_dist)
+
 
     def define_marker_array(self, localMax):
         #marker_array = np.zeros(self.size_matrix)
@@ -77,13 +95,15 @@ class WatershedModel(PostProcess_Reader):
         #labelled_threshold_img = self.get_labelled_threshold_mask_img(labelled_threshold_array)
 
         label_coordonate = self.label_coordonate(labelled_threshold_array, num_labels)
-        labels_for_model = self.get_labels_for_model(labelled_threshold_array, num_labels)
+        labels_for_model, vol_roi = self.get_labels_for_model(labelled_threshold_array, num_labels)
 
-        for label in labels_for_model : 
+        for label, roi in zip(labels_for_model, vol_roi) : 
             new_mask = self.get_label_threshold_matrix(label, labelled_threshold_array)
             distance_map = self.get_distance_map(new_mask)
+
+            #number_max_peak = int(roi/10)
+            #localMax = self.get_local_peak(distance_map, number_max_peak)
             localMax = self.get_local_peak(distance_map)
-            #number_localMax = self.get_number_of_localMax(localMax)
             marker_array, num_features = self.define_marker_array(localMax)
 
             new_distance_map = -1 * distance_map
