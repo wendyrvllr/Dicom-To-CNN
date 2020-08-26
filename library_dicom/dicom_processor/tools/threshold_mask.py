@@ -1,11 +1,31 @@
 import numpy as np
 
-#with any threshold
+#with any threshold 3d mask label
 
-def get_threshold_matrix(mask, pet_array, number_of_roi, threshold) : #0.41
+def get_threshold_matrix(ws_array, pet_array, number_of_roi, threshold) : #0.41
     for i in range(1, number_of_roi + 1):
+        points = []
+        suv_values = []
+        x,y,z = np.where(ws_array == i)
+        for j in range(len(x)): 
+            points.append([x[j], y[j], z[j]])
+
+        for point in points : 
+            suv_values.append(pet_array[point[0], point[1], point[2]])
+
+        seuil = np.max(suv_values) * threshold
+
+        for point in points : 
+            if pet_array[point[0], point[1], point[2]] <= seuil : 
+                ws_array[point[0], point[1], point[2]] = 0
+
+    return ws_array
+
+#for 4D matrix
+def get_threshold_matrix_4D(mask, pet_array, number_of_roi, threshold) : #0.41
+    for i in range(number_of_roi):
         suv_max = []
-        x,y,z = np.where(mask == i)
+        x,y,z = np.where(mask[:,:,:,i] != 0)
         for j in range(len(x)):
             suv_max.append(pet_array[x[j], y[j], z[j]])
 
@@ -14,7 +34,7 @@ def get_threshold_matrix(mask, pet_array, number_of_roi, threshold) : #0.41
 
         a,b,c = np.where(pet_array <= seuil)
         for k in range(len(x)) :
-            mask[a[k], b[k], c[k]] = 0
+            mask[a[k], b[k], c[k], i] = 0
         
     return mask
 
