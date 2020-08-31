@@ -48,13 +48,5 @@ def get_suv_max_value(mask_path, pet_path):
 
     return roi_max, np.round(np.max(suv_values), 2)
 
-
-
-
-def get_larger_diameter(roi, pet_array, number_of_roi, threshold):
-    roi = get_threshold_matrix(roi, pet_array, 1, 0.41)
-    points = []
-    
-
     
 
