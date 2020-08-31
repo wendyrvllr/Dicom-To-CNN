@@ -22,19 +22,35 @@ def get_threshold_matrix(ws_array, pet_array, number_of_roi, threshold) : #0.41
     return ws_array
 
 #for 4D matrix
-def get_threshold_matrix_4D(mask, pet_array, number_of_roi, threshold) : #0.41
+def get_threshold_matrix_4D(mask, pet_array, threshold) : #0.41
+    if len(mask.shape) != 3 :  #plusieurs ROI 
+        number_of_roi = mask.shape[3]
+    else : 
+        number_of_roi = 1 #1 ROI 
+
+
     for i in range(number_of_roi):
-        suv_max = []
-        x,y,z = np.where(mask[:,:,:,i] != 0)
-        for j in range(len(x)):
-            suv_max.append(pet_array[x[j], y[j], z[j]])
+        points = []
+        suv_values = []
+        if len(mask.shape) != 3 : #PLUSIEURS ROI 
+            x,y,z = np.where(mask[:,:,:,i] != 0)
+        else : #1 ROI 
+            x,y,z = np.where(mask != 0)
 
+        for j in range(len(x)): 
+            points.append([x[j], y[j], z[j]])
 
-        seuil = threshold * np.max(suv_max)
+        for point in points : 
+            suv_values.append(pet_array[point[0], point[1], point[2]])
 
-        a,b,c = np.where(pet_array <= seuil)
-        for k in range(len(x)) :
-            mask[a[k], b[k], c[k], i] = 0
+        seuil = np.max(suv_values) * threshold
+
+        for point in points : 
+            if pet_array[point[0], point[1], point[2]] <= seuil : 
+                if len(mask.shape) != 3 : #PLUSIEURS ROI 
+                    mask[point[0], point[1], point[2], i] = 0
+                else :  mask[point[0], point[1], point[2]] = 0 #1 ROI 
+
         
     return mask
 
