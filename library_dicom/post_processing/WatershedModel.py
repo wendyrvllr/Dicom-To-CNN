@@ -6,6 +6,7 @@ from skimage.feature import peak_local_max
 from skimage import segmentation
 import scipy
 from library_dicom.post_processing.PostProcess_Reader import PostProcess_Reader
+from library_dicom.dicom_processor.tools.create_mip import *
 
 class WatershedModel(PostProcess_Reader):
 
@@ -44,14 +45,14 @@ class WatershedModel(PostProcess_Reader):
 
 
     def get_suv_values_matrix(self, label, labelled_threshold_mask):
-        x,y,z = self.size_matrix
-        new_matrix = np.zeros((x,y,z))
+        #x,y,z = self.size_matrix
+        new_matrix = np.zeros(self.size_matrix)
         new_matrix[np.where(labelled_threshold_mask == label)] = self.pet_array[np.where(labelled_threshold_mask== label)]
         return new_matrix.astype(np.uint8)
 
     def get_mask_roi_matrix(self, label, labelled_threshold_mask):
-        x,y,z = self.size_matrix
-        new_matrix = np.zeros((x,y,z))
+        #x,y,z = self.size_matrix
+        new_matrix = np.zeros(self.size_matrix)
         new_matrix[np.where(labelled_threshold_mask == label)] = 1
         return new_matrix.astype(np.uint8)
 
@@ -75,6 +76,7 @@ class WatershedModel(PostProcess_Reader):
         spacing.append(float(self.pet_spacing[2]) * 10**(-1))
         
         min_dist = int(2/np.mean(spacing))
+        print("min dist :", min_dist)
         return peak_local_max(distance_map, indices = False, min_distance=min_dist)
 
 
@@ -84,10 +86,8 @@ class WatershedModel(PostProcess_Reader):
             #marker_array[localMax[marker][0], localMax[marker][1], localMax[marker][2]] = marker + 1
 
         marker_array, num_features = ndimage.label(localMax) #, structure=np.ones((3,3,3)))
-
         return marker_array.astype(np.uint8), num_features
  
-
 
     def watershed_segmentation(self, distance_map, marker_array, mask) : 
         labels = segmentation.watershed(distance_map, marker_array, mask = mask)
@@ -101,16 +101,19 @@ class WatershedModel(PostProcess_Reader):
         #labelled_threshold_img = self.get_labelled_threshold_mask_img(labelled_threshold_array)
 
         label_coordonate = self.label_coordonate(labelled_threshold_array, num_labels)
+        #print(label_coordonate)
         labels_for_model, vol_roi = self.get_labels_for_model(labelled_threshold_array, num_labels)
-
-        for label, roi in zip(labels_for_model, vol_roi) : 
+        #print(len(label_coordonate))
+        #print(labels_for_model)
+        for label in labels_for_model : 
             suv_values= self.get_suv_values_matrix(label, labelled_threshold_array)
             distance_map = self.get_distance_map(suv_values)
             #roi_matrix = self.get_mask_roi_matrix(label, labelled_threshold_array )
             #number_max_peak = int(roi/10)
             #localMax = self.get_local_peak(distance_map, number_max_peak)
-            localMax = self.get_local_peak(suv_values)
+            localMax = self.get_local_peak(distance_map)
             marker_array, num_features = self.define_marker_array(localMax)
+            #print("num sous sections :", num_features)
 
             new_distance_map = -1 * distance_map
             new_label_mask = self.watershed_segmentation(new_distance_map, marker_array, suv_values)
@@ -119,11 +122,12 @@ class WatershedModel(PostProcess_Reader):
                 new_coordonate.append(np.where(new_label_mask == new_label))
 
             label_coordonate[label] = new_coordonate
-
+        #print(label_coordonate)
         liste_coordonate = self.extract_coordonate(label_coordonate)
         number_total_of_label = len(liste_coordonate)
         liste_label = np.arange(1, number_total_of_label + 1, 1)
-
+        #print(liste_label)
+        #return label_coordonate
         return self.watershed_matrix(liste_coordonate, liste_label), len(liste_label)
 
 
