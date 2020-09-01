@@ -76,7 +76,7 @@ class WatershedModel(PostProcess_Reader):
         spacing.append(float(self.pet_spacing[2]) * 10**(-1))
         
         min_dist = int(2/np.mean(spacing))
-        print("min dist :", min_dist)
+        #print("min dist :", min_dist)
         return peak_local_max(distance_map, indices = False, min_distance=min_dist)
 
 
