@@ -2,6 +2,7 @@ import csv
 import numpy as np 
 import SimpleITK as sitk 
 from library_dicom.dicom_processor.tools.threshold_mask import *
+from radiomics.featureextractor import RadiomicsFeatureExtractor
 
 
 def get_suv_max_value(mask_path, pet_path):
@@ -50,3 +51,8 @@ def get_suv_max_value(mask_path, pet_path):
 
     
 
+def extract_features(mask_path, number_bigger_roi) : 
+    img_mask = sitk.ReadImage(mask_path)
+    extractor = RadiomicsFeatureExtractor()
+    results = extractor.execute(img_mask, label = number_bigger_roi)
+    return results
