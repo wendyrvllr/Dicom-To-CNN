@@ -2,6 +2,7 @@ import csv
 import numpy as np 
 import SimpleITK as sitk 
 from library_dicom.dicom_processor.tools.threshold_mask import *
+from radiomics.featureextractor import RadiomicsFeatureExtractor
 
 
 def get_suv_max_value(mask_path, pet_path):
@@ -50,8 +51,42 @@ def get_suv_max_value(mask_path, pet_path):
 
     
 
-def extract_features(mask_path, number_bigger_roi) : 
+def extract_features(mask_path, pet_path, number_bigger_roi) : 
+    #PET
+    img_pet = sitk.ReadImage(pet_path)
+    origin = img_pet.GetOrigin()
+    direction = img_pet.GetDirection()
+    spacing = img_pet.GetSpacing()
+    pet_array = sitk.GetArrayFromImage(img_pet).transpose()
+    size = pet_array.shape
+
+    #MASK
+
     img_mask = sitk.ReadImage(mask_path)
+    array_mask = sitk.GetArrayFromImage(img_mask).transpose()
+
+    #seuillage 41% 
+
+    if len(array_mask.shape) != 3 :
+        array_mask = get_threshold_matrix_4D(array_mask, pet_array, 0.41)
+    else : 
+        array_mask = get_threshold_matrix(array_mask, pet_array, 1, 0.41)
+
+    bigger_roi = np.zeros(size)
+    if len(array_mask.shape) != 3 : 
+        bigger_roi = array_mask[:,:,:,number_bigger_roi - 1]
+    else : bigger_roi = array_mask
+
+
+
+    #rewrite img 
+    sitk_img = sitk.GetImageFromArray(bigger_roi.transpose())
+    sitk_img.SetOrigin(origin)
+    sitk_img.SetDirection(direction)
+    sitk_img.SetSpacing(spacing)
+
     extractor = RadiomicsFeatureExtractor()
-    results = extractor.execute(img_mask, label = number_bigger_roi)
-    return results
+    results = extractor.execute(img_pet, sitk_img)
+    diameter_3d = results['original_shape_Maximum3DDiameter']
+    diameter_2d = results['original_shape_Maximum2DDiameterSlice']
+    return float(diameter_2d) , float(diameter_3d)
