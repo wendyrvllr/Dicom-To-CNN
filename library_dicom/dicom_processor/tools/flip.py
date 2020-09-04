@@ -11,10 +11,8 @@ def get_suv_max_value(mask_path, pet_path):
     mask_array = sitk.GetArrayFromImage(img_mask).transpose()
     pet_array = sitk.GetArrayFromImage(img_pet).transpose()
     mask_array = get_threshold_matrix_4D(mask_array, pet_array, 0.41 )
-    #print(mask_array.shape)
     pixel_spacing = img_pet.GetSpacing() #[x,y,z]
-    #print("spacing :", img_pet.GetSpacing())
-    #print("mask spacing : ", img_mask.GetSpacing())
+
     volume_voxel = pixel_spacing[0]*pixel_spacing[1]*pixel_spacing[2] * 10**(-3)
 
     if len(mask_array.shape) != 3 : 
@@ -32,7 +30,6 @@ def get_suv_max_value(mask_path, pet_path):
 
         volume.append(volume_voxel * number_pixel)
 
-    #print(volume)
     volume_max = np.max(volume)
     roi_max = volume.index(volume_max)
 
