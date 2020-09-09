@@ -67,6 +67,13 @@ class WatershedModel(PostProcess_Reader):
         
         min_dist = int(2/np.mean(spacing))
         #print("min dist :", min_dist)
+
+        #localMax_1 = peak_local_max(distance_map, indices = True, min_distance= min_dist)
+        #suv_max = []
+        #for point in localMax_1 : 
+        #    suv_max.append(self.pet_array[point[0], point[1], point[2]])
+
+        #moy = np.mean(suv_max)
         return peak_local_max(distance_map, indices = False, min_distance=min_dist)
 
 
@@ -97,17 +104,17 @@ class WatershedModel(PostProcess_Reader):
 
             suv_values= self.get_suv_values_matrix(label, labelled_threshold_array)
             
-            distance_map = self.get_distance_map(suv_values)
+            #distance_map = self.get_distance_map(suv_values)
 
             #localMax = self.get_local_peak(distance_map, number_max_peak)
-            localMax = self.get_local_peak(distance_map)
+            localMax = self.get_local_peak(suv_values)
             #local_min = morphology.local_minima(suv_values, allow_borders=False)
 
             marker_array, num_features = self.define_marker_array(localMax)
 
             if num_features != 0 : 
-                new_distance_map = -1 * distance_map
-                new_label_mask = self.watershed_segmentation(new_distance_map, marker_array, suv_values)
+                #new_distance_map = -1 * distance_map
+                new_label_mask = self.watershed_segmentation(-suv_values, marker_array, suv_values)
                 new_coordonate = []
                 for new_label in range(1, num_features + 1):
                     if len(np.where(new_label_mask == new_label)[0]) != 0 : 
@@ -119,7 +126,6 @@ class WatershedModel(PostProcess_Reader):
         liste_coordonate = self.extract_coordonate(label_coordonate)
         number_total_of_label = len(liste_coordonate)
         liste_label = np.arange(1, number_total_of_label + 1, 1)
-        #return label_coordonate
         return self.watershed_matrix(liste_coordonate, liste_label), len(liste_label)
 
 

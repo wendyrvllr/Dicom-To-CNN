@@ -4,16 +4,19 @@ import numpy as np
 
 def get_threshold_matrix(ws_array, pet_array, number_of_roi, threshold) : #0.41
     for i in range(1, number_of_roi + 1):
+        #print(i)
         points = []
         suv_values = []
         x,y,z = np.where(ws_array == i)
         for j in range(len(x)): 
             points.append([x[j], y[j], z[j]])
 
+        #SEUIL A 41%
         for point in points : 
             suv_values.append(pet_array[point[0], point[1], point[2]])
 
         seuil = np.max(suv_values) * threshold
+
 
         for point in points : 
             if pet_array[point[0], point[1], point[2]] <= seuil : 
@@ -28,9 +31,8 @@ def get_threshold_matrix_4D(mask, pet_array, threshold) : #0.41
     else : 
         number_of_roi = 1 #1 ROI 
 
-    #print(number_of_roi)
     for i in range(number_of_roi):
-        #print(i)
+
         points = []
         suv_values = []
         if len(mask.shape) != 3 : #PLUSIEURS ROI 
@@ -47,6 +49,7 @@ def get_threshold_matrix_4D(mask, pet_array, threshold) : #0.41
         if len(suv_values) != 0 :
             seuil = np.max(suv_values) * threshold
         else : seuil = 0
+
 
         for point in points : 
             if pet_array[point[0], point[1], point[2]] <= seuil : 
