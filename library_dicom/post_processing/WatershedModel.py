@@ -5,6 +5,7 @@ from scipy import ndimage
 from skimage.feature import peak_local_max
 from skimage import segmentation
 import scipy
+from skimage import morphology
 from library_dicom.post_processing.PostProcess_Reader import PostProcess_Reader
 from library_dicom.dicom_processor.tools.create_mip import *
 
@@ -13,17 +14,6 @@ class WatershedModel(PostProcess_Reader):
     def __init__(self, mask_path, pet_path, type):
         super().__init__(mask_path, pet_path, type)
 
-    
-    """
-    def get_labels_for_model(self, labelled_threshold_img):
-        label = []
-        results = self.label_stat_results(labelled_threshold_img)
-        for key in range(1, len(results) - 1) :
-            if results[key]['volume'] > float(30) :
-                label.append(key)
-
-        return label
-    """
 
     def get_labels_for_model(self, labelled_threshold_array, num_labels):
         label = []
@@ -48,7 +38,7 @@ class WatershedModel(PostProcess_Reader):
         #x,y,z = self.size_matrix
         new_matrix = np.zeros(self.size_matrix)
         new_matrix[np.where(labelled_threshold_mask == label)] = self.pet_array[np.where(labelled_threshold_mask== label)]
-        return new_matrix.astype(np.uint8)
+        return new_matrix
 
     def get_mask_roi_matrix(self, label, labelled_threshold_mask):
         #x,y,z = self.size_matrix
@@ -77,6 +67,13 @@ class WatershedModel(PostProcess_Reader):
         
         min_dist = int(2/np.mean(spacing))
         #print("min dist :", min_dist)
+
+        #localMax_1 = peak_local_max(distance_map, indices = True, min_distance= min_dist)
+        #suv_max = []
+        #for point in localMax_1 : 
+        #    suv_max.append(self.pet_array[point[0], point[1], point[2]])
+
+        #moy = np.mean(suv_max)
         return peak_local_max(distance_map, indices = False, min_distance=min_dist)
 
 
@@ -98,36 +95,37 @@ class WatershedModel(PostProcess_Reader):
         binary_threshold_mask_img = self.get_binary_threshold_mask_img(threshold)
         binary_threshold_mask_array = self.remove_small_roi(binary_threshold_mask_img)
         labelled_threshold_array, num_labels = self.get_labelled_threshold_mask_array(binary_threshold_mask_array)
-        #labelled_threshold_img = self.get_labelled_threshold_mask_img(labelled_threshold_array)
+       
 
         label_coordonate = self.label_coordonate(labelled_threshold_array, num_labels)
-        #print(label_coordonate)
+
         labels_for_model, vol_roi = self.get_labels_for_model(labelled_threshold_array, num_labels)
-        #print(len(label_coordonate))
-        #print(labels_for_model)
         for label in labels_for_model : 
+
             suv_values= self.get_suv_values_matrix(label, labelled_threshold_array)
-            distance_map = self.get_distance_map(suv_values)
-            #roi_matrix = self.get_mask_roi_matrix(label, labelled_threshold_array )
-            #number_max_peak = int(roi/10)
+            
+            #distance_map = self.get_distance_map(suv_values)
+
             #localMax = self.get_local_peak(distance_map, number_max_peak)
-            localMax = self.get_local_peak(distance_map)
+            localMax = self.get_local_peak(suv_values)
+            #local_min = morphology.local_minima(suv_values, allow_borders=False)
+
             marker_array, num_features = self.define_marker_array(localMax)
-            #print("num sous sections :", num_features)
 
-            new_distance_map = -1 * distance_map
-            new_label_mask = self.watershed_segmentation(new_distance_map, marker_array, suv_values)
-            new_coordonate = []
-            for new_label in range(1, num_features + 1):
-                new_coordonate.append(np.where(new_label_mask == new_label))
+            if num_features != 0 : 
+                #new_distance_map = -1 * distance_map
+                new_label_mask = self.watershed_segmentation(-suv_values, marker_array, suv_values)
+                new_coordonate = []
+                for new_label in range(1, num_features + 1):
+                    if len(np.where(new_label_mask == new_label)[0]) != 0 : 
+                        new_coordonate.append(np.where(new_label_mask == new_label))
 
-            label_coordonate[label] = new_coordonate
-        #print(label_coordonate)
+                label_coordonate[label] = new_coordonate
+
+
         liste_coordonate = self.extract_coordonate(label_coordonate)
         number_total_of_label = len(liste_coordonate)
         liste_label = np.arange(1, number_total_of_label + 1, 1)
-        #print(liste_label)
-        #return label_coordonate
         return self.watershed_matrix(liste_coordonate, liste_label), len(liste_label)
 
 
@@ -137,7 +135,6 @@ class WatershedModel(PostProcess_Reader):
             number_coord = len(results[key])
             for i in range(number_coord) : 
                 liste.append(results[key][i])
-
         return liste 
 
     def watershed_matrix(self, liste_coordonate, liste_label) :
