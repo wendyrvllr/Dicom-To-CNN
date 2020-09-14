@@ -11,7 +11,7 @@ def read_nifti_ct(ct_path):
 
 def normalize_CT(ct_img):
     intensityWindowingFilter = sitk.IntensityWindowingImageFilter()
-    #intensityWindowingFilter.SetOutputMaximum(1)
+    #intensityWindowingFilter.SetOutputMaximum(5)
     #intensityWindowingFilter.SetOutputMinimum(0)
     windowMax = 1024
     windowMin = -1024
@@ -24,7 +24,7 @@ def resample_CT(ct_img, new_origin):
         # transformation parametrisation
     target_direction = (1,0,0,0,1,0,0,0,1)
     shape = ct_img.GetSize()
-    target_shape = (128, 128, 255) 
+    target_shape = (256, 256, 512) 
     factor_z = shape[2] / target_shape[2]
     factor_x_y = shape[0] / target_shape[0]
     spacing = ct_img.GetSpacing()
