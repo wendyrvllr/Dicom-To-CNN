@@ -11,8 +11,8 @@ def read_nifti_ct(ct_path):
 
 def normalize_CT(ct_img):
     intensityWindowingFilter = sitk.IntensityWindowingImageFilter()
-    #intensityWindowingFilter.SetOutputMaximum(5)
-    #intensityWindowingFilter.SetOutputMinimum(0)
+    intensityWindowingFilter.SetOutputMaximum(1)
+    intensityWindowingFilter.SetOutputMinimum(0)
     windowMax = 1024
     windowMin = -1024
     intensityWindowingFilter.SetWindowMaximum(windowMax)
