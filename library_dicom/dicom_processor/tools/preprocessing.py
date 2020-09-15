@@ -2,6 +2,8 @@
 
 import os 
 import SimpleITK as sitk  
+import numpy as np
+import matplotlib.pyplot as plt 
 
 
 def read_nifti_ct(ct_path):
@@ -9,7 +11,8 @@ def read_nifti_ct(ct_path):
 
 
 
-def normalize_CT(ct_img):
+def normalize_CT(ct_path):
+    ct_img = read_nifti_ct(ct_path)
     intensityWindowingFilter = sitk.IntensityWindowingImageFilter()
     #intensityWindowingFilter.SetOutputMaximum(1)
     #intensityWindowingFilter.SetOutputMinimum(0)
@@ -20,20 +23,88 @@ def normalize_CT(ct_img):
     return intensityWindowingFilter.Execute(ct_img)
 
 
-def resample_CT(ct_img, new_origin):
+#def resample_CT(ct_img, new_origin):
         # transformation parametrisation
-    target_direction = (1,0,0,0,1,0,0,0,1)
-    shape = ct_img.GetSize()
-    target_shape = (256, 256, 512) 
-    factor_z = shape[2] / target_shape[2]
-    factor_x_y = shape[0] / target_shape[0]
-    spacing = ct_img.GetSpacing()
-    target_voxel_spacing = (spacing[0]*factor_x_y, spacing[1]*factor_x_y, spacing[2] * factor_z) #mm
-    transformation = sitk.ResampleImageFilter()
-    transformation.SetOutputDirection(target_direction)
-    transformation.SetOutputSpacing(target_voxel_spacing)
-    transformation.SetSize(target_shape)
-    transformation.SetOutputOrigin(new_origin)
-    transformation.SetInterpolator(sitk.sitkBSpline)
+    #target_direction = (1,0,0,0,1,0,0,0,1)
+    #shape = ct_img.GetSize()
+    #target_shape = (256, 256, 512) 
+    #factor_z = shape[2] / target_shape[2]
+    #factor_x_y = shape[0] / target_shape[0]
+    #spacing = ct_img.GetSpacing()
+    #target_voxel_spacing = (spacing[0]*factor_x_y, spacing[1]*factor_x_y, spacing[2] * factor_z) #mm
+    #transformation = sitk.ResampleImageFilter()
+    #transformation.SetOutputDirection(target_direction)
+    #transformation.SetOutputSpacing(target_voxel_spacing)
+    #transformation.SetSize(target_shape)
+    #transformation.SetOutputOrigin(new_origin)
+    #transformation.SetInterpolator(sitk.sitkBSpline)
 
-    return transformation.Execute(ct_img)
+    #return transformation.Execute(ct_img)
+
+
+def resample_CT(ct_img):
+    #ct_img = read_nifti_ct(ct_path)
+    spacing = ct_img.GetSpacing()
+    origin = ct_img.GetOrigin()
+
+    #generate mip array
+    array = sitk.GetArrayFromImage(ct_img)
+    mip = np.amax(array, axis=1)
+
+    #generate mip image 
+    mip_img = sitk.GetImageFromArray(mip)
+    mip_img.SetDirection((1,0,0,1))
+    mip_img.SetOrigin((origin[0], origin[2]))
+    mip_img.SetSpacing((spacing[0], spacing[2]))
+
+    #target spacing, and size
+    spacing_x = 700/256 #mm
+    spacing_y = 2000/1024 #mm
+    mip_img_size = mip_img.GetSize() #pixel
+    mip_img_spacing = mip_img.GetSpacing() #mm
+    mip_img_origin = mip_img.GetOrigin() #mm
+    mip_img_direction = mip_img.GetDirection() 
+    
+
+    true_x = mip_img_size[0] * mip_img_spacing[0] #mm
+    true_y = mip_img_size[1] * mip_img_spacing[1] #mm 
+
+    new_size_x = int((true_x * 256) / 700) #pixel
+    new_size_y = int((true_y * 1024) / 2000) #pixel
+    #print(new_size_x)
+    #print(new_size_y)
+
+    #applied transformation
+    transformation = sitk.ResampleImageFilter()
+    transformation.SetOutputDirection(mip_img_direction)
+    transformation.SetOutputOrigin(mip_img_origin)
+    transformation.SetSize((new_size_x, new_size_y))
+    transformation.SetOutputSpacing((spacing_x, spacing_y))
+    transformation.SetInterpolator(sitk.sitkBSpline)
+    new_img = transformation.Execute(mip_img)
+
+    result = sitk.GetArrayFromImage(new_img)
+    result = np.rot90(result, k=2)
+    #print(result.shape)
+    center = [512, 127]
+    x = int(result.shape[0]/2)
+    y = int(result.shape[1]/2)
+    sommet_x = center[0] - x 
+    sommet_y = center[1] - y 
+    new_array = np.zeros((1024, 256))
+    new_array[sommet_x:sommet_x + new_size_y, sommet_y:sommet_y + new_size_x] = result
+
+    return new_array
+
+def save_mip(mip, directory_path, study_uid):
+    f = plt.figure(figsize=(9,9))
+    axes = plt.gca()
+    axes.set_axis_off()
+
+    plt.imshow(mip, cmap = 'gray')
+
+    filename = study_uid+'_mip_ct'+".png"
+    full_filename = os.path.join(directory_path, filename)
+    f.savefig(full_filename, bbox_inches='tight')
+    plt.close()        
+    return full_filename
