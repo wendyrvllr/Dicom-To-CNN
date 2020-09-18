@@ -5,6 +5,8 @@ import tensorflow as tf
 from tensorflow.keras.applications import ResNet50 
 from tensorflow.keras.layers import GlobalAveragePooling2D, Dense, Flatten
 from tensorflow.keras.models import Model 
+import matplotlib.pyplot as plt 
+
 
 class Model_Resnet: 
 
@@ -27,10 +29,16 @@ class Model_Resnet:
     def resnet_model(self):
         base_model = ResNet50(weigths = 'imagenet', include_top = False, input_tensor = [1024,256], pooling='max')
         #revoir architecture fin réseau
+        for layer in base_model.layer : 
+            layer.trainable = False 
+        #voir pour faire sur toutes les layers, pq ? 
+
+        
         x = base_model.output
-        x = GlobalAveragePooling2D()(x)
+        #x = GlobalAveragePooling2D()(x)
         x = Flatten()(x)
 
+        #output 
         left_arm = Dense(2, activation='softmax', name='left_arm')(x)
         right_arm = Dense(2, activation='softmax', name = 'right_arm')(x)
 
@@ -72,7 +80,7 @@ class Model_Resnet:
                         epochs = 10, 
                         batch_size = 200, 
                         verbose = 2, 
-                        validation_data = (X_val, y_val))
+                        validation_data = (self.X_val, self.y_val))
 
         return history 
 
@@ -83,8 +91,27 @@ class Model_Resnet:
 
     def show_training_curves(self, model) : 
         history = self.model_fit(model)
-        display_training_curves(history.history['accuracy'], history.history['val_accuracy'], 'accuracy', 211)
-        display_training_curves(history.history['loss'], history.history['val_loss'], 'loss', 212)
+        #accuracy
+        f = plt.figure(figsize=(8,5))
+        axes = plt.gca()
+        plt.plot(history.history['accuracy'])
+        plt.plot(history.history['val_accuracy'])
+        plt.title('model accuracy')
+        plt.ylabel('accuracy')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'test'])
+        plt.show() 
+
+        #loss
+        f = plt.figure(figsize=(8,5))
+        axes = plt.gca()
+        plt.plot(history.history['loss'])
+        plt.plot(history.history['val_loss'])
+        plt.title('model loss')
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'test'])
+        plt.show() 
         return None 
 
 
