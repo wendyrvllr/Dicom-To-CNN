@@ -33,7 +33,7 @@ class Model_Resnet:
             layer.trainable = False 
         #voir pour faire sur toutes les layers, pq ? 
 
-        
+
         x = base_model.output
         #x = GlobalAveragePooling2D()(x)
         x = Flatten()(x)
@@ -45,7 +45,7 @@ class Model_Resnet:
         head = Dense(3, activation='softmax', name='head')(x)
         leg = Dense(3, activation='softmax', name='leg')(x)
 
-        model = Model(inputs = self.X, outputs = [left_arm, right_arm, head, leg], name='ResNet50' )
+        model = Model(inputs = self.X_train, outputs = [left_arm, right_arm, head, leg], name='ResNet50' )
 
         return model 
 
