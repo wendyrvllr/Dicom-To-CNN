@@ -1,11 +1,9 @@
 import numpy as np
 import SimpleITK as sitk 
-from skimage.measure import label
-from radiomics.featureextractor import RadiomicsFeatureExtractor
 import matplotlib.pyplot as plt
 import scipy as sc
 from sklearn import mixture
-
+from skimage.measure import label
 from library_dicom.post_processing.Mask3D import Mask3D
 from library_dicom.post_processing.Mask4D import Mask4D
 
@@ -17,17 +15,12 @@ class PostProcess_Reader :
         self.pet_path = pet_path
         self.type = type
 
-        self.pet_img = self.read_pet()
-        self.pet_array = sitk.GetArrayFromImage(self.pet_img).transpose()
+        self.pet_img = self.read_pet_img()
+        self.pet_array = self.get_pet_array()
+        self.size_matrix = self.pet_array.shape
 
         self.mask_object = self.get_mask_object()
-        self.binary_mask = self.get_binary_mask()
-
-        self.labelled_mask, self.number_of_label = self.get_labelled_mask()
-        self.labelled_mask_img = self.get_labelled_mask_img()
         
-        self.features = self.extract_features(self.pet_img, self.labelled_mask_img)
-
 
 
     def get_mask_object(self):
@@ -41,10 +34,13 @@ class PostProcess_Reader :
             raise Exception ('Not a 3D or 4D mask ')
         
 
-    def read_mask(self):
-        return self.mask_object.read_mask()
+    def get_mask_array(self):
+        """
+        return mask array from image with no threshold, 3D or 4D
+        """
+        return self.mask_object.read_mask_array()
 
-    def read_pet(self):
+    def read_pet_img(self):
         pt_img = sitk.ReadImage(self.pet_path)
         self.pet_origin = pt_img.GetOrigin()
         self.pet_direction = pt_img.GetDirection()
@@ -52,11 +48,32 @@ class PostProcess_Reader :
         self.pet_size = pt_img.GetSize()
         return pt_img
 
+    def get_pet_array(self): 
+        return sitk.GetArrayFromImage(self.pet_img).transpose()
+
+    #binary img/array with threshold
+    def get_binary_threshold_mask_img(self, threshold):
+        binary_array = self.get_binary_threshold_mask_array(threshold)
+        new_mask_img = sitk.GetImageFromArray(binary_array.transpose())
+        new_mask_img.SetOrigin(self.pet_origin)
+        new_mask_img.SetSpacing(self.pet_spacing)
+        new_mask_img.SetDirection(self.pet_direction)
+        return new_mask_img 
+
         
-    def get_binary_mask(self):
-        return self.mask_object.binary_mask
+    def get_binary_threshold_mask_array(self, threshold):
+        """
+        Return a 3d binary threshold mask 
+        """
+        if self.type == '4d' : 
+            return self.mask_object.get_binary_threshold_mask(self.pet_array, threshold)
+        elif self.type == '3d' : 
+            return self.mask_object.get_binary_threshold_mask(threshold)
+        else : 
+            raise Exception ('not a 3d or 4d mask')
 
 
+    #get informations
     def get_mask_img_spacing(self):
         return self.mask_object.get_mask_spacing()
 
@@ -69,7 +86,7 @@ class PostProcess_Reader :
     def get_mask_img_direction(self):
         return self.mask_object.get_mask_direction()
         
-
+    #check
     def is_details_same(self):
         spacing = self.get_mask_img_spacing()
         size = self.get_mask_img_size()
@@ -81,92 +98,88 @@ class PostProcess_Reader :
         else : return True 
 
 
-    def get_labelled_mask(self):
-        if len(self.binary_mask.shape) != 3 : 
+    #remove small ROI
+    def remove_small_roi(self, binary_img):
+        if len(binary_img.GetSize()) != 3 : 
             raise Exception("Not a 3D mask, need to transform into 3D binary mask")
         
         else : 
-            return label(self.binary_mask, return_num = True)
+            labelled_img = sitk.ConnectedComponent(binary_img)
+            stats = sitk.LabelIntensityStatisticsImageFilter()
+            stats.Execute(labelled_img, self.pet_img)
+            labelled_array = sitk.GetArrayFromImage(labelled_img).transpose()
+            number_of_label = stats.GetNumberOfLabels()
+            volume_voxel = self.pet_spacing[0] * self.pet_spacing[1] * self.pet_spacing[2] * 10**(-3)
+            for i in range(1, number_of_label + 1) :
+                volume_roi = stats.GetNumberOfPixels(i) * volume_voxel
+                if volume_roi < float(3.0) : 
+                    x,y,z = np.where(labelled_array == i)
+                    for j in range(len(x)):
+                        labelled_array[x[j], y[j], z[j]] = 0
 
 
+            new_binary_array = np.zeros((self.size_matrix))
+            new_binary_array[np.where(labelled_array != 0)] = 1
 
-    def get_labelled_mask_img(self) :
-        if self.is_details_same() == True : 
+            #new_binary_img = sitk.GetImageFromArray(new_binary_array.transpose().astype(np.uint8))
+            #new_binary_img.SetOrigin(self.pet_origin)
+            #new_binary_img.SetSpacing(self.pet_spacing)
+            #new_binary_img.SetDirection(self.pet_direction)
 
-            new_mask_img = sitk.GetImageFromArray(self.labelled_mask.transpose())
-            new_mask_img.SetOrigin(self.pet_origin)
-            new_mask_img.SetSpacing(self.pet_spacing)
-            new_mask_img.SetDirection(self.pet_direction)
-            return new_mask_img 
+            #return new_binary_img
+            return new_binary_array.astype(np.uint8)
 
-        else : raise Exception ('Cannot have labelled mask img')
+    #get labelled array/img with threshold
+    def get_labelled_threshold_mask_array(self, binary_array) : 
+        if len(binary_array.shape) != 3 : 
+            raise Exception("Not a 3D mask, need to transform into 3D binary mask")
 
-    
-    def extract_features(self, pet_img, mask_img):
-        if pet_img.GetSize() != mask_img.GetSize() or pet_img.GetSpacing() != mask_img.GetSpacing() or pet_img.GetDirection() != mask_img.GetDirection() or pet_img.GetOrigin() != mask_img.GetOrigin() : 
-            raise Exception ("Not same origin, spacing, direction or size, different img")
         else : 
-            features = {}
-            for label in range(1, self.number_of_label + 1 ) : 
-                subdict = {}
-                extractor = RadiomicsFeatureExtractor()
-                results = extractor.execute(pet_img, mask_img, label = label)
-
-                volume = results['original_shape_VoxelVolume'] * 10**(-3) #mm to ml 
-                percentil_10 = results['original_firstorder_10Percentile']
-                percentil_90 = results['original_firstorder_90Percentile']
-                interquartile = results['original_firstorder_InterquartileRange']
-                entropy = results['original_firstorder_Entropy']
-                kurtosis = results['original_firstorder_Kurtosis']
-                maximum = results['original_firstorder_Maximum']
-                mean_abs_dev = results['original_firstorder_MeanAbsoluteDeviation']
-                mean = results['original_firstorder_Mean']
-                median = results['original_firstorder_Median']
-                minimum = results['original_firstorder_Minimum']
-                skewness = results['original_firstorder_Skewness']
-                uniformity = results['original_firstorder_Uniformity']
-                variance = results['original_firstorder_Variance']
+            labelled_threshold_array, number_features = label(binary_array, connectivity=1, return_num = True)
+            #labelled_threshold_img = sitk.ConnectedComponent(binary_img)
+            return labelled_threshold_array, number_features
 
 
-                #label kurtosis/skewness
-                if kurtosis == 0 : kurtosis_label = 'Mesokurtic/Normal'
-                if kurtosis < 0 : kurtosis_label = 'Platykurtic'
-                if kurtosis > 0 : kurtosis_label = 'Leptokurtic'
+    def get_labelled_threshold_mask_img(self, labelled_threshold_array):
+        img = sitk.GetImageFromArray(labelled_threshold_array.transpose())
+        img.SetDirection(self.pet_direction)
+        img.SetOrigin(self.pet_origin)
+        img.SetSpacing(self.pet_spacing)
+        return img
 
-                if skewness == 0 : skewness_label = 'Symetrical/Normal'
-                if skewness < 0 : skewness_label = 'Right Distribution'
-                if skewness > 0 : skewness_label = 'Left Distribution'
+ 
 
+    #get stats results
+    def label_stat_results(self, labelled_threshold_img) :
+        results = {} 
+        stats = sitk.LabelIntensityStatisticsImageFilter()
+        stats.Execute(labelled_threshold_img, self.pet_img)
+        number_of_label = stats.GetNumberOfLabels()
+        results['number_of_label'] =  number_of_label
+        volume = 0
+        for i in range(1, number_of_label + 1) :
+            subresult = {}
+            subresult['max'] = stats.GetMaximum(i)
+            subresult['mean'] = stats.GetMean(i)
+            subresult['median'] = stats.GetMedian(i)
+            subresult['variance'] = stats.GetVariance(i)
+            subresult['sd'] = stats.GetStandardDeviation(i)
+            subresult['number_of_pixel'] = stats.GetNumberOfPixels(i)
+            volume_voxel = self.pet_spacing[0] * self.pet_spacing[1] * self.pet_spacing[2] * 10**(-3) #ml
+            subresult['volume'] = stats.GetNumberOfPixels(i) * volume_voxel
+            subresult['centroid'] = stats.GetCentroid(i)
+            volume += stats.GetNumberOfPixels(i) * volume_voxel
+            results[i] = subresult
+        results['total_vol'] = volume
+        return results
 
-
-                coordonate = np.where(self.labelled_mask == label)
-                number_of_pixel = len(coordonate[0])
-                subdict['volume'] = volume
-                subdict['coordonate'] = coordonate
-                suv_value = []
-                for i in range(number_of_pixel):
-                    suv_value.append(self.pet_array[coordonate[0][i], coordonate[1][i], coordonate[2][i]])
-                subdict['suv_values'] = suv_value
+    #get coordonate of each roi 
+    def label_coordonate(self, labelled_mask, number_of_label):
+        results = {}
+        for i in range(1, number_of_label + 1) :
+            subliste = []
+            subliste.append(np.where(labelled_mask == i))
+            results[i] = subliste
+            
+        return results
     
-                subdict['percentil_10'] = percentil_10
-                subdict['percentil_90'] = percentil_90
-                subdict['interquartile'] = interquartile
-                subdict['entropy'] = entropy
-                subdict['maximum'] = maximum
-                subdict['minimum'] = minimum
-                subdict['mean'] = mean
-                subdict['mean_abs_dev'] = mean_abs_dev
-                subdict['median'] = median
-                subdict['variance'] = variance
-                subdict['standart_deviation'] = np.sqrt(variance)
-                subdict['uniformity'] = uniformity
-                subdict['kurtosis_value'] = kurtosis
-                subdict['kurtosis_label'] = kurtosis_label
-                subdict['skewness_value'] = skewness
-                subdict['skewness_label'] = skewness_label
-
-                features[label] = subdict
-
-            return features
-
-
