@@ -1,4 +1,6 @@
 from library_dicom.dicom_processor.model.Series import Series
+from library_dicom.dicom_processor.model.reader.Instance import Instance 
+import os 
 from math import exp, log, pow
 from datetime import datetime, timedelta
 
@@ -27,6 +29,24 @@ class SeriesPT(Series):
         self.sul_value=sul_value
 
 
+
+
+    def get_minimum_acquisition_datetime(self):
+        liste = []
+        try : 
+            for filename in self.file_names : 
+                instanceData = Instance(os.path.join(self.path,filename), load_image=True)
+                datetime = instanceData.get_acquisition_date() + instanceData.get_acquisition_time()
+                parsed_datetime = self.__parse_datetime(datetime)
+                liste.append(parsed_datetime)
+
+            return min(liste)
+
+        except Exception : 
+            return "Undefined"
+        
+
+
     def get_series_details(self):
         """Add Pharmaceuticals data to common series details
 
@@ -46,9 +66,21 @@ class SeriesPT(Series):
         details['philips_tags'] = self.philips_tag
 
         return details
+        
+
+    @classmethod
+    def __parse_datetime(cls, date_time):
+        #remove microsecond at it is inconstant over dicom
+        if '.' in date_time : 
+            date_time = date_time[0 : date_time.index('.')]
+        #parse datetime to date objet
+        return datetime.strptime(date_time, "%Y%m%d%H%M%S")
+
+
 
     def __calculateSUVFactor(self):
-        """Calcul of  SUV factor
+        """
+        Calcul of  SUV factor
 
         Returns:
             [float] -- [return SUV factor or "Calcul SUV impossible" if there is "Undefined" value in tags]
@@ -56,6 +88,11 @@ class SeriesPT(Series):
         series_details = self.get_series_details()
         units = series_details['series']['Units']
         if units == 'GML' : return 1
+        elif units == 'CNTS' :
+            philips_suv_bqml = series_details['philips_tags']['PhilipsBqMlFactor']
+            philips_suv_factor = series_details['philips_tags']['PhilipsSUVFactor']
+            if (philips_suv_factor != 'Undefined') : return philips_suv_factor
+            if (philips_suv_factor == 'Undefined' and philips_suv_bqml == 'Undefined') : raise Exception('Missing Philips private Factors')
         
         patient_weight = series_details['study']['PatientWeight'] * 1000 #kg to g conversion
         
@@ -63,52 +100,34 @@ class SeriesPT(Series):
         series_date = series_details['series']['SeriesDate']
         series_datetime = series_date + series_time 
 
-        #Remove microseconds (after dot) as it is unconstant
-        if '.' in series_datetime : 
-            series_datetime = series_datetime[0 : series_datetime.index('.')]
+        series_datetime = self.__parse_datetime(series_datetime)
 
-        
-        series_datetime = datetime.strptime(series_datetime, "%Y%m%d%H%M%S") #datetime.datetime
-
-        acquisition_time = series_details['series']['AcquisitionTime']
+        acquisition_datetime = self.get_minimum_acquisition_datetime()
         acquisition_date = series_details['series']['AcquisitionDate']
-        acquisition_datetime = acquisition_date + acquisition_time #str
 
-        if '.' in acquisition_datetime : 
-            acquisition_datetime = acquisition_datetime[0 : acquisition_datetime.index('.')]
-        
-        acquisition_datetime = datetime.strptime(acquisition_datetime, "%Y%m%d%H%M%S") #datetime.datetime
-
-        manufacturer = series_details['series']['Manufacturer']
         decay_correction = series_details['series']['DecayCorrection']
         radionuclide_half_life = series_details['radiopharmaceutical']['RadionuclideHalfLife']
         total_dose = series_details['radiopharmaceutical']['TotalDose']
 
         radiopharmaceutical_start_date_time = series_details['radiopharmaceutical']['RadiopharmaceuticalStartDateTime']
-        if radiopharmaceutical_start_date_time == 'Undefined':
+        if radiopharmaceutical_start_date_time == 'Undefined' or radiopharmaceutical_start_date_time == '' : 
             #If startDateTime not available use the deprecated statTime assuming the injection is same day than acquisition date
             radiopharmaceutical_start_time = series_details['radiopharmaceutical']['RadiopharmaceuticalStartTime']
             radiopharmaceutical_start_date_time = acquisition_date + radiopharmaceutical_start_time 
             
-        if '.' in radiopharmaceutical_start_date_time : 
-            radiopharmaceutical_start_date_time = radiopharmaceutical_start_date_time[0 : radiopharmaceutical_start_date_time.index('.')]
+        radiopharmaceutical_start_date_time = self.__parse_datetime(radiopharmaceutical_start_date_time)
 
-        radiopharmaceutical_start_date_time = datetime.strptime(radiopharmaceutical_start_date_time, "%Y%m%d%H%M%S")
-
-        if manufacturer == 'Philips' :
-            #philips_suv_factor = series_details['series']['PhilipsSUVFactor']
-            philips_suv_bqml = series_details['philips_tags']['PhilipsBqMlFactor']
-            if (philips_suv_bqml == 'Undefined') : raise Exception('Missing Philips BqMl Factor')
         
-        if (total_dose == 'Undefined' or acquisition_time== 'Undefined' 
-            or patient_weight == 'Undefined' or radionuclide_half_life == 'Undefined' ) :
+        if (total_dose == 'Undefined' or acquisition_datetime== 'Undefined' 
+            or patient_weight == 'Undefined' or patient_weight == 'None' or radionuclide_half_life == 'Undefined' ) :
             raise Exception('Missing Radiopharmaceutical data or patient weight')
         
         #Determine Time reference of image acqusition 
         acquisition_hour = series_datetime
-        if (acquisition_date != 'Undefined' and acquisition_time != 'Undefined'
+        if (acquisition_datetime != 'Undefined'
              and (acquisition_datetime - series_datetime).total_seconds() < 0 and units == 'BQML') : 
             acquisition_hour = acquisition_datetime
+
         
         #Calculate decay correction
         if decay_correction == 'START' : 
@@ -123,11 +142,11 @@ class SeriesPT(Series):
 
         else : raise Exception('Unknown Decay Correction methode')
         
-        suv_conversion_factor = (1/((total_dose * decay_factor) / patient_weight))
+        suv_conversion_factor = 1/((total_dose * decay_factor) / patient_weight)
 
-        if manufacturer =='Philips' : return philips_suv_bqml * suv_conversion_factor
+        if units == 'CNTS' : return philips_suv_bqml * suv_conversion_factor
         else : return suv_conversion_factor
-    
+        
 
     def calculateSULFactor(self):
         """Calcul SUL Factor

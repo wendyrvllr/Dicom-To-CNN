@@ -1,7 +1,13 @@
 import numpy as np
 import os
+import imageio
+from os.path import basename,splitext
+import matplotlib.pyplot as plt 
+import SimpleITK as sitk 
+import scipy 
+import sys
 
-from library_dicom.dicom_processor.model.Instance import Instance
+from library_dicom.dicom_processor.model.reader.Instance import Instance
 from library_dicom.dicom_processor.model.NiftiBuilder import NiftiBuilder
 from library_dicom.dicom_processor.enums.TagEnum import *
 from library_dicom.dicom_processor.enums.SopClassUID import *
@@ -43,9 +49,9 @@ class Series():
         dicomInstance = self.get_first_instance_metadata()
 
         self.series_details = dicomInstance.get_series_tags()
-        self.series_details['ImageType'] = dicomInstance.get_image_type()
         self.patient_details = dicomInstance.get_patients_tags()
         self.study_details = dicomInstance.get_studies_tags()
+        self.instance_details = dicomInstance.get_instance_tags()
         self.sop_class_uid = dicomInstance.get_sop_class_uid()
         self.is_image_series = dicomInstance.is_image_modality()
 
@@ -54,7 +60,8 @@ class Series():
             'study' : self.study_details,
             'patient' : self.patient_details,
             'path' : self.path,
-            'files' : self.number_of_files
+            'files' : self.number_of_files,
+            'instance' : self.instance_details
         }
 
     def is_series_valid(self):
@@ -90,24 +97,93 @@ class Series():
         #A VERIF
         self.instance_array = instance_array
 
-        return(np_array)
+        return np_array
 
+    def get_z_positions(self):
+        Z_positions = [ instance.get_image_position()[2] for instance in self.instance_array ]
+        return Z_positions
+
+    
     def get_z_spacing(self):
         """ called by __getMetadata """
         Z_positions = [ instance.get_image_position()[2] for instance in self.instance_array ]
-        print(Z_positions)
-    
-        initial_z_spacing = round(Z_positions[0]-Z_positions[1],2)
-        
+        #print(Z_positions)
+
+        initial_z_spacing = round(abs(Z_positions[0] - Z_positions[1]), 1)
         for i in range(2,len(Z_positions)):
-            z_spacing = round(Z_positions[i-1]-Z_positions[i],2)
-            if (z_spacing!=initial_z_spacing):
-                raise Exception('Unconstant Spacing')
-        return initial_z_spacing
+
+            z_spacing = round(abs(Z_positions[i - 1] - Z_positions[i]), 1)
+            if z_spacing < initial_z_spacing - float(0.1) or z_spacing > initial_z_spacing + float(0.1) :
+                try : 
+                    raise Exception('Unconstant Spacing')
+                except Exception : 
+                    return('Unconstant Spacing') #alerte #return
+        return np.mean(self.calculate_z_spacing(round_=False))
+
+
+    def calculate_z_spacing(self, round_): 
+        Z_positions = [ instance.get_image_position()[2] for instance in self.instance_array ]
+        spacing = []
+
+        if round_ == False : 
+            initial_z_spacing = Z_positions[0] - Z_positions[1]
+            spacing.append(initial_z_spacing)
+            for i in range(2,len(Z_positions)):
+                z_spacing = Z_positions[i - 1] - Z_positions[i]
+                spacing.append(z_spacing)
+
+            return spacing
+
+        else : 
+            #print(abs(Z_positions[0] - Z_positions[1]))
+            initial_z_spacing = round(abs(Z_positions[0] - Z_positions[1]), 1)
+            spacing.append(initial_z_spacing)
+            for i in range(2,len(Z_positions)):
+                z_spacing = round(abs(Z_positions[i - 1] - Z_positions[i]), 1)
+                spacing.append(z_spacing)  
+
+            return spacing 
+
+
 
     #check origin direction spacing de nifti
 
-    def export_nifti(self, file_path):
-        nifti_builder = NiftiBuilder(self)
-        nifti_builder.save_nifti(file_path)
+    def export_nifti(self, file_path, mask = None):
+        if (mask is None) : 
+            nifti_builder = NiftiBuilder(self)
+            nifti_builder.save_nifti(file_path)
+        else : 
+            nifti_builder = NiftiBuilder(self)
+            nifti_builder.save_nifti(file_path, mask)
 
+    def get_all_SOPInstanceIUD(self):
+        liste = []
+        for filename in self.file_names : 
+            instanceData = Instance(os.path.join(self.path,filename), load_image=True)
+            liste.append(instanceData.get_SOPInstanceUID())
+        return liste 
+
+
+    def get_all_acquisition_time(self):
+        liste = []
+        for filename in self.file_names : 
+            instanceData = Instance(os.path.join(self.path,filename), load_image=True)
+            liste.append(instanceData.get_acquisition_time())
+        return sorted(liste)
+
+
+
+    def get_size_matrix(self):
+        size = []
+        data = self.get_first_instance_metadata()
+        x = data.get_number_rows()
+        size.append(x)
+        y = data.get_number_columns()
+        size.append(y)
+        z = len(self.get_all_SOPInstanceIUD())
+        size.append(z)
+        return size
+
+
+
+    
