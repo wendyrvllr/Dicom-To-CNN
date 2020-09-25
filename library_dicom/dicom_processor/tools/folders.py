@@ -1,4 +1,5 @@
 import os
+import json
 
 def get_series_path(path):
     """Go through all the folder to find every series path
@@ -16,9 +17,20 @@ def get_series_path(path):
             seriesPath.append(path)
     return seriesPath
 
+"""
+ATTENTION A TOUT EFFACE
+def remove_empty_folders(path):
+
+    empty_folder = []
+    for (path, dirs, files) in os.walk(path): 
+        if (len(files) ==0) :
+            empty_folder.append(path)
+    return empty_folder
+"""
+
 def write_json_file(path, file_name, content, extension = 'json'):
     wrinting_file = open(os.path.join(path, file_name+'.'+extension), 'w')
-    wrinting_file.write(content)
+    wrinting_file.write(json.dumps(content))
     wrinting_file.close()
 
 def remove_bi_file(path):

@@ -35,7 +35,6 @@ class TagsSeries(Enum):
     Arguments:
         Enum {hex} -- [Tag address]
     """
-    ImageType = 0x00080008
     Manufacturer = 0x00080070
     Modality = 0x00080060
     SeriesDate = 0x00080021
@@ -57,6 +56,12 @@ class PhilipsPrivateTags(Enum):
 class TagPTCorrection(Enum):
     CorrectedImage = 0x00280051
 
+class ImageType(Enum):
+    ImageType = 0x00080008
+
+class PixelSpacing(Enum):
+    PixelSpacing = 0x00280030
+
 
 class TagsInstance(Enum):
     """Instance related tags
@@ -69,8 +74,7 @@ class TagsInstance(Enum):
     ImageOrientation = 0x00200037
     RescaleSlope = 0x00281053
     RescaleIntercept = 0x00281052
-    PixelSpacing = 0x00280030
-    SliceLocation = 0x00201041
+    SOPInstanceUID = 0x00080018
 
 class TagsRadioPharmaceuticals(Enum):
     """Tags related to Radiopharmaceuticals injection
