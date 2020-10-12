@@ -10,33 +10,36 @@ import matplotlib.pyplot as plt
 
 class Model_Resnet: 
 
-    def __init__(self, csv_path):
-        pass 
-        objet = Preprocessing(csv_path)
-        self.X, self.y = objet.normalize_encoding_dataset()
-
+    def __init__(self, data, label):
+        self.data = data   
+        self.label = label 
         self.X_train, self.y_train, self.X_test, self.y_test, self.X_val, self.y_val = self.split_dataset()
 
 
     def split_dataset(self) : 
-        X_train, X_test, y_train, y_test = train_test_split(self.X, self.y, random_state = 0, test_size=0.2)
+        X_train, X_test, y_train, y_test = train_test_split(self.data, self.label, random_state = 0, test_size=0.2)
         X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, random_state = 0, test_size=0.2)
 
         return X_train, y_train, X_test, y_test, X_val, y_val
     
     #architecture 
 
-    def resnet_model(self):
-        base_model = ResNet50(weigths = 'imagenet', include_top = False, input_tensor = [1024,256], pooling='max')
+    def resnet_model(self, X_train):
+        base_model = ResNet50(include_top = False, weights ="imagenet", input_shape = (1024, 256, 1), pooling='max')
         #revoir architecture fin réseau
-        for layer in base_model.layers : 
-            layer.trainable = False 
+        base_model.summary()
+        #for layer in base_model.layers : 
+            #print(layer)
+            #layer.trainable = True 
+
+        #layer[]
         #voir pour faire sur toutes les layers, pq ? 
 
 
         x = base_model.output
-        #x = GlobalAveragePooling2D()(x)
+        print(x.shape)
         x = Flatten()(x)
+        print(x.shape)
 
         #output 
         left_arm = Dense(2, activation='softmax', name='left_arm')(x)
@@ -45,8 +48,7 @@ class Model_Resnet:
         head = Dense(3, activation='softmax', name='head')(x)
         leg = Dense(3, activation='softmax', name='leg')(x)
 
-        model = Model(inputs = self.X_train, outputs = [left_arm, right_arm, head, leg], name='ResNet50' )
-
+        model = Model(inputs = X_train, outputs = [left_arm, right_arm, head, leg], name='ResNet50' )
         return model 
 
     

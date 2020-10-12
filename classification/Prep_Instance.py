@@ -4,14 +4,13 @@ import json
 
 class Prep_Instance : 
 
-    def __init__(self, ct_img_path, json_path):
+    def __init__(self, ct_img_path):
         self.ct_img = sitk.ReadImage(ct_img_path)
         self.ct_array = sitk.GetArrayFromImage(self.ct_img)
 
         self.ct_norm_img = self.normalize_instance()
         self.ct_norm_array = sitk.GetArrayFromImage(self.ct_norm_img)
 
-        self.json_path = json_path
 
     def normalize_instance(self):
         intensityWindowingFilter = sitk.IntensityWindowingImageFilter()
@@ -22,16 +21,35 @@ class Prep_Instance :
         return new_img 
 
     #ici mettre methode encodage pour une instance 
-    def encoding_instance(self):
-        annot = []
-        with open(self.json_path) as json_file : 
-            reader = json.load(json_file)
-            for info in reader :
-                annot.append(info)
+    def encoding_instance(self, liste):
+        label = []
+    
+        #upper Limit 
+        if liste[2] == 'Vertex' : 
+            label.append(0)
+        if liste[2] == 'Eye' : 
+            label.append(1)
+        if liste[2] == 'Mouth':
+            label.append(2)
 
-        label = np.zeros((1,10))
+        #lower Limit
+        if liste[3] == 'Hips' : 
+            label.append(0)
+        if liste[3] == 'Knee' : 
+            label.append(1)
+        if liste[3] == 'Foot':
+            label.append(2)
 
-        #if label dans annot json, on met un 1 
+        #right Arm 
+        if liste[4] == 'down' : 
+            label.append(0)
+        if liste[4] == 'up' : 
+            label.append(1)
 
+        #left Arm 
+        if liste[5] == 'down' : 
+            label.append(0)
+        if liste[5] == 'up' : 
+            label.append(1)
 
         return label
