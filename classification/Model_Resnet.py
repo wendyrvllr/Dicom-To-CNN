@@ -29,7 +29,7 @@ class Model_Resnet:
     def resnet_model(self):
         base_model = ResNet50(weigths = 'imagenet', include_top = False, input_tensor = [1024,256], pooling='max')
         #revoir architecture fin réseau
-        for layer in base_model.layer : 
+        for layer in base_model.layers : 
             layer.trainable = False 
         #voir pour faire sur toutes les layers, pq ? 
 
