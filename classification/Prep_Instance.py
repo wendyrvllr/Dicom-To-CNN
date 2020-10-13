@@ -10,6 +10,7 @@ class Prep_Instance :
 
         self.ct_norm_img = self.normalize_instance()
         self.ct_norm_array = sitk.GetArrayFromImage(self.ct_norm_img)
+        self.ct_norm_array = np.reshape(self.ct_norm_array, (1024, 256, 1))
 
 
     def normalize_instance(self):

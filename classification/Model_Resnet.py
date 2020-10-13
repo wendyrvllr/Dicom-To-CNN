@@ -8,6 +8,9 @@ from tensorflow.keras.models import Model
 import matplotlib.pyplot as plt 
 
 
+
+
+
 class Model_Resnet: 
 
     def __init__(self, data, label):
@@ -25,7 +28,7 @@ class Model_Resnet:
     #architecture 
 
     def resnet_model(self, X_train):
-        base_model = ResNet50(include_top = False, weights ="imagenet", input_shape = (1024, 256, 1), pooling='max')
+        base_model = ResNet50(include_top = False, weights ="None", input_shape = (1024, 256, 1), pooling='max')
         #revoir architecture fin réseau
         base_model.summary()
         #for layer in base_model.layers : 
@@ -68,20 +71,21 @@ class Model_Resnet:
                                                                     'head' : 0.25, 
                                                                     'leg': 0.25}, 
                                                                     
-                                                    metrics = {'left_arm': ['accuracy'], 
-                                                                'right_arm' : ['accuracy'], 
-                                                                'head' : ['accuracy'], 
-                                                                'leg':['accuracy']}) #a voir pour loss
+                                                    metrics = {'left_arm': ['accuracy', 'BinaryCrossentropy'], 
+                                                                'right_arm' : ['accuracy', 'BinaryCrossentropy'], 
+                                                                'head' : ['accuracy','BinaryCrossentropy'], 
+                                                                'leg':['accuracy','BinaryCrossentropy']}) #a voir pour loss
     
     def model_fit(self, model):
-        history = model.fit(self.X_train, {'left_arm' : self.y_train[:,0],
-                                    'right_arm' : self.y_train[:,1] ,
-                                    'head': self.y_train[:,2], 
-                                    'leg': self.y_train[:,3]}, 
+        history = model.fit(self.X_train, {'head': self.y_train[:,2], 
+                                    'leg': self.y_train[:,3],
+                                    'right_arm' : self.y_train[:,1],
+                                    'left_arm' : self.y_train[:,0] ,
+                                    }, 
                                     
                         epochs = 10, 
                         batch_size = 200, 
-                        verbose = 2, 
+                        verbose = 1, 
                         validation_data = (self.X_val, self.y_val))
 
         return history 
