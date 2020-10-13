@@ -30,13 +30,19 @@ class Preprocessing:
         liste = []
         label = []
         for serie in self.dataset : 
+            #sub = []
+            #sub.append(serie[0])
             instance_object = Prep_Instance(serie[1]) 
             instance_array = instance_object.ct_norm_array 
+            #sub.append(instance_array)
             liste.append(instance_array)
             
             #encoding
             subliste = instance_object.encoding_instance(serie)
             label.append(subliste)
+
+
+
 
         return np.asarray(liste), np.asarray(label)
 
