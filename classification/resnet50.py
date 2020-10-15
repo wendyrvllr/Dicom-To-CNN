@@ -91,7 +91,7 @@ def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2))
 
 
 
-def ResNet50(input_shape=(1024, 256,1)):
+def ResNet50(input_shape=(503, 136, 1)): #(1024, 256,1)
     """Instantiates the ResNet50 architecture.
     # Returns
         A Keras model instance.
@@ -126,30 +126,36 @@ def ResNet50(input_shape=(1024, 256,1)):
     #x = identity_block(x, 3, [512, 512, 2048], stage=5, block='b')
     #x = identity_block(x, 3, [512, 512, 2048], stage=5, block='c')
 
-    x = AveragePooling2D((7, 7), name='avg_pool')(x)
 
+
+    x = AveragePooling2D((7, 7), name='avg_pool')(x)
     x = Flatten()(x)
 
-    x = Dense(2048, activation = 'relu', name = 'dense_1')(x)
-    x = Dropout(0.5, name = 'dropout_1')(x)
-    x = Activation('relu', name = 'activ_1')(x)
+    #x = GlobalAveragePooling2D(name = 'avg_pool')(x)
 
-    x = Dense(512, activation= 'relu', name = 'dense_2')(x)
-    x = Dropout(0.5, name = 'dropout_2')(x)
+    #x = Dense(2048, activation = 'relu', name = 'dense_1')(x)
+    #x = Dropout(0.5, name = 'dropout_1')(x)
+    #x = Activation('relu', name = 'activ_1')(x)
+
+    #x = Dense(512, activation= 'relu', name = 'dense_1')(x)
+    #x = Dropout(0.4, name = 'dropout_1')(x)
+    #x = Activation('relu', name = 'activ_1')(x)
+
+    x = Dense(256, activation= 'relu', name = 'dense_2')(x)
+    x = Dropout(0.4, name = 'dropout_2')(x)
     x = Activation('relu', name = 'activ_2')(x)
 
-    x = Dense(256, activation= 'relu', name = 'dense_3')(x)
-    x = Dropout(0.5, name = 'dropout_3')(x)
+    x = Dense(128, activation= 'relu', name = 'dense_3')(x)
+    x = Dropout(0.4, name = 'dropout_3')(x)
     x = Activation('relu', name = 'activ_3')(x)
 
 
     #final output
-
     left_arm = Dense(2, activation='softmax', name='left_arm')(x)
     right_arm = Dense(2, activation='softmax', name = 'right_arm')(x)
 
-    head = Dense(3, activation='softmax', name='head')(x)
-    leg = Dense(3, activation='softmax', name='leg')(x)
+    head = Dense(2, activation='softmax', name='head')(x)
+    leg = Dense(2, activation='softmax', name='leg')(x)
 
 
     #create the Model

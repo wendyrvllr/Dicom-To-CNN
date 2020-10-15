@@ -70,34 +70,21 @@ class Prep_CSV :
 
             maj_data.append(liste)
         
-        folder = os.listdir('/media/deeplearning/Elements/classif_ct/nifti') 
+        folder = os.listdir('/media/deeplearning/Elements/classif_ct/image_a_annoter') 
         
         for image in maj_data : 
             study_uid = image[0]
             for fold in folder : 
-                liste_mip = os.listdir('/media/deeplearning/Elements/classif_ct/nifti'+'/'+fold)
+                liste_mip = os.listdir('/media/deeplearning/Elements/classif_ct/image_a_annoter'+'/'+fold)
                 for mip in liste_mip : 
                     if study_uid in mip : 
-                        image.append('/media/deeplearning/Elements/classif_ct/nifti'+'/'+fold+'/'+mip)
-    
+                        image.append('/media/deeplearning/Elements/classif_ct/image_a_annoter'+'/'+fold+'/'+mip)
 
 
-        #X_train, X_test = train_test_split(maj_data, test_size = 0.15, random_state = 42)
-        #X_train, X_val = train_test_split(X_train,test_size = 0.15, random_state = 42)  
-        #for serie in X_train : 
-            #serie.append("train")
-        #for serie in X_test : 
-            #serie.append("test")
-        #for serie in X_val: 
-            #serie.append("val")
-
-        #maj_data = X_train + X_val + X_test
-
-
-        with open(os.path.join(nifti_directory, 'classif_test.csv'), 'w') as csv_file : 
+        with open(os.path.join(nifti_directory, 'classif_test_png.csv'), 'w') as csv_file : 
             csv_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             csv_writer.writerow(["STUDY UID", "NIFTI", "UPPER_LIMIT", "LOWER_LIMIT", "RIGHT_ARM", "LEFT_ARM"])
             for serie in maj_data : 
                 csv_writer.writerow([serie[0], serie[-1], serie[1], serie[2], serie[3], serie[4]])
 
-        self.csv_result_path = os.path.join(nifti_directory, 'classif_test.csv')
+        self.csv_result_path = os.path.join(nifti_directory, 'classif_test_png.csv')
