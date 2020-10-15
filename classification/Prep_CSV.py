@@ -1,6 +1,7 @@
 import csv 
 import json 
 import os
+from sklearn.model_selection import train_test_split 
 
 
 class Prep_CSV : 
@@ -79,6 +80,19 @@ class Prep_CSV :
                     if study_uid in mip : 
                         image.append('/media/deeplearning/Elements/classif_ct/nifti'+'/'+fold+'/'+mip)
     
+
+
+        #X_train, X_test = train_test_split(maj_data, test_size = 0.15, random_state = 42)
+        #X_train, X_val = train_test_split(X_train,test_size = 0.15, random_state = 42)  
+        #for serie in X_train : 
+            #serie.append("train")
+        #for serie in X_test : 
+            #serie.append("test")
+        #for serie in X_val: 
+            #serie.append("val")
+
+        #maj_data = X_train + X_val + X_test
+
 
         with open(os.path.join(nifti_directory, 'classif_test.csv'), 'w') as csv_file : 
             csv_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)

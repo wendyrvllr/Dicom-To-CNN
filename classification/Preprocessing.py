@@ -24,26 +24,47 @@ class Preprocessing:
         del dataset[0] #enlever première ligne
 
         return dataset
-        
+
 
     def normalize_encoding_dataset(self):
-        liste = []
-        label = []
+        liste_train = []
+        label_train = []
+        #liste_test = []
+        #label_test = []
+        #liste_val = []
+        #label_val = []
         for serie in self.dataset : 
-            #sub = []
-            #sub.append(serie[0])
+            #if "train" in serie : 
             instance_object = Prep_Instance(serie[1]) 
-            instance_array = instance_object.ct_norm_array 
-            #sub.append(instance_array)
-            liste.append(instance_array)
-            
-            #encoding
+            instance_array = instance_object.ct_norm_array #matrice normalisé
+            liste_train.append(instance_array)
+                
+                #encoding
             subliste = instance_object.encoding_instance(serie)
-            label.append(subliste)
+            label_train.append(subliste)
+            #elif "test" in serie : 
+                #instance_object = Prep_Instance(serie[1]) 
+                #instance_array = instance_object.ct_norm_array #matrice normalisé
+                #liste_test.append(instance_array)
+                
+                #encoding
+                #subliste = instance_object.encoding_instance(serie)
+                #label_test.append(subliste)
+
+            #else : #val
+                #instance_object = Prep_Instance(serie[1]) 
+                #instance_array = instance_object.ct_norm_array #matrice normalisé
+                #liste_val.append(instance_array)
+                
+                #encoding
+                #subliste = instance_object.encoding_instance(serie)
+                #label_val.append(subliste)
+
+        return np.asarray(liste_train), np.asarray(label_train)
 
 
+    
 
 
-        return np.asarray(liste), np.asarray(label)
 
 
