@@ -98,8 +98,6 @@ def mip_projection_4D(mask, angle, path_image, study_uid, number_roi, cmap,  bor
     print("taille mask : ", mask.shape)
     liste = []
     for roi in range(number_roi): 
-        #print(roi)
-        #pour mettre en coronal 
         liste.append(np.transpose(np.flip(mask[:,:,:,roi], axis = 2), (2,1,0)))
     
     new_mask = np.stack((liste), axis = 3)
