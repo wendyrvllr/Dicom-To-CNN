@@ -32,6 +32,11 @@ class SeriesPT(Series):
 
 
     def get_minimum_acquisition_datetime(self):
+        """Get earlier acquisition datetime of the PET serie
+
+        Returns : 
+            [datetime] -- [Return the earlier acquisition datetime, or "Undefined" if no acquisition_time or no acquisition date]
+        """
         liste = []
         try : 
             for filename in self.file_names : 
@@ -70,6 +75,11 @@ class SeriesPT(Series):
 
     @classmethod
     def __parse_datetime(cls, date_time):
+        """ class method to parse datetime
+
+        Returns : 
+        [datetime] -- [Return parse datetime]
+        """
         #remove microsecond at it is inconstant over dicom
         if '.' in date_time : 
             date_time = date_time[0 : date_time.index('.')]
@@ -87,6 +97,11 @@ class SeriesPT(Series):
         """
         series_details = self.get_series_details()
         units = series_details['series']['Units']
+    
+        known_units = ['GML', 'BQML', 'CNTS']
+        if units not in known_units : 
+            raise Exception ('Unknown PET Units')
+
         if units == 'GML' : return 1
         elif units == 'CNTS' :
             philips_suv_bqml = series_details['philips_tags']['PhilipsBqMlFactor']
