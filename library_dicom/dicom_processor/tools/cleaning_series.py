@@ -48,15 +48,19 @@ def find_studies_over_two_series(json_merged_file_path):
     number = 0
     series_to_check=[]
     series_list = []
+    paths = []
     for patientID in data:
         for studyUID in data[patientID]:
             if( len(data[patientID][studyUID]['Series']) >2 ):
                 number +=1
                 for seriesUID in data[patientID][studyUID]['Series']:
+                    path = data[patientID][studyUID]["Series"][seriesUID]["path"]
+                    paths.append(path)
                     series_list.append(data[patientID][studyUID]['Series'][seriesUID]['SeriesDescription'])
                     series_to_check.append(data[patientID][studyUID]['Series'])
     #print(series_list)
-    return series_list
+    return series_list, paths
+
 
 def find_studies_with_two_series(json_merged_file_path):
     data = json.load(open(json_merged_file_path))
