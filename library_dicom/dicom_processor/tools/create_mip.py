@@ -98,8 +98,6 @@ def mip_projection_4D(mask, angle, path_image, study_uid, number_roi, cmap,  bor
     print("taille mask : ", mask.shape)
     liste = []
     for roi in range(number_roi): 
-        #print(roi)
-        #pour mettre en coronal 
         liste.append(np.transpose(np.flip(mask[:,:,:,roi], axis = 2), (2,1,0)))
     
     new_mask = np.stack((liste), axis = 3)
@@ -169,12 +167,12 @@ def transparent_1(myimage) :
     img = Image.open(myimage) 
     img = img.convert("RGBA")
     datas = img.getdata()
- 
+    print(datas[0])
     newData = []
     for item in datas:
         #print(item)
-        if item[0] > 200 and item[1] > 200 and item[2] > 200:
-        #if item[0] < 88 and item[1] < 88  and item[2] < 88:
+        #if item[0] > 200 and item[1] > 200 and item[2] > 200:
+        if item[0] < 88 and item[1] < 88  and item[2] < 88: #viridis
             newData.append((0, 0, 0, 0))
         else:
             newData.append(item)
@@ -184,20 +182,19 @@ def transparent_1(myimage) :
     return(myimage)
 
 
-def superposer_img(mask,background, angle): # ft = front , bg = background
+def superposer_img(mask,background, angle, study_uid, directory, name): # ft = front , bg = background
  
-    mask_filename = mask.split('.')[0]
     mask = Image.open(mask, 'r')
     #filename1 = background
     background = Image.open(background, 'r')
     text_img = Image.new('RGBA', background.size , (0, 0, 0, 0))
     text_img.paste(background, (0,0))
     text_img.paste(mask, (0,0), mask=mask)
-    text_img.save(mask_filename+'sup'+str(int(angle))+'.png', format="png")
-    return mask_filename+'sup'+str(int(angle))+'.png'
+    text_img.save(directory+'/'+study_uid+'_sup'+str(int(angle))+'.png', format="png")
+    return directory+'/'+study_uid+'_'+name+'_sup'+str(int(angle))+'.png'
 
 
-def create_mip_superpose_gif(numpy_array_mask, numpy_array_tep, directory, study_uid, cmap_mask):
+def create_mip_superpose_gif(numpy_array_mask, numpy_array_tep, directory, study_uid, cmap_mask, vmin=0, vmax=5):
     """return a gif of a numpy_array MIP 
 
     """
@@ -210,26 +207,31 @@ def create_mip_superpose_gif(numpy_array_mask, numpy_array_tep, directory, study
     angle_filenames = []
 
     
-    angles = np.linspace(0, 360, number_images)
+    #angles = np.linspace(0, 360, number_images)
+    angles = [90]
     for angle in angles:
-        path_tep = mip_projection(numpy_array_tep, angle, directory, study_uid,'tep', cmap='Greys', borne_max = 5)
+        cmap_tep = 'Greys'
+        vmin = 0
+        vmax = 5
+        path_tep = mip_projection(numpy_array_tep, angle, directory, study_uid, 'pet', cmap_tep, vmin, vmax)
         angle_filenames_tep.append(path_tep)
 
-        path_mask = mip_projection(numpy_array_mask, angle, directory, study_uid,'mask', cmap = cmap_mask, borne_max = 1)
+        path_mask = mip_projection(numpy_array_mask, angle, directory, study_uid,'mask', cmap_mask, vmin, vmax)
         angle_filenames_mask.append(path_mask)
 
 
         #mask transparant
-        new_path_mask = transparent_1(path_mask)
+        path_mask = transparent_1(path_mask)
 
         #superposition
 
-        angle_filenames.append(superposer_img(new_path_mask, path_tep, angle))
-        os.remove(path_tep)
-        os.remove(new_path_mask)
+        #angle_filenames.append(superposer_img(new_path_mask, path_tep, angle, study_uid))
+        #os.remove(path_tep)
+        #os.remove(new_path_mask)
+        superposer_img(path_mask, path_tep, angle, study_uid, directory, name)
 
 
-    create_gif(angle_filenames, duration, directory)
+    #create_gif(angle_filenames, duration, directory)
 
     #for path in angle_filenames : 
         #os.remove(path)
