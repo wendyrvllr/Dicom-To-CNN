@@ -73,6 +73,7 @@ def get_center_of_mass(mask_path, thresh = False, pet_path = None):
                 center.append([x,y,z])
 
         elif thresh == True : 
+            print("mask_seuillé")
             if np.max(mask_array) == 1.0 : 
                 mask_threshold = threshold_matrix(mask_array, pet_array, 0.41)
                 mask_threshold = mask_threshold.transpose()

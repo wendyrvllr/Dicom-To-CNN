@@ -13,11 +13,12 @@ def threshold_matrix(mask_array, pet_array, threshold):
                 new_mask = np.zeros((mask_array.shape[0],mask_array.shape[1], mask_array.shape[2] ))
                 suv_values = []
                 x,y,z = np.where(mask_array[:,:,:,i] != 0)
-                suv_values = pet_array[x,y,z].tolist()
-                seuil = np.max(suv_values) * threshold
-                new_mask[np.where((pet_array > seuil) & (mask_array[:,:,:,i] > 0))] = 1
-                liste.append(new_mask)
-
+                if len(x) != 0 : 
+                    suv_values = pet_array[x,y,z].tolist()
+                    seuil = np.max(suv_values) * threshold
+                    new_mask[np.where((pet_array > seuil) & (mask_array[:,:,:,i] > 0))] = 1
+                    liste.append(new_mask)
+                else : liste.append(new_mask)
             return np.stack(liste, axis = 3)    
 
         else : 
