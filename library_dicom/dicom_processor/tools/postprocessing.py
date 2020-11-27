@@ -20,3 +20,14 @@ def normalize_pet(array):
         array[x[i], y[i], z[i]] = (array[x[i], y[i], z[i]] * 255) / suv_max
 
     return array 
+
+def read_inference(inference_path):
+    return sitk.GetArrayFromImage(sitk.ReadImage(inference_path)).transpose()
+
+    
+def binarize_mask(mask_array) : 
+    size = mask_array.shape 
+    binarize = np.zeros(size)
+    x,y,z = np.where(mask_array >= 0.5)
+    binarize[x,y,z] = 1
+    return binarize
