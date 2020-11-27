@@ -206,7 +206,7 @@ def create_mip_gif(numpy_array, path_image, study_uid, type, cmap, borne_max):
     return None 
 
 
-def mip_superposition_show(mask_array, pet_array, angle, vmin, vmax, cmap_pet, cmap_mask, save = False, directory = None):
+def mip_superposition_show(mask_array, pet_array, angle, study_uid, vmin, vmax, cmap_pet, cmap_mask, save = False, directory = None):
     """Show and save as png PET/MASK MIP for one angle
 
     Args:
@@ -238,7 +238,7 @@ def mip_superposition_show(mask_array, pet_array, angle, vmin, vmax, cmap_pet, c
     plt.imshow(np.where(MIP_mask, 0, np.nan), cmap=cmap_mask, alpha = 0.5)
 
     if save == True : 
-        filename = 'PT_MASK'+"_"+str(int(angle))+".png"
+        filename = study_uid + '_PET_MASK'+"_"+str(int(angle))+".png"
         angle_filename = os.path.join(directory, filename)
         f.savefig(angle_filename)
         plt.close()
