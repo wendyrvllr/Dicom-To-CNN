@@ -167,8 +167,6 @@ def create_pdf_mip(angle_filenames, output_path_name) :
 
     pdf = FPDF()
     for mip in angle_filenames : 
-        #mip = [path_mip_PET 1, path_mip_MASK 1]
-        index = angle_filenames.index(mip)
         pdf.add_page()
         pdf.image(mip[0], x = 0, y = 10, w = 100, h = 190)
         pdf.image(mip[1], x = 100, y = 10, w = 100, h = 190)
@@ -206,7 +204,7 @@ def create_mip_gif(numpy_array, path_image, study_uid, type, cmap, borne_max):
     return None 
 
 
-def mip_superposition_show(mask_array, pet_array, angle, study_uid, vmin, vmax, cmap_pet, cmap_mask, save = False, directory = None):
+def mip_superposition_show(mask_array, pet_array, angle, study_uid, vmin, vmax, cmap_pet, cmap_mask, alpha, save = False, directory = None):
     """Show and save as png PET/MASK MIP for one angle
 
     Args:
@@ -235,12 +233,12 @@ def mip_superposition_show(mask_array, pet_array, angle, study_uid, vmin, vmax, 
     axes = plt.gca()
     axes.set_axis_off()
     plt.imshow(MIP_pet, vmin=vmin, vmax=vmax, cmap=cmap_pet)
-    plt.imshow(np.where(MIP_mask, 0, np.nan), cmap=cmap_mask, alpha = 0.5)
+    plt.imshow(np.where(MIP_mask, 0, np.nan), cmap=cmap_mask, alpha = alpha)
 
     if save == True : 
         filename = study_uid + '_PET_MASK'+"_"+str(int(angle))+".png"
         angle_filename = os.path.join(directory, filename)
-        f.savefig(angle_filename)
+        f.savefig(angle_filename, bbox_inches='tight')
         plt.close()
         return angle_filename
 
