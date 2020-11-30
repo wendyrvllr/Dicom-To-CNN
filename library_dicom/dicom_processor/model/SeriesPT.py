@@ -131,7 +131,6 @@ class SeriesPT(Series):
             radiopharmaceutical_start_date_time = acquisition_date + radiopharmaceutical_start_time 
             
         radiopharmaceutical_start_date_time = self.__parse_datetime(radiopharmaceutical_start_date_time)
-
         
         if (total_dose == 'Undefined' or acquisition_datetime== 'Undefined' 
             or patient_weight == 'Undefined' or patient_weight == 'None' or radionuclide_half_life == 'Undefined' ) :
@@ -143,7 +142,7 @@ class SeriesPT(Series):
              and (acquisition_datetime - series_datetime).total_seconds() < 0 and units == 'BQML') : 
             acquisition_hour = acquisition_datetime
 
-        
+
         #Calculate decay correction
         if decay_correction == 'START' : 
             delta = (acquisition_hour - radiopharmaceutical_start_date_time)
@@ -155,13 +154,15 @@ class SeriesPT(Series):
         elif decay_correction == 'ADMIN' : 
             decay_factor = 1
 
+
         else : raise Exception('Unknown Decay Correction methode')
+
         
         suv_conversion_factor = 1/((total_dose * decay_factor) / patient_weight)
 
         if units == 'CNTS' : return philips_suv_bqml * suv_conversion_factor
         else : return suv_conversion_factor
-        
+
 
     def calculateSULFactor(self):
         """Calcul SUL Factor
