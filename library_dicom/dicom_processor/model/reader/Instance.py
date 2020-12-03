@@ -147,6 +147,7 @@ class Instance:
     def get_number_columns(self):
         return self.dicomData.Columns
 
+
     def get_acquisition_date(self):
         if "AcquisitionDate" in self.dicomData : 
             return self.dicomData.AcquisitionDate
