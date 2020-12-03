@@ -1,5 +1,5 @@
 import os
-from library_dicom.dicom_processor.model.Instance import Instance
+from library_dicom.dicom_processor.model.reader.Instance import Instance
 from library_dicom.dicom_processor.model.Series import Series
 from library_dicom.dicom_processor.model.SeriesPT import SeriesPT
 from library_dicom.dicom_processor.enums.SopClassUID import *
