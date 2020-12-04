@@ -1,17 +1,30 @@
 import numpy as np 
 import SimpleITK as sitk 
 
-
+#target_size = (128, 128, 256)
+#target_spacing = (4.0, 4.0, 4.0)
+#target_direction = (1,0,0,0,1,0,0,0,1)
 
 class FusionPET_CT : 
+    """A class to merge CT and PET after resample 
+    """
 
 
-    def __init__(self, serie_pet_object, serie_ct_object):
+    def __init__(self, serie_pet_object, serie_ct_object, target_size, target_spacing, target_direction):
+        """[summary]
+
+        Args:
+            serie_pet_object ([class object]): [description]
+            serie_ct_object ([class object]): [description]
+            target_size ([tuple]): [size (x,y,z)]
+            target_spacing ([tuple]): [spacing (x,y,z)]
+            target_direction ([tuple]): [direction ( x x x , y y y, z z z)]
+        """
         self.serie_pet_objet = serie_pet_object
         self.serie_ct_objet = serie_ct_object
-        self.target_size = (128, 128, 256)
-        self.target_spacing = (4.0, 4.0, 4.0)
-        self.target_direction = (1,0,0,0,1,0,0,0,1)
+        self.target_size = target_size
+        self.target_spacing = target_spacing
+        self.target_direction = target_direction
 
     def get_feature_pet_img(self):
         instance_array = self.serie_pet_objet.get_instances_ordered()
@@ -120,14 +133,14 @@ class FusionPET_CT :
         new_ct_img = transformation.Execute(ct_img) 
 
         pet_array, ct_array = sitk.GetArrayFromImage(new_pet_img), sitk.GetArrayFromImage(new_ct_img)
-        concat = np.stack([pet_array, ct_array], axis = 0)
-        return concat, new_origin
+        concat = np.stack([pet_array, ct_array], axis = -1)
+        return concat, new_origin #concat [z, y, x, number_channel]
 
     def save_nifti_fusion(self, pet_img, ct_img, filename, mode ='head'):
         concat, new_origin = self.resample(pet_img, ct_img, mode=mode) #[c, z, y, x]
         s = []
         for i in range(2): 
-            img = sitk.GetImageFromArray(concat[i])
+            img = sitk.GetImageFromArray(concat[:,:,:,i])
             img.SetSpacing(self.target_spacing)
             img.SetOrigin(new_origin)
             img.SetDirection(self.target_direction)
@@ -136,10 +149,10 @@ class FusionPET_CT :
         #origin, spacing, direction from pet => 4D
         concat_img = sitk.JoinSeries(s)
         sitk.WriteImage(concat_img, filename)
-        return None
+        return concat_img
 
 
 
 
 
-
+#add method if CT and PET nifti 
