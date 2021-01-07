@@ -143,18 +143,10 @@ def mip_projection_4D(mask, angle, path_image, study_uid, number_roi, cmap):
         liste.append(np.transpose(np.flip(mask[:,:,:,roi], axis = 2), (2,1,0)))
     
     new_mask = np.stack((liste), axis = 3)
-    #print("1")
-    print(new_mask.shape)
+    MIP = np.amax(new_mask,axis=3)
+    vol_angle = scipy.ndimage.interpolation.rotate(MIP, angle , reshape=False, axes = (1,2))
 
-    vol_angle = []
-    for i in range(new_mask.shape[3]): 
-        vol_angle.append(scipy.ndimage.interpolation.rotate(new_mask[:,:,:,i] , angle , reshape=False, axes = (1,2)))
-        #vol_angle = scipy.ndimage.interpolation.rotate(new_mask , angle , reshape=False, axes = (2,3))
-        #print("i : ", i)
-
-    vol_angle = np.stack((vol_angle), axis = 3)
-    MIP = np.amax(vol_angle,axis=3)
-    MIP2 = np.amax(MIP,axis=2)
+    MIP2 = np.amax(vol_angle,axis=2)
     #print("3")
 
     f = plt.figure(figsize=(10,10))

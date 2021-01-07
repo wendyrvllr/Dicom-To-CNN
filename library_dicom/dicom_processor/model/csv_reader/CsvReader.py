@@ -17,7 +17,7 @@ class CsvReader():
         """Load data in this object, during reading, search
         for manual and automatic (nifti) roi declaration part
         """
-        with open(self.path, 'r', encoding="latin1") as csvfile : 
+        with open(self.path, 'r', encoding="utf8", errors='ignore') as csvfile : 
             reader = csv.reader(csvfile)
             csv_data = []
             index = 0
