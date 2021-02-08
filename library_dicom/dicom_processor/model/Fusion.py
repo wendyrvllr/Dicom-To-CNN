@@ -154,11 +154,7 @@ class FusionPET_CT :
 
 
 
-
-#add method if CT and PET nifti 
-
-
-class FusionPET_CT_2 : 
+class Fusion: 
     """A class to merge CT and PET after resample 
     """
 
@@ -167,8 +163,8 @@ class FusionPET_CT_2 :
         """[summary]
 
         Args:
-            pet ([class object]): SeriesPT object or nifti image
-            ct([class object]): SeriesCT object or nifti image
+            pet ([class object]): SeriesPT object or nifti image or dict 
+            ct([class object]): SeriesCT object or nifti image or dict 
             target_size ([tuple]): [size (x,y,z)]
             target_spacing ([tuple]): [spacing (x,y,z)]
             target_direction ([tuple]): [direction ( x x x , y y y, z z z)]
@@ -275,10 +271,10 @@ class FusionPET_CT_2 :
 
         
 
-    def resample(self, pet_img, ct_img, mode ='head'): 
-
+    def resample(self, mode ='head'): 
+        pet_img, ct_img = self.generate_pet_ct_img()
         new_origin = self.calculate_new_origin(pet_img, mode=mode)
-
+        
         #pet
         transformation = sitk.ResampleImageFilter()
         transformation.SetOutputDirection(self.target_direction)
@@ -299,11 +295,27 @@ class FusionPET_CT_2 :
         transformation.SetInterpolator(sitk.sitkBSpline)
         new_ct_img = transformation.Execute(ct_img) 
 
+
+        if mode == 'dict' : 
+            return new_pet_img, new_ct_img
+
+
         pet_array, ct_array = sitk.GetArrayFromImage(new_pet_img), sitk.GetArrayFromImage(new_ct_img)
         concat = np.stack([pet_array, ct_array], axis = -1)
         return concat, new_origin #concat [z, y, x, number_channel]
 
     def save_nifti_fusion(self, pet_img, ct_img, filename, mode ='head'):
+        """save merged PT/CT nifti after resample reshape 
+
+        Args:
+            pet_img ([type]): [description]
+            ct_img ([type]): [description]
+            filename ([type]): [description]
+            mode (str, optional): [description]. Defaults to 'head'.
+
+        Returns:
+            [type]: 4D matrix, concatenate PT/CT 
+        """
         concat, new_origin = self.resample(pet_img, ct_img, mode=mode) #[c, z, y, x]
         s = []
         for i in range(2): 
