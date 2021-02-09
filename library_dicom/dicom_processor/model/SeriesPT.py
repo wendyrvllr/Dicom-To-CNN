@@ -116,23 +116,27 @@ class SeriesPT(Series):
         series_datetime = series_date + series_time 
 
         series_datetime = self.__parse_datetime(series_datetime)
-
         acquisition_datetime = self.get_minimum_acquisition_datetime()
         acquisition_date = series_details['series']['AcquisitionDate']
-
+        
         decay_correction = series_details['series']['DecayCorrection']
         radionuclide_half_life = series_details['radiopharmaceutical']['RadionuclideHalfLife']
         total_dose = series_details['radiopharmaceutical']['TotalDose']
 
         radiopharmaceutical_start_date_time = series_details['radiopharmaceutical']['RadiopharmaceuticalStartDateTime']
+
+        
         if radiopharmaceutical_start_date_time == 'Undefined' or radiopharmaceutical_start_date_time == '' : 
             #If startDateTime not available use the deprecated statTime assuming the injection is same day than acquisition date
             radiopharmaceutical_start_time = series_details['radiopharmaceutical']['RadiopharmaceuticalStartTime']
-            radiopharmaceutical_start_date_time = acquisition_date + radiopharmaceutical_start_time 
-            
+            if radiopharmaceutical_start_time != '' : 
+                
+                radiopharmaceutical_start_date_time = acquisition_date + radiopharmaceutical_start_time 
+            else : radiopharmaceutical_start_date_time = acquisition_date + series_time
+        
         radiopharmaceutical_start_date_time = self.__parse_datetime(radiopharmaceutical_start_date_time)
         
-        if (total_dose == 'Undefined' or acquisition_datetime== 'Undefined' 
+        if (total_dose == 'Undefined' or total_dose == None or  acquisition_datetime== 'Undefined' 
             or patient_weight == 'Undefined' or patient_weight == 'None' or radionuclide_half_life == 'Undefined' ) :
             raise Exception('Missing Radiopharmaceutical data or patient weight')
         
@@ -142,7 +146,7 @@ class SeriesPT(Series):
              and (acquisition_datetime - series_datetime).total_seconds() < 0 and units == 'BQML') : 
             acquisition_hour = acquisition_datetime
 
-
+        
         #Calculate decay correction
         if decay_correction == 'START' : 
             delta = (acquisition_hour - radiopharmaceutical_start_date_time)
@@ -156,10 +160,9 @@ class SeriesPT(Series):
 
 
         else : raise Exception('Unknown Decay Correction methode')
-
-        
+        print(total_dose)
         suv_conversion_factor = 1/((total_dose * decay_factor) / patient_weight)
-
+        print("suv : ", suv_conversion_factor)
         if units == 'CNTS' : return philips_suv_bqml * suv_conversion_factor
         else : return suv_conversion_factor
 
