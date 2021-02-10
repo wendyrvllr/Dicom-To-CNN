@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 
 setuptools.setup(
-    name="DicomToCNN",                     # This is the name of the package
+    name="Dicom-To-CNN",                     # This is the name of the package
     version="0.0.2",                        # The initial release version
     author="",                     # Full name of the author
     description="Python Library to handle Input / Output conversion in Dicom <=> Convolutional Neural Network ",
