@@ -86,8 +86,7 @@ class MaskBuilder_RTSS :
         """transform a list of pixels of a ROI to a list nx2 (n points, coordonate (x,y)) for each contour
 
         Arguments:
-            number_roi {[int]} -- [description]
-            series_path {[str]} -- [description]
+          
 
         Returns:
             [list] -- list of (x,y) points and list of z slices in which there is a contour

@@ -28,7 +28,8 @@ class RTSS_Writer:
         self.first_metadata = serie.get_first_instance_metadata()
         self.image_position = self.first_metadata.get_image_position()
         self.pixel_spacing = self.first_metadata.get_pixel_spacing()
-        serie.get_numpy_array()
+        serie.get_instances_ordered()
+        #serie.get_numpy_array()
         self.pixel_spacing.append(serie.get_z_spacing())
         self.list_all_SOPInstanceUID = serie.get_all_SOPInstanceIUD()
 
@@ -36,7 +37,6 @@ class RTSS_Writer:
         self.dict_roi_data = dict_roi_data
 
         #creation dataset 
-
         self.dataset  = pydicom.dataset.Dataset()
         self.set_tags(serie_path)
         self.set_StructureSetROISequence()
