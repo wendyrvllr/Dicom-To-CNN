@@ -21,7 +21,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],                                      # Information to filter the project on PyPi website
     python_requires='>=3.6',                # Minimum version requirement of the package
-    py_modules=["dicom-to-cnn"],             # Name of the python package
+    py_modules=["dicomtocnn"],             # Name of the python package
     #package_dir={'':'Dicom-To-CNN'},     # Directory of the source code of the package
     install_requires=[]                     # Install other dependencies if any
 )
