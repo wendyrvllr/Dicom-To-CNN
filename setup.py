@@ -15,8 +15,9 @@ setuptools.setup(
     download_url = 'https://github.com/wendyrvllr/Dicom-To-CNN/archive/v1.0.tar.gz',
     packages=setuptools.find_packages(),    # List of all python modules to be installed
     classifiers=[
-        "Programming Language :: Python :: 3.7, 3.8",
-        "License :: GPL-3.0 License ",
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3) ",
         "Operating System :: OS Independent",
     ],                                      # Information to filter the project on PyPi website
     python_requires='>=3.6',                # Minimum version requirement of the package
