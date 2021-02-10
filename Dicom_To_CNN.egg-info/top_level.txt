@@ -1,2 +1,2 @@
-dicom-to-cnn
+dicomtocnn
 library_dicom
