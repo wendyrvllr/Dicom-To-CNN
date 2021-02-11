@@ -160,9 +160,9 @@ class SeriesPT(Series):
 
 
         else : raise Exception('Unknown Decay Correction methode')
-        print(total_dose)
+        
         suv_conversion_factor = 1/((total_dose * decay_factor) / patient_weight)
-        print("suv : ", suv_conversion_factor)
+        
         if units == 'CNTS' : return philips_suv_bqml * suv_conversion_factor
         else : return suv_conversion_factor
 

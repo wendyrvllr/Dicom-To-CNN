@@ -1,6 +1,7 @@
 import pydicom 
 import numpy as np
 import cv2 
+from random import randrange
 
 class ROIContourSequence : 
 
@@ -80,11 +81,18 @@ class ROIContourSequence :
             ContourSequence.append(dataset)
         return ContourSequence 
 
+    @classmethod
+    def get_random_colour(cls):
+        max = 256
+        return [randrange(max), randrange(max), randrange(max)]
+
+
+
     def create_ROIContourSequence(self, ReferencedSOPClassUID, image_position, pixel_spacing, list_all_SOPInstanceUID):
         ROIContourSequence = pydicom.sequence.Sequence()
         for number_roi in range(1, self.number_of_roi +1) : 
             dataset = pydicom.dataset.Dataset()
-            dataset.ROIDisplayColor = [255,0,0]
+            dataset.ROIDisplayColor = self.get_random_colour()
             dataset.ReferencedROINumber = number_roi
             list_contour_data , list_SOP_instance_uid = self.pixel_to_spatial(number_roi, image_position, pixel_spacing, list_all_SOPInstanceUID)
             dataset.ContourSequence = self.__create_ContourSequence(ReferencedSOPClassUID, list_SOP_instance_uid, list_contour_data)
