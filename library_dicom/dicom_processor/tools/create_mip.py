@@ -138,22 +138,21 @@ def mip_projection_4D(mask, angle, path_image, study_uid, number_roi, cmap):
     Returns:
         save as png the MIP image
     """
-    liste = []
-    for roi in range(number_roi): 
-        liste.append(np.transpose(np.flip(mask[:,:,:,roi], axis = 2), (2,1,0)))
-    
-    new_mask = np.stack((liste), axis = 3)
-    MIP = np.amax(new_mask,axis=3)
-    vol_angle = scipy.ndimage.interpolation.rotate(MIP, angle , reshape=False, axes = (1,2))
 
-    MIP2 = np.amax(vol_angle,axis=2)
-    #print("3")
+    mask_3d = np.amax(mask, axis = 3)
+
+
+
+    numpy_array = np.transpose(np.flip(mask_3d, axis = 2), (2,1,0)) #coronal
+
+    vol_angle = scipy.ndimage.interpolation.rotate(numpy_array , angle , reshape=False, axes = (1,2))
+    MIP = np.amax(vol_angle,axis=2)
 
     f = plt.figure(figsize=(10,10))
     axes = plt.gca()
     axes.set_axis_off()
 
-    plt.imshow(MIP2, cmap = cmap)
+    plt.imshow(MIP, cmap = cmap)
     filename = study_uid+'mip_MASK'+"_"+str(int(angle))+".png"
     #angle_filename = path_image+'\\'+study_uid+'mip_MASK'+"."+str(int(angle))+".png" #rajouter le study iud du patient ou numero de serie 
     angle_filename = os.path.join(path_image, filename)
