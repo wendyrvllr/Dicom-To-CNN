@@ -14,12 +14,12 @@ class Fusion:
         """[summary]
 
         Args:
-            pet ([class object]): SeriesPT object or nifti image or dict 
-            ct([class object]): SeriesCT object or nifti image or dict 
+            pet ([class object]): SeriesPT object or nifti image path or dict 
+            ct([class object]): SeriesCT object or nifti image path or dict 
             target_size ([tuple]): [size (x,y,z)]
             target_spacing ([tuple]): [spacing (x,y,z)]
             target_direction ([tuple]): [direction ( x x x , y y y, z z z)]
-            mode ([str]): 'serie' for serie object, 'img' if already PET and CT nifti, 'dict' if dictionnary 
+            mode ([str]): 'serie' for serie object, 'img' if already PET and CT nifti path, 'dict' if dictionnary with img inside
         """
         self.pet_objet = pet
         self.ct_objet = ct
