@@ -18,6 +18,8 @@ class ROIContourSequence :
             root_origin ([list], optional): [IF CT to PET : ct origin [x,y,z], ELSE : pet origin]. Defaults to None.
             target_origin ([list], optional): [IF CT to PET : pet origin [x,y,z], ELSE : ct_origin]. Defaults to None.
         """
+        self.dict_roi_data = dict_roi_data
+
         if mask_4D is not None : 
             self.mask_4D = mask_4D
             self.number_of_roi = self.mask_4D.shape[3]
@@ -28,12 +30,15 @@ class ROIContourSequence :
             #self.number_of_roi = self.modal_rtss_object.get_number_of_roi()
             self.root_origin = root_origin 
             self.target_origin = target_origin 
+            self.number_of_roi = len(self.dict_roi_data)
 
-        self.dict_roi_data = dict_roi_data
+
+            self.mask_4D = mask_4D
+
 
 
     def __get_contour_ROI(self, number_roi):
-        if self.mask_4D : 
+        if self.mask_4D is not None : 
             results = {}
             slice = []
 
@@ -47,24 +52,20 @@ class ROIContourSequence :
 
             return results, slice 
 
-        if self.modal_rtss_object : 
-            number_of_roi = len(self.dict_roi_data)
-            self.number_of_roi = number_of_roi
-            index = []
-            for i in range(1, self.number_of_roi +1):
-                index.append(self.dict_roi_data[i]['ROINumber'])
-
-            contour = []
-            for idx in index:
-                contour.append(self.modal_rtss_object.get_contour_data(idx))
+        else : 
+            results =  {}
+            contours = self.modal_rtss_object.get_contour_data(number_roi) 
+            # [ [slice 1], [slice 2], ...]
 
             #str to float
-            for roi in contour : 
-                for slice in roi : 
-                    for i in range(len(slice)):
-                        slice[i] = float(slice[i])
+            number_of_slices = len(contours)
+            for slice in contours : 
+                for i in range(len(slice)):
+                    slice[i] = float(slice[i])
 
-            return contour, _
+            for i in range(number_of_slices):
+                results[i] = contours[i]
+            return results, []
 
     def pixel_to_spatial(self, number_roi, image_position, pixel_spacing, list_all_SOPInstanceUID):
 
@@ -96,10 +97,10 @@ class ROIContourSequence :
 
         return list_contours, list_SOPInstanceUID
 
-    def generate_new_contour(self):
-        contour, _ = self.__get_contour_ROI(None)
-        return switch_modality(contour, self.root_origin, self.target_origin), [] 
-
+    def generate_new_contour(self, number_roi):
+        results, slice = self.__get_contour_ROI(number_roi)
+        return switch_modality(results, self.root_origin, self.target_origin), slice
+        #return liste [[slice 1], [slice 2]...]
 
     def __create_ContourImageSequence(self, ReferencedSOPClassUID, ReferencedSOPInstanceUID=None):
         ContourImageSequence = pydicom.sequence.Sequence()
@@ -127,6 +128,7 @@ class ROIContourSequence :
 
         else : 
             for ContourData in list_ContourData:
+                #print(ContourData)
                 dataset = pydicom.dataset.Dataset()
                 dataset.ContourData = ContourData 
                 dataset.ContourGeometricType = 'CLOSED_PLANAR'
@@ -152,11 +154,12 @@ class ROIContourSequence :
             dataset = pydicom.dataset.Dataset()
             dataset.ROIDisplayColor = self.get_random_colour()
             dataset.ReferencedROINumber = number_roi
-            if self.mask_4D : 
+            if self.mask_4D is not None  : 
                 list_contour_data , list_SOP_instance_uid = self.pixel_to_spatial(number_roi, image_position, pixel_spacing, list_all_SOPInstanceUID)
                 dataset.ContourSequence = self.__create_ContourSequence(ReferencedSOPClassUID, list_SOP_instance_uid, list_contour_data)
-            if self.modal_rtss_object : 
-                list_contour_data, list_SOP_instance_uid = self.generate_new_contour()
+            else : 
+                index = self.dict_roi_data[number_roi]['ROINumber']
+                list_contour_data, list_SOP_instance_uid = self.generate_new_contour(index)
                 dataset.ContourSequence = self.__create_ContourSequence(ReferencedSOPClassUID, list_SOP_instance_uid, list_contour_data)
             ROIContourSequence.append(dataset)
         return ROIContourSequence 
