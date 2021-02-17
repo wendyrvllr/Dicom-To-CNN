@@ -19,26 +19,48 @@ import os
 class RTSS_Writer:
     """A class for DICOM RT format
     """
-    #Instancer objet Serie pour pixel spacing etc 
-    def __init__(self, mask, serie_path, dict_roi_data):
-        self.mask = mask
+
+    def __init__(self, serie_path_1, dict_roi_data, mask=None, modal_rtss_path=None, serie_path_2=None ):
+        """[summary]
+
+        Args:
+            serie_path_1 ([str]): [path from PET or CT]
+            dict_roi_data ([dict]): [dict to precise name, number of the ROI]
+            mask ([ndarray], optional): [4D ndarray mask. If we want to generate RTSS from a ndarray mask]. Defaults to None.
+            modal_rtss ([str], optional): [Path of the RTSS. If we want to create new contour by switching modality]. Defaults to None.
+            serie_path_2 ([str], optional): [path from CT or PET.If we want to create new contour by switching modality => PET to CT, or CT to PET ]. Defaults to None.
+        """
+        if mask is not None : 
+            self.mask = mask
 
         #data spécifique à la série ou on dessine les contours 
-        serie = Series(serie_path)
+        serie = Series(serie_path_1)
         self.first_metadata = serie.get_first_instance_metadata()
         self.image_position = self.first_metadata.get_image_position()
-        self.pixel_spacing = self.first_metadata.get_pixel_spacing()
-        serie.get_instances_ordered()
-        #serie.get_numpy_array()
-        self.pixel_spacing.append(serie.get_z_spacing())
+
+        if self.mask : 
+            self.pixel_spacing = self.first_metadata.get_pixel_spacing()
+            serie.get_instances_ordered()
+            #serie.get_numpy_array()
+            self.pixel_spacing.append(serie.get_z_spacing())
+
         self.list_all_SOPInstanceUID = serie.get_all_SOPInstanceIUD()
 
         #dictionnaire entrée par l'utilisateur 
         self.dict_roi_data = dict_roi_data
 
+        if modal_rtss is not None : 
+            self.modal_rtss_path = modal_rtss_path 
+            if serie_path_2 is not None : 
+                serie_2 = Series(serie_path_2)
+                self.first_metadata_2 = serie_2.get_first_instance_metadata()
+                self.image_position_2 = self.first_metadata_2.get_image_position()
+
+
+
         #creation dataset 
-        self.dataset  = pydicom.dataset.Dataset()
-        self.set_tags(serie_path)
+        self.dataset = pydicom.dataset.Dataset()
+        self.set_tags(serie_path_1)
         self.set_StructureSetROISequence()
         self.set_RTROIObservationSequence()
         self.set_ROIContourSequence()
@@ -147,7 +169,10 @@ class RTSS_Writer:
     #ROIContourSequence 
     def set_ROIContourSequence(self):
         referenced_sop_class_uid = self.first_metadata.get_sop_class_uid()
-        self.dataset.ROIContourSequence = ROIContourSequence(self.mask, self.dict_roi_data).create_ROIContourSequence(referenced_sop_class_uid, self.image_position, self.pixel_spacing, self.list_all_SOPInstanceUID)
+        if self.mask : 
+            self.dataset.ROIContourSequence = ROIContourSequence(self.dict_roi_data, self.mask).create_ROIContourSequence(referenced_sop_class_uid, self.image_position, self.pixel_spacing, self.list_all_SOPInstanceUID)
+        if self.modal_rtss : 
+            self.dataset.ROIContourSequence = ROIContourSequence(self.dict_roi_data, self.modal_rtss_path, root_origin=self.image_position_2, target_origin= self.image_position).create_ROIContourSequence(referenced_sop_class_uid, self.image_position, self.pixel_spacing, self.list_all_SOPInstanceUID)
 
     #ReferencedFrameOfReferenceSequence 
     def set_ReferencedFrameOfReferenceSequence(self):
