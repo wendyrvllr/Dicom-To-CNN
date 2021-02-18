@@ -6,8 +6,6 @@ from library_dicom.rtss_processor.model.RTROIObservationsSequence import RTROIOb
 from library_dicom.rtss_processor.model.ROIContourSequence import ROIContourSequence
 from library_dicom.rtss_processor.model.ReferencedFrameOfReferenceSequence import ReferencedFrameOfReferenceSequence
 
-
-
 import pydicom
 import datetime
 import random 
@@ -19,49 +17,30 @@ import os
 class RTSS_Writer:
     """A class for DICOM RT format
     """
+    #Instancer objet Serie pour pixel spacing etc 
+    def __init__(self, mask, serie_path, dict_roi_data):
+        self.mask = mask
 
-    def __init__(self, serie_path_1, dict_roi_data, mask=None, modal_rtss_path=None, serie_path_2=None ):
-        """[summary]
-
-        Args:
-            serie_path_1 ([str]): [path from PET or CT]
-            dict_roi_data ([dict]): [dict to precise name, number of the ROI]
-            mask ([ndarray], optional): [4D ndarray mask. If we want to generate RTSS from a ndarray mask]. Defaults to None.
-            modal_rtss ([str], optional): [Path of the RTSS. If we want to create new contour by switching modality]. Defaults to None.
-            serie_path_2 ([str], optional): [path from CT or PET.If we want to create new contour by switching modality => PET to CT, or CT to PET ]. Defaults to None.
-        """
-
-        self.mask = mask 
         #data spécifique à la série ou on dessine les contours 
-        serie = Series(serie_path_1)
+        serie = Series(serie_path)
         self.first_metadata = serie.get_first_instance_metadata()
         self.image_position = self.first_metadata.get_image_position()
-
-        if mask is not None : 
-            self.pixel_spacing = self.first_metadata.get_pixel_spacing()
-            serie.get_instances_ordered()
-            #serie.get_numpy_array()
-            self.pixel_spacing.append(serie.get_z_spacing())
-
+        self.pixel_spacing = self.first_metadata.get_pixel_spacing()
+        serie.get_numpy_array()
+        self.pixel_spacing.append(serie.get_z_spacing())
         self.list_all_SOPInstanceUID = serie.get_all_SOPInstanceIUD()
 
         #dictionnaire entrée par l'utilisateur 
         self.dict_roi_data = dict_roi_data
 
-        self.modal_rtss_path = modal_rtss_path 
-        serie_2 = Series(serie_path_2)
-        self.first_metadata_2 = serie_2.get_first_instance_metadata()
-        self.image_position_2 = self.first_metadata_2.get_image_position()
-
-
-
         #creation dataset 
-        self.dataset = pydicom.dataset.Dataset()
-        self.set_tags(serie_path_1)
-        #self.set_StructureSetROISequence()
-        #self.set_RTROIObservationSequence()
+
+        self.dataset  = pydicom.dataset.Dataset()
+        self.set_tags(serie_path)
+        self.set_StructureSetROISequence()
+        self.set_RTROIObservationSequence()
         self.set_ROIContourSequence()
-        #self.set_ReferencedFrameOfReferenceSequence()
+        self.set_ReferencedFrameOfReferenceSequence()
 
 
     def generates_file_meta(self):
@@ -116,11 +95,11 @@ class RTSS_Writer:
         self.dataset.PatientID = self.first_metadata.get_patient_id()
         self.dataset.PatientName = self.first_metadata.get_patient_name()
         self.dataset.PatientSex = self.first_metadata.get_patient_sex()
-        #self.dataset.PhysiciansOfRecord = self.first_metadata.get_physicians_of_record()
-        #self.dataset.ReferringPhysicianName = self.first_metadata.get_referring_physician_name()
+        self.dataset.PysiciansOfRecord = self.first_metadata.get_physicians_of_record()
+        self.dataset.ReferringPhysicianName = self.first_metadata.get_referring_physician_name()
         self.dataset.SpecificCharacterSet = self.first_metadata.get_specific_character_set()
         self.dataset.StudyData = self.first_metadata.get_study_date()
-        #self.dataset.StudyDescription = self.first_metadata.get_study_description()
+        self.dataset.StudyDescription = self.first_metadata.get_study_description()
         self.dataset.StudyID = self.first_metadata.get_study_id()
         self.dataset.StudyInstanceUID = self.first_metadata.get_study_instance_uid()
         self.dataset.StudyTime = self.first_metadata.get_study_time()
@@ -166,12 +145,7 @@ class RTSS_Writer:
     #ROIContourSequence 
     def set_ROIContourSequence(self):
         referenced_sop_class_uid = self.first_metadata.get_sop_class_uid()
-        if self.mask is not None  : 
-            self.dataset.ROIContourSequence = ROIContourSequence(self.dict_roi_data, self.mask).create_ROIContourSequence(referenced_sop_class_uid, self.image_position, self.pixel_spacing, self.list_all_SOPInstanceUID)
-        if self.modal_rtss_path is not None  : 
-            image_position = None
-            pixel_spacing = None 
-            self.dataset.ROIContourSequence = ROIContourSequence(self.dict_roi_data, modal_rtss_path=self.modal_rtss_path, root_origin=self.image_position_2, target_origin= self.image_position).create_ROIContourSequence(referenced_sop_class_uid, image_position, pixel_spacing, self.list_all_SOPInstanceUID)
+        self.dataset.ROIContourSequence = ROIContourSequence(self.mask, self.dict_roi_data).create_ROIContourSequence(referenced_sop_class_uid, self.image_position, self.pixel_spacing, self.list_all_SOPInstanceUID)
 
     #ReferencedFrameOfReferenceSequence 
     def set_ReferencedFrameOfReferenceSequence(self):
@@ -185,7 +159,8 @@ class RTSS_Writer:
     def save_file(self, filename, directory_path):
         filemeta = self.generates_file_meta()
 
-        filedataset = pydicom.dataset.FileDataset(filename, self.dataset, preamble=b"\0" * 128, file_meta=filemeta, is_implicit_VR = True, is_little_endian = True )
+        filedataset = pydicom.dataset.FileDataset(filename, self.dataset #dataset ici 
+        , preamble=b"\0" * 128, file_meta=filemeta, is_implicit_VR = True, is_little_endian = True )
 
         filedataset.save_as(os.path.join(directory_path, filename))
 

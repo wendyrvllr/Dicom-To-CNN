@@ -16,7 +16,6 @@ def switch_modality(dict_coordonates, root_origin, target_origin):
         root_origin[i] = float(root_origin[i])
         delta.append(root_origin[i] - target_origin[i])
 
-
     for i in range(number_of_slices):
         slice = new_contour[i]
         list_contour_slice = []
@@ -26,7 +25,7 @@ def switch_modality(dict_coordonates, root_origin, target_origin):
                 slice[i] = slice[i] - delta[0]
                 list_contour_slice.append(slice[i])
             elif i%3 == 1 : 
-                slice[i] = slice[i] -  delta[1]
+                slice[i] = slice[i] - delta[1]
                 list_contour_slice.append(slice[i])
             elif i%3 == 2 : 
                 slice[i] = slice[i] - delta[2]
