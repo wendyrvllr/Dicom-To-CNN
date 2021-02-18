@@ -12,10 +12,18 @@ class MaskBuilder_RTSS :
 
     def __init__(self, rtss_path, serie_path):
 
-        serie = Series(serie_path)
-        self.serie_data = serie.get_series_details()
-        self.instance_uid_serie = serie.get_all_SOPInstanceIUD()
-        self.matrix_size = serie.get_size_matrix()
+        self.serie = Series(serie_path)
+        self.serie_data = self.serie.get_series_details()
+        self.instance_uid_serie = self.serie.get_all_SOPInstanceIUD()
+        self.matrix_size = self.serie.get_size_matrix()
+        instances = self.serie.get_instances_ordered()
+        
+        self.image_position = instances[-1].get_image_position()
+        self.pixel_spacing = instances[-1].get_pixel_spacing()
+        self.pixel_spacing.append(self.serie.get_z_spacing())
+
+        #print(self.image_position)
+        #print(self.pixel_spacing)
 
         self.rtss = Instance_RTSS(rtss_path)
         self.number_of_roi = self.rtss.get_number_of_roi()
@@ -36,11 +44,20 @@ class MaskBuilder_RTSS :
 
         return True
 
+    """
     def get_image_position(self):
+        #print("origin : ", self.serie_data['instance']['ImagePosition'] )
         return self.serie_data['instance']['ImagePosition']
 
     def get_pixel_spacing(self):
-        return self.serie_data['instance']['PixelSpacing']
+        pixel_spacing =  self.serie_data['instance']['PixelSpacing']
+        instances = self.serie.get_instances_ordered()
+        pixel_spacing.append(self.serie.get_z_spacing())
+        for i in range(len(instances)):
+            print(instances[i].get_image_position())
+        return pixel_spacing
+    """ 
+
 
     def __spatial_to_pixels(self, matrix_size, number_roi, list_all_SOPInstanceUID):
         """Transform contour data in spatial to contour data in pixels, return a dict 
@@ -56,26 +73,31 @@ class MaskBuilder_RTSS :
         """
         #frame_of_reference_UID = self.get_frame_of_reference_UID()
 
-        pixel_spacing = self.get_pixel_spacing()
-        image_position = self.get_image_position()
+        #pixel_spacing = self.get_pixel_spacing()
+        #image_position = self.get_image_position()
 
-        list_referenced_SOP_instance_uid = self.rtss.get_list_referenced_SOP_Instance_UID(number_roi)
+        #list_referenced_SOP_instance_uid = self.rtss.get_list_referenced_SOP_Instance_UID(number_roi)
         
         list_contour_data = self.rtss.get_contour_data(number_roi) #x y z en mm 
         list_pixels = {}
+        for i in range(3):
+            self.image_position[i] = float(self.image_position[i])
 
         for contour_data in (list_contour_data):
             number_item = list_contour_data.index(contour_data) #0 1 2 3 ...
             contour_item = {}
             x = contour_data[::3]  #list
-            x = [int((i - image_position[0]) / pixel_spacing[0] ) for i in x ] 
+            x = [int((i - self.image_position[0]) / self.pixel_spacing[0] ) for i in x ] 
 
             contour_item['x'] = x
             y = contour_data[1::3] #list
-            y = [int((i - image_position[1]) / pixel_spacing[1] )  for i in y ] 
+            y = [int((i - self.image_position[1]) / self.pixel_spacing[1] )  for i in y ] 
             contour_item['y'] = y
-            z = list_referenced_SOP_instance_uid[number_item]
-            z = list_all_SOPInstanceUID.index(z) #numero de coupe correspondant
+
+            z = contour_data[2::3]
+            z = [int((i - self.image_position[2]) / self.pixel_spacing[2] ) for i in z ][0]
+            #z = list_referenced_SOP_instance_uid[number_item]
+            #z = list_all_SOPInstanceUID.index(z) #numero de coupe correspondant
             contour_item['z'] = z
             list_pixels[number_item + 1] = contour_item
 
@@ -114,6 +136,7 @@ class MaskBuilder_RTSS :
         np_array_3D = np.zeros(( matrix_size[0],  matrix_size[1], number_of_slices)).astype(np.uint8)
         if self.rtss.is_closed_planar(number_roi) == False : raise Exception ("Not CLOSED_PLANAR contour")
         liste_points, slice = self.get_list_points(matrix_size, number_roi, list_all_SOPInstanceUID )
+        #print(slice)
         for item in range(len(slice)):
             np_array_3D[:,:,slice[item]] = cv2.drawContours(np.float32(np_array_3D[:,:,slice[item]]), [np.asarray(liste_points[item])], -1, number_roi , -1)
 
