@@ -23,10 +23,13 @@ class RTSS_Writer:
 
         #data spécifique à la série ou on dessine les contours 
         serie = Series(serie_path)
+        instance_serie = serie.get_instances_ordered()
         self.first_metadata = serie.get_first_instance_metadata()
-        self.image_position = self.first_metadata.get_image_position()
-        self.pixel_spacing = self.first_metadata.get_pixel_spacing()
-        serie.get_numpy_array()
+        self.image_position = instance_serie[0].get_image_position()
+        #self.image_position = self.first_metadata.get_image_position()
+        self.pixel_spacing = instance_serie[0].get_pixel_spacing()
+        #self.pixel_spacing = self.first_metadata.get_pixel_spacing()
+        #serie.get_numpy_array()
         self.pixel_spacing.append(serie.get_z_spacing())
         self.list_all_SOPInstanceUID = serie.get_all_SOPInstanceIUD()
 

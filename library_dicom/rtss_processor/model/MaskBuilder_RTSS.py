@@ -114,7 +114,6 @@ class MaskBuilder_RTSS :
         np_array_3D = np.zeros(( matrix_size[0],  matrix_size[1], number_of_slices)).astype(np.uint8)
         if self.rtss.is_closed_planar(number_roi) == False : raise Exception ("Not CLOSED_PLANAR contour")
         liste_points, slice = self.get_list_points(matrix_size, number_roi, list_all_SOPInstanceUID )
-
         for item in range(len(slice)):
             np_array_3D[:,:,slice[item]] = cv2.drawContours(np.float32(np_array_3D[:,:,slice[item]]), [np.asarray(liste_points[item])], -1, number_roi , -1)
 
