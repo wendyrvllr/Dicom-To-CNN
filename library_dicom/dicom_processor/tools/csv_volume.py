@@ -1,4 +1,36 @@
 from library_dicom.dicom_processor.model.csv_reader.CsvReader import CsvReader
+import numpy as np 
+
+
+def get_total_volume(csv_path):
+    csv_objet = CsvReader(csv_path)
+    total_volume = float(csv_objet.get_sum_row()[3])
+    return total_volume
+
+
+def keep_csv_higher_volume(liste_csv_path):
+    """Return CSV to delete (not the higher volume)
+
+    Args:
+        liste_csv_path ([type]): [description]
+
+    """
+    volume = []
+    for csv_file in liste_csv_path : 
+        volume.append(get_total_volume(csv_file))
+    index_maxi = volume.index(np.max(volume))
+    if type(index_maxi) == list: 
+        index_maxi = index_maxi[0]
+    index = np.arange(len(volume)).tolist()
+    remove = []
+    for i in index:
+        if i != index_maxi : 
+            remove.append(liste_csv_path[i])
+
+    return remove
+
+
+    
 
 
 def get_sum_rois_volume(liste):
