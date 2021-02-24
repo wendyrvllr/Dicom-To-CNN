@@ -171,7 +171,7 @@ class Fusion:
         new_ct_img = transformation.Execute(ct_img) 
 
 
-        if mode == 'dict' : 
+        if self.mode == 'dict' : 
             return new_pet_img, new_ct_img
 
 
