@@ -170,7 +170,6 @@ class Fusion:
         transformation.SetInterpolator(sitk.sitkBSpline)
         new_ct_img = transformation.Execute(ct_img) 
 
-
         if self.mode == 'dict' : 
             return new_pet_img, new_ct_img
 

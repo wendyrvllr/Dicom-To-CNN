@@ -46,6 +46,11 @@ class CsvReader():
 
         return self.csv_data[self.csv_data.index([]) - 2 ]
     
+    def get_date(self):
+        return self.csv_data[self.csv_data.index([]) - 1 ][1]
+
+    def get_patient_id(self):
+        return self.csv_data[self.csv_data.index([]) - 1 ][13]
 
     def get_manual_rois(self):
         """return manual rois block
