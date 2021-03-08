@@ -129,10 +129,8 @@ class SeriesPT(Series):
         if radiopharmaceutical_start_date_time == 'Undefined' or radiopharmaceutical_start_date_time == '' : 
             #If startDateTime not available use the deprecated statTime assuming the injection is same day than acquisition date
             radiopharmaceutical_start_time = series_details['radiopharmaceutical']['RadiopharmaceuticalStartTime']
-            if radiopharmaceutical_start_time != '' : 
-                
-                radiopharmaceutical_start_date_time = acquisition_date + radiopharmaceutical_start_time 
-            else : radiopharmaceutical_start_date_time = acquisition_date + series_time
+            radiopharmaceutical_start_date_time = acquisition_date + radiopharmaceutical_start_time 
+            
         
         radiopharmaceutical_start_date_time = self.__parse_datetime(radiopharmaceutical_start_date_time)
         
