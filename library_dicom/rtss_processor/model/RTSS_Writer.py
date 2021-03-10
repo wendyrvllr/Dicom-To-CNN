@@ -26,16 +26,22 @@ class RTSS_Writer:
         self.first_metadata = serie.get_first_instance_metadata()
         self.image_position = self.first_metadata.get_image_position()
         self.pixel_spacing = self.first_metadata.get_pixel_spacing()
-        print('Origin :', self.image_position)
 
         serie.get_instances_ordered()
         self.pixel_spacing.append(serie.get_z_spacing())
-        print('Spacing :', self.pixel_spacing)
         
         #Get list of every sop instance uid 
         self.list_all_SOPInstanceUID = serie.get_all_SOPInstanceIUD()
     
+        #str to float 
+        for i in range(len(self.image_position)):
+            self.image_position[i] = float(self.image_position[i])
+            self.pixel_spacing[i] = float(self.pixel_spacing[i])
 
+        print('Origin :', self.image_position)
+        print('Spacing :', self.pixel_spacing)
+
+        
         #dictionnaire entrée par l'utilisateur 
         self.dict_roi_data = dict_roi_data
 
