@@ -17,7 +17,7 @@ import os
 class RTSS_Writer:
     """A class for DICOM RT format
     """
-    #Instancer objet Serie pour pixel spacing etc 
+    
     def __init__(self, mask, serie_path, dict_roi_data):
         self.mask = mask
 
@@ -32,6 +32,7 @@ class RTSS_Writer:
         self.pixel_spacing.append(serie.get_z_spacing())
         print('Spacing :', self.pixel_spacing)
         
+        #Get list of every sop instance uid 
         self.list_all_SOPInstanceUID = serie.get_all_SOPInstanceIUD()
     
 
@@ -39,7 +40,6 @@ class RTSS_Writer:
         self.dict_roi_data = dict_roi_data
 
         #creation dataset 
-
         self.dataset = pydicom.dataset.Dataset()
         self.set_tags(serie_path)
         self.set_StructureSetROISequence()
