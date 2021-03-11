@@ -109,7 +109,7 @@ class RTSS_Writer:
         self.dataset.StudyData = self.instances[0].get_study_date()
         self.dataset.StudyDescription = self.instances[0].get_study_description()
         self.dataset.StudyID = self.instances[0].get_study_id()
-        self.dataset.StudyInstanceUID = self.instances[0].get_study_instance_uid()
+        self.dataset.StudyInstanceUID = pydicom.uid.generate_uid() #self.instances[0].get_study_instance_uid()
         self.dataset.StudyTime = self.instances[0].get_study_time()
 
         #specific new tags for the serie 
