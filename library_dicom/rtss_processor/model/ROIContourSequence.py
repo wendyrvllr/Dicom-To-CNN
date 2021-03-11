@@ -3,7 +3,7 @@ import numpy as np
 import cv2 
 from random import randrange
 from library_dicom.dicom_processor.model.reader.Instance_RTSS import Instance_RTSS
-
+from library_dicom.rtss_processor.tools.spacing import *
 
 class ROIContourSequence : 
 
@@ -29,7 +29,9 @@ class ROIContourSequence :
         return results, slice 
 
 
-    def pixel_to_spatial(self, number_roi, image_position, pixel_spacing, list_all_SOPInstanceUID):
+    def pixel_to_spatial(self, number_roi, image_position, pixel_spacing, list_all_SOPInstanceUID, liste_instances):
+        liste_position = get_image_position_per_slice(liste_instances)
+
 
         list_contours = []
         list_SOPInstanceUID = []
@@ -52,7 +54,9 @@ class ROIContourSequence :
                     y = dict_contours[list_slice[i]][j][point][0][1]
                     liste.append( y0 + y*dy + dy/2)
                     z = list_slice[i] 
-                    liste.append(z0 + z*dz )
+                    z_spatial = find_corresponding_z_spatial(liste_position, z)
+                    #liste.append(z0 + z*dz )
+                    liste.append(z_spatial)
 
                 list_SOPInstanceUID.append(list_all_SOPInstanceUID[z])
                 list_contours.append(liste)
@@ -90,13 +94,13 @@ class ROIContourSequence :
         return [randrange(max), randrange(max), randrange(max)]
 
 
-    def create_ROIContourSequence(self, ReferencedSOPClassUID, image_position, pixel_spacing, list_all_SOPInstanceUID):
+    def create_ROIContourSequence(self, ReferencedSOPClassUID, image_position, pixel_spacing, list_all_SOPInstanceUID, liste_instances):
         ROIContourSequence = pydicom.sequence.Sequence()
         for number_roi in range(1, self.number_of_roi +1) : 
             dataset = pydicom.dataset.Dataset()
             dataset.ROIDisplayColor = self.get_random_colour()
             dataset.ReferencedROINumber = number_roi
-            list_contour_data , list_SOP_instance_uid = self.pixel_to_spatial(number_roi, image_position, pixel_spacing, list_all_SOPInstanceUID)
+            list_contour_data , list_SOP_instance_uid = self.pixel_to_spatial(number_roi, image_position, pixel_spacing, list_all_SOPInstanceUID, liste_instances)
             dataset.ContourSequence = self.__create_ContourSequence(ReferencedSOPClassUID, list_SOP_instance_uid, list_contour_data)
             ROIContourSequence.append(dataset)
         return ROIContourSequence 

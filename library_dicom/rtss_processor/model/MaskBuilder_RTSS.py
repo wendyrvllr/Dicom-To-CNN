@@ -16,10 +16,11 @@ class MaskBuilder_RTSS :
         self.serie_data = self.serie.get_series_details()
         self.instance_uid_serie = self.serie.get_all_SOPInstanceIUD()
         self.matrix_size = self.serie.get_size_matrix()
-        instances = self.serie.get_instances_ordered()
+        self.instances = self.serie.get_instances_ordered()
         
-        self.image_position = instances[-1].get_image_position()
-        self.pixel_spacing = instances[-1].get_pixel_spacing()
+        #to recenter spatial coordonate 
+        self.image_position = self.instances[0].get_image_position()
+        self.pixel_spacing = self.instances[0].get_pixel_spacing()
         self.pixel_spacing.append(self.serie.get_z_spacing())
 
         #print(self.image_position)
@@ -28,12 +29,9 @@ class MaskBuilder_RTSS :
         self.rtss = Instance_RTSS(rtss_path)
         self.number_of_roi = self.rtss.get_number_of_roi()
 
-
-
     def get_list_all_SOP_Instance_UID_serie(self):
         return self.instance_uid_serie
 
-    
 
     def is_sop_instance_uid_same(self):
         uid_serie = self.get_list_all_SOP_Instance_UID_serie()
@@ -43,6 +41,13 @@ class MaskBuilder_RTSS :
                 return False
 
         return True
+
+    def get_image_position_per_slice(self):
+        liste = []
+        for i in range(len(self.instances)):
+            liste.append(self.instances[i].get_image_position())
+        return liste
+
 
     """
     def get_image_position(self):
@@ -87,19 +92,24 @@ class MaskBuilder_RTSS :
             number_item = list_contour_data.index(contour_data) #0 1 2 3 ...
             contour_item = {}
             x = contour_data[::3]  #list
-            x = [int((i - self.image_position[0]) / self.pixel_spacing[0] ) for i in x ] 
-
+            x = [int(round((i - self.image_position[0]) / self.pixel_spacing[0] )) for i in x ] 
+            #x = [int((i / self.pixel_spacing[0] )) for i in x ]
             contour_item['x'] = x
             y = contour_data[1::3] #list
-            y = [int((i - self.image_position[1]) / self.pixel_spacing[1] )  for i in y ] 
+            y = [int(round((i - self.image_position[1]) / self.pixel_spacing[1] ))  for i in y ]
+            #y = [int((i  / self.pixel_spacing[1] ))  for i in y ]  
             contour_item['y'] = y
 
             z = contour_data[2::3]
-            z = [int((i - self.image_position[2]) / self.pixel_spacing[2] ) for i in z ][0]
+            #print(z)
+            z = [int(round((i - self.image_position[2]) / abs(self.pixel_spacing[2]) )) for i in z ][0]
+            #print(z)
+            #z = [int((i  / self.pixel_spacing[2] )) for i in z ]
             #z = list_referenced_SOP_instance_uid[number_item]
             #z = list_all_SOPInstanceUID.index(z) #numero de coupe correspondant
             contour_item['z'] = z
             list_pixels[number_item + 1] = contour_item
+
 
         return list_pixels
 
