@@ -99,17 +99,17 @@ class RTSS_Writer:
         """     
         #from the serie 
         self.dataset.AccessionNumber = self.instances[0].get_accession_number()
-        self.dataset.PatientBirthData = self.instances[0].get_patient_birth_date()
+        self.dataset.PatientBirthDate = self.instances[0].get_patient_birth_date()
         self.dataset.PatientID = self.instances[0].get_patient_id()
         self.dataset.PatientName = self.instances[0].get_patient_name()
         self.dataset.PatientSex = self.instances[0].get_patient_sex()
-        self.dataset.PysiciansOfRecord = self.instances[0].get_physicians_of_record()
+        self.dataset.PhysiciansOfRecord = self.instances[0].get_physicians_of_record()
         self.dataset.ReferringPhysicianName = self.instances[0].get_referring_physician_name()
         self.dataset.SpecificCharacterSet = self.instances[0].get_specific_character_set()
-        self.dataset.StudyData = self.instances[0].get_study_date()
+        self.dataset.StudyDate = self.instances[0].get_study_date()
         self.dataset.StudyDescription = self.instances[0].get_study_description()
         self.dataset.StudyID = self.instances[0].get_study_id()
-        self.dataset.StudyInstanceUID = pydicom.uid.generate_uid() #self.instances[0].get_study_instance_uid()
+        self.dataset.StudyInstanceUID = self.instances[0].get_study_instance_uid()
         self.dataset.StudyTime = self.instances[0].get_study_time()
 
         #specific new tags for the serie 
@@ -128,7 +128,6 @@ class RTSS_Writer:
         self.dataset.SeriesInstanceUID = pydicom.uid.generate_uid()
         self.dataset.SeriesNumber = random.randint(0,1e3)
         self.dataset.SOPClassUID = '1.2.840.10008.5.1.4.1.1.481.3' 
-        #self.dataset.SOPInstanceUID = file_meta.MediaStorageSOPInstanceUID 
         self.dataset.StructureSetDate = dt.strftime('%Y%m%d')
         self.dataset.StructureSetDescription = self.dict_roi_data['Description']
         self.dataset.StructureSetLabel = self.dict_roi_data['Description']
