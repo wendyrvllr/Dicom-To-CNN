@@ -3,14 +3,13 @@ import numpy as np
 import cv2 
 from random import randrange
 from library_dicom.dicom_processor.model.reader.Instance_RTSS import Instance_RTSS
-from library_dicom.rtss_processor.tools.spacing import *
+from library_dicom.rtss_processor.tools.rtss_writer_tools import *
 
 class ROIContourSequence : 
 
-    def __init__(self, mask_4D, dict_roi_data):
-        self.mask_4D = mask_4D
-        self.number_of_roi = self.mask_4D.shape[3]
-        self.dict_roi_data = dict_roi_data
+    def __init__(self, mask):
+        self.mask = mask
+        self.number_of_roi = get_number_of_roi(self.mask)
 
 
     def __get_contour_ROI(self, number_roi):
@@ -18,9 +17,9 @@ class ROIContourSequence :
         results = {}
         slice = []
 
-        binary_mask = np.array(self.mask_4D[:,:,:,number_roi - 1], dtype=np.uint8)
+        binary_mask = np.array(self.mask[:,:,:,number_roi - 1], dtype=np.uint8)
 
-        for s in range(self.mask_4D.shape[2]):
+        for s in range(self.mask.shape[2]):
             contours, _ = cv2.findContours(binary_mask[:,:, s], cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE) 
             if (contours != []) : 
                 results[s] = contours

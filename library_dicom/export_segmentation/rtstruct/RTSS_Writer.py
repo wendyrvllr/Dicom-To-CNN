@@ -5,7 +5,7 @@ from library_dicom.rtss_processor.model.StructureSetROISequence import Structure
 from library_dicom.rtss_processor.model.RTROIObservationsSequence import RTROIObservationsSequence
 from library_dicom.rtss_processor.model.ROIContourSequence import ROIContourSequence
 from library_dicom.rtss_processor.model.ReferencedFrameOfReferenceSequence import ReferencedFrameOfReferenceSequence
-
+from library_dicom.export_segmentation.tools.generate_dict import *
 import pydicom
 import datetime
 import random 
@@ -18,7 +18,7 @@ class RTSS_Writer:
     """A class for DICOM RT format
     """
     
-    def __init__(self, mask, serie_path, dict_roi_data):
+    def __init__(self, mask, serie_path):
         self.mask = mask
 
         #data spécifique à la série ou on dessine les contours 
@@ -40,7 +40,7 @@ class RTSS_Writer:
 
 
         #dictionnaire entrée par l'utilisateur 
-        self.dict_roi_data = dict_roi_data
+        #self.dict_roi_data = dict_roi_data
 
         #creation dataset 
         self.dataset = pydicom.dataset.Dataset()
@@ -50,6 +50,12 @@ class RTSS_Writer:
         self.set_ROIContourSequence()
         self.set_ReferencedFrameOfReferenceSequence()
 
+    def generate_dict_json(self):
+        #pred_array = sitk.GetArrayFromImage(self.img_mask)
+        number_of_roi = np.max(pred_array)
+        results = generate_dict(number_of_roi)
+        self.results = results
+        return None 
 
     def generates_file_meta(self):
         """
@@ -124,13 +130,13 @@ class RTSS_Writer:
         self.dataset.ReviewDate = '' #because UNAPPROVED
         self.dataset.ReviewTime = '' #because UNAPPROVED
         self.dataset.ReviewerName = '' #because UNAPPROVED
-        self.dataset.SeriesDescription = self.dict_roi_data['Description']
+        self.dataset.SeriesDescription = self.results["SeriesDescription"]
         self.dataset.SeriesInstanceUID = pydicom.uid.generate_uid()
         self.dataset.SeriesNumber = random.randint(0,1e3)
         self.dataset.SOPClassUID = '1.2.840.10008.5.1.4.1.1.481.3' 
         self.dataset.StructureSetDate = dt.strftime('%Y%m%d')
-        self.dataset.StructureSetDescription = self.dict_roi_data['Description']
-        self.dataset.StructureSetLabel = self.dict_roi_data['Description']
+        self.dataset.StructureSetDescription = self.results["SeriesDescription"]
+        self.dataset.StructureSetLabel = self.results["SeriesDescription"]
         self.dataset.StructureSetTime = dt.strftime('%H%M%S.%f')
 
         return None 
@@ -140,18 +146,18 @@ class RTSS_Writer:
     #StructureSetROISequence
     def set_StructureSetROISequence(self):
         referenced_frame_of_reference_uid = self.instances[0].get_frame_of_reference_uid()
-        self.dataset.StructureSetROISequence = StructureSetROISequence(self.mask, self.dict_roi_data).create_StructureSetROISequence(self.pixel_spacing, referenced_frame_of_reference_uid)
+        self.dataset.StructureSetROISequence = StructureSetROISequence(self.mask, self.results).create_StructureSetROISequence(self.pixel_spacing, referenced_frame_of_reference_uid)
         
 
     #RTROIObservationSequence
     def set_RTROIObservationSequence(self):
-        self.dataset.RTROIObservationsSequence = RTROIObservationsSequence(self.mask, self.dict_roi_data).create_RTROIObservationsSequence()
+        self.dataset.RTROIObservationsSequence = RTROIObservationsSequence(self.mask, self.results).create_RTROIObservationsSequence()
         
 
     #ROIContourSequence 
     def set_ROIContourSequence(self):
         referenced_sop_class_uid = self.instances[0].get_sop_class_uid()
-        self.dataset.ROIContourSequence = ROIContourSequence(self.mask, self.dict_roi_data).create_ROIContourSequence(referenced_sop_class_uid, self.image_position, self.pixel_spacing, self.list_all_SOPInstanceUID, self.instances)
+        self.dataset.ROIContourSequence = ROIContourSequence(self.mask).create_ROIContourSequence(referenced_sop_class_uid, self.image_position, self.pixel_spacing, self.list_all_SOPInstanceUID, self.instances)
 
     #ReferencedFrameOfReferenceSequence 
     def set_ReferencedFrameOfReferenceSequence(self):
