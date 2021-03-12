@@ -20,10 +20,10 @@ class Instance:
         else : self.__load_metadata()
 
     def __load_metadata(self):
-        self.dicomData = pydicom.dcmread(self.path, stop_before_pixels=True)
+        self.dicomData = pydicom.dcmread(self.path, stop_before_pixels=True, force=True)
     
     def __load_full_instance(self):
-        self.dicomData = pydicom.dcmread(self.path)
+        self.dicomData = pydicom.dcmread(self.path, force=True)
   
     def get_series_tags(self):
         series_tags={}
@@ -146,6 +146,7 @@ class Instance:
 
     def get_number_columns(self):
         return self.dicomData.Columns
+
 
     def get_acquisition_date(self):
         if "AcquisitionDate" in self.dicomData : 

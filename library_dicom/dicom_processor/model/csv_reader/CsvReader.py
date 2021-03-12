@@ -17,7 +17,7 @@ class CsvReader():
         """Load data in this object, during reading, search
         for manual and automatic (nifti) roi declaration part
         """
-        with open(self.path, 'r') as csvfile : 
+        with open(self.path, 'r', encoding="utf8", errors='ignore') as csvfile : 
             reader = csv.reader(csvfile)
             csv_data = []
             index = 0
@@ -46,6 +46,11 @@ class CsvReader():
 
         return self.csv_data[self.csv_data.index([]) - 2 ]
     
+    def get_date(self):
+        return self.csv_data[self.csv_data.index([]) - 1 ][1]
+
+    def get_patient_id(self):
+        return self.csv_data[self.csv_data.index([]) - 1 ][13]
 
     def get_manual_rois(self):
         """return manual rois block

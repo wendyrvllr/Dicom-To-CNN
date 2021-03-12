@@ -88,16 +88,28 @@ class Series():
     def is_localizer_series(self):
         return ( "LOCALIZER" in self.series_details['ImageType'])
 
-    def get_numpy_array(self):
-        if self.is_image_modality == False : return
+
+    def get_instances_ordered(self):
         instance_array = [Instance(os.path.join(self.path, file_name), load_image=True) for file_name in self.file_names]
         instance_array.sort(key=lambda instance_array:int(instance_array.get_image_position()[2]))
-        pixel_data = [instance.get_image_nparray() for instance in instance_array]
+        self.instance_array = instance_array
+        return instance_array 
+
+
+    def get_numpy_array(self):
+        if self.is_image_modality == False : return
+
+        #instance_array = [Instance(os.path.join(self.path, file_name), load_image=True) for file_name in self.file_names]
+        #instance_array.sort(key=lambda instance_array:int(instance_array.get_image_position()[2]))
+        pixel_data = [instance.get_image_nparray() for instance in self.instance_array]
         np_array = np.stack(pixel_data,axis=-1)
         #A VERIF
-        self.instance_array = instance_array
+        #self.instance_array = instance_array
 
         return np_array
+
+
+    
 
     def get_z_positions(self):
         Z_positions = [ instance.get_image_position()[2] for instance in self.instance_array ]

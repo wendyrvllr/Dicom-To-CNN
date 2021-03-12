@@ -37,3 +37,8 @@ def remove_bi_file(path):
     file_names = os.listdir(path)
     if('graphic.brownFat.gr2' in file_names):
         os.remove( os.path.join(path,"graphic.brownFat.gr2") )
+
+def remove_index_ini(path):
+    file_names = os.listdir(path)
+    if ('index.ini' in file_names):
+        os.remove(os.path.join(path, 'index.ini'))

@@ -32,6 +32,11 @@ class SeriesPT(Series):
 
 
     def get_minimum_acquisition_datetime(self):
+        """Get earlier acquisition datetime of the PET serie
+
+        Returns : 
+            [datetime] -- [Return the earlier acquisition datetime, or "Undefined" if no acquisition_time or no acquisition date]
+        """
         liste = []
         try : 
             for filename in self.file_names : 
@@ -70,6 +75,11 @@ class SeriesPT(Series):
 
     @classmethod
     def __parse_datetime(cls, date_time):
+        """ class method to parse datetime
+
+        Returns : 
+        [datetime] -- [Return parse datetime]
+        """
         #remove microsecond at it is inconstant over dicom
         if '.' in date_time : 
             date_time = date_time[0 : date_time.index('.')]
@@ -87,6 +97,11 @@ class SeriesPT(Series):
         """
         series_details = self.get_series_details()
         units = series_details['series']['Units']
+    
+        known_units = ['GML', 'BQML', 'CNTS']
+        if units not in known_units : 
+            raise Exception ('Unknown PET Units')
+
         if units == 'GML' : return 1
         elif units == 'CNTS' :
             philips_suv_bqml = series_details['philips_tags']['PhilipsBqMlFactor']
@@ -101,24 +116,25 @@ class SeriesPT(Series):
         series_datetime = series_date + series_time 
 
         series_datetime = self.__parse_datetime(series_datetime)
-
         acquisition_datetime = self.get_minimum_acquisition_datetime()
         acquisition_date = series_details['series']['AcquisitionDate']
-
+        
         decay_correction = series_details['series']['DecayCorrection']
         radionuclide_half_life = series_details['radiopharmaceutical']['RadionuclideHalfLife']
         total_dose = series_details['radiopharmaceutical']['TotalDose']
 
         radiopharmaceutical_start_date_time = series_details['radiopharmaceutical']['RadiopharmaceuticalStartDateTime']
+
+        
         if radiopharmaceutical_start_date_time == 'Undefined' or radiopharmaceutical_start_date_time == '' : 
             #If startDateTime not available use the deprecated statTime assuming the injection is same day than acquisition date
             radiopharmaceutical_start_time = series_details['radiopharmaceutical']['RadiopharmaceuticalStartTime']
             radiopharmaceutical_start_date_time = acquisition_date + radiopharmaceutical_start_time 
             
-        radiopharmaceutical_start_date_time = self.__parse_datetime(radiopharmaceutical_start_date_time)
-
         
-        if (total_dose == 'Undefined' or acquisition_datetime== 'Undefined' 
+        radiopharmaceutical_start_date_time = self.__parse_datetime(radiopharmaceutical_start_date_time)
+        
+        if (total_dose == 'Undefined' or total_dose == None or  acquisition_datetime== 'Undefined' 
             or patient_weight == 'Undefined' or patient_weight == 'None' or radionuclide_half_life == 'Undefined' ) :
             raise Exception('Missing Radiopharmaceutical data or patient weight')
         
@@ -140,13 +156,14 @@ class SeriesPT(Series):
         elif decay_correction == 'ADMIN' : 
             decay_factor = 1
 
+
         else : raise Exception('Unknown Decay Correction methode')
         
         suv_conversion_factor = 1/((total_dose * decay_factor) / patient_weight)
-
+        
         if units == 'CNTS' : return philips_suv_bqml * suv_conversion_factor
         else : return suv_conversion_factor
-        
+
 
     def calculateSULFactor(self):
         """Calcul SUL Factor

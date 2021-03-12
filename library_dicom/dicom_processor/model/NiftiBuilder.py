@@ -14,7 +14,7 @@ class NiftiBuilder:
         if( mask is None) : 
             sitk_img = sitk.GetImageFromArray( np.transpose(self.series.get_numpy_array(), (2,0,1) ))
             original_pixel_spacing = self.series.instance_array[0].get_pixel_spacing()
-
+            
             original_direction = self.series.instance_array[0].get_image_orientation()
             sitk_img.SetDirection( (float(original_direction[0]), float(original_direction[1]), float(original_direction[2]), 
                                     float(original_direction[3]), float(original_direction[4]), float(original_direction[5]), 
@@ -31,7 +31,6 @@ class NiftiBuilder:
                 sitk_img = sitk.GetImageFromArray( np.transpose(mask[:,:,:,number_roi], (2,0,1) ))
         
                 original_pixel_spacing = self.series.instance_array[0].get_pixel_spacing()
-                #print(self.series.instance_array[0].get_image_orientation())
                 original_direction = self.series.instance_array[0].get_image_orientation()
                 sitk_img.SetDirection( (float(original_direction[0]), float(original_direction[1]), float(original_direction[2]), 
                                     float(original_direction[3]), float(original_direction[4]), float(original_direction[5]), 
