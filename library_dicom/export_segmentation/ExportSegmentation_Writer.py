@@ -15,23 +15,26 @@ class ExportSegmentation_Writer :
         self.segmentation = segmentation
         self.serie_path = serie_path 
         self.mode = mode 
-        if self.mode != 'rtstruct' or self.mode != 'dicomseg' : 
+        mode_available = ['rtstruct', 'dicomseg']
+        if self.mode not in mode_available : 
             raise Exception ('Format not available')
+
 
         self.is_segmentation_in_good_modality()
 
 
     def is_segmentation_in_good_modality(self):
         if self.mode == 'rtstruct' : 
-            if str(type(self.segmentation)) != "<class 'numpy.ndarray'>"
+            if str(type(self.segmentation)) != "<class 'numpy.ndarray'>" : 
                 raise Exception ('For RTSTRUCT format, segmentation has to be an array')
         if self.mode == 'dicomseg' : 
             if str(type(self.segmentation)) != "<class 'SimpleITK.SimpleITK.Image'>" : 
                 raise Exception ('For DICOM-SEG format, segmentation has to be a SITK Image')
 
-    def generate_dicom(self):
-        if self.mode = 'rtstruct' : 
+    def generate_dicom(self, filename, directory_path):
+        if self.mode == 'rtstruct' : 
             writer = RTSS_Writer(self.segmentation, self.serie_path)
-            #save after 
-        elif self.mode = 'dicomseg' : 
+            writer.save_file(filename, directory_path) 
+        elif self.mode == 'dicomseg' : 
             writer = DICOMSEG_Writer(self.segmentation, self.serie_path)
+            writer.save_file(filename, directory_path)

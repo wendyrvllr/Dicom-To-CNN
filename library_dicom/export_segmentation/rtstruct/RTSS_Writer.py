@@ -1,17 +1,19 @@
 
 from library_dicom.dicom_processor.model.Series import Series
 
-from library_dicom.rtss_processor.model.StructureSetROISequence import StructureSetROISequence
-from library_dicom.rtss_processor.model.RTROIObservationsSequence import RTROIObservationsSequence
-from library_dicom.rtss_processor.model.ROIContourSequence import ROIContourSequence
-from library_dicom.rtss_processor.model.ReferencedFrameOfReferenceSequence import ReferencedFrameOfReferenceSequence
+from library_dicom.export_segmentation.rtstruct.StructureSetROISequence import StructureSetROISequence
+from library_dicom.export_segmentation.rtstruct.RTROIObservationsSequence import RTROIObservationsSequence
+from library_dicom.export_segmentation.rtstruct.ROIContourSequence import ROIContourSequence
+from library_dicom.export_segmentation.rtstruct.ReferencedFrameOfReferenceSequence import ReferencedFrameOfReferenceSequence
 from library_dicom.export_segmentation.tools.generate_dict import *
+from library_dicom.export_segmentation.tools.rtss_writer_tools import *
 import pydicom
 import datetime
 import random 
 import warnings
 import os 
-
+import numpy as np 
+import tempfile 
 
 
 class RTSS_Writer:
@@ -38,21 +40,29 @@ class RTSS_Writer:
             self.image_position[i] = float(self.image_position[i])
             self.pixel_spacing[i] = float(self.pixel_spacing[i])
 
+        #generate dictionnary with paramter inside 
+        self.generate_dict_json()
 
-        #dictionnaire entrée par l'utilisateur 
-        #self.dict_roi_data = dict_roi_data
+        #creation file_meta 
+        self.file_meta, self.file_meta.MediaStorageSOPInstanceUID = self.generates_file_meta()
+        #creation fileDataset with value inside 
+        suffix = '.dcm'
+        filename_little_endian = tempfile.NamedTemporaryFile(suffix=suffix).name
+        self.dataset = pydicom.dataset.FileDataset(filename_little_endian, {}, file_meta=self.file_meta, preamble=b"\0" * 128)
 
-        #creation dataset 
-        self.dataset = pydicom.dataset.Dataset()
+        #Add the data element in FileDataset
         self.set_tags(serie_path)
         self.set_StructureSetROISequence()
         self.set_RTROIObservationSequence()
         self.set_ROIContourSequence()
         self.set_ReferencedFrameOfReferenceSequence()
+        
+        # Set the transfer syntax
+        self.dataset.is_little_endian = True
+        self.dataset.is_implicit_VR = True
 
     def generate_dict_json(self):
-        #pred_array = sitk.GetArrayFromImage(self.img_mask)
-        number_of_roi = np.max(pred_array)
+        number_of_roi = get_number_of_roi(self.mask)
         results = generate_dict(number_of_roi)
         self.results = results
         return None 
@@ -70,18 +80,17 @@ class RTSS_Writer:
         """
 
 
-        file_meta = pydicom.dataset.Dataset()
+        file_meta = pydicom.dataset.FileMetaDataset()
 
         file_meta.FileMetaInformationGroupLength = 166
         file_meta.FileMetaInformationVersion = b'\x00\x01'
         file_meta.MediaStorageSOPClassUID = '1.2.840.10008.5.1.4.1.1.481.3' # RT Structure Set Storage
         file_meta.MediaStorageSOPInstanceUID = pydicom.uid.generate_uid()
-        self.dataset.SOPInstanceUID = file_meta.MediaStorageSOPInstanceUID 
-
+        #self.dataset.SOPInstanceUID = file_meta.MediaStorageSOPInstanceUID 
         file_meta.TransferSyntaxUID = '1.2.840.10008.1.2' #Implicit VR Little Endian
         file_meta.ImplementationClassUID = '1.2.246.352.70.2.1.7'
         
-        return file_meta
+        return file_meta, file_meta.MediaStorageSOPInstanceUID
 
 
     def set_tags(self,serie_path):
@@ -119,7 +128,6 @@ class RTSS_Writer:
         self.dataset.StudyTime = self.instances[0].get_study_time()
 
         #specific new tags for the serie 
-
         self.dataset.ApprovalStatus = 'UNAPPROVED'
         self.dataset.Manufacturer   = ''
         dt = datetime.datetime.now()
@@ -134,6 +142,7 @@ class RTSS_Writer:
         self.dataset.SeriesInstanceUID = pydicom.uid.generate_uid()
         self.dataset.SeriesNumber = random.randint(0,1e3)
         self.dataset.SOPClassUID = '1.2.840.10008.5.1.4.1.1.481.3' 
+        self.dataset.SOPInstanceUID = self.file_meta.MediaStorageSOPInstanceUID
         self.dataset.StructureSetDate = dt.strftime('%Y%m%d')
         self.dataset.StructureSetDescription = self.results["SeriesDescription"]
         self.dataset.StructureSetLabel = self.results["SeriesDescription"]
@@ -169,10 +178,10 @@ class RTSS_Writer:
 
 
     def save_file(self, filename, directory_path):
-        filemeta = self.generates_file_meta()
-        filedataset = pydicom.dataset.FileDataset(filename, self.dataset, preamble=b"\0" * 128, file_meta=filemeta, is_implicit_VR = True, is_little_endian = True )
-        filedataset.save_as(os.path.join(directory_path, filename))
-
+        #filemeta = self.generates_file_meta()
+        #filedataset = pydicom.dataset.FileDataset(filename, self.dataset, preamble=b"\0" * 128, file_meta=filemeta, is_implicit_VR = True, is_little_endian = True )
+        #filedataset.save_as(os.path.join(directory_path, filename))
+        self.dataset.save_as(os.path.join(directory_path, filename))
         return None 
 
 
