@@ -53,7 +53,7 @@ class RTSS_Writer:
         self.set_tags(serie_path)
         self.set_StructureSetROISequence()
         self.set_RTROIObservationSequence()
-        self.set_ROIContourSequence()
+        #self.set_ROIContourSequence()
         self.set_ReferencedFrameOfReferenceSequence()
         
         # Set the transfer syntax
