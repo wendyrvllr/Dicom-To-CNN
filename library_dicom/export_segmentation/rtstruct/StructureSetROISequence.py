@@ -28,7 +28,7 @@ class StructureSetROISequence :
             #if self.dict_roi_data[number_roi]['ROIGenerationAlgorithm'] != '' :
             #    dataset.ROIGenerationAlgorithm = self.dict_roi_data[number_roi]['ROIGenerationAlgorithm']
             #else : dataset.ROIGenerationAlgorithm = 'UNDEFINED'
-            dataset.ROIInterpretedType = self.results['segmentAttributes'][0][number_roi-1]["SegmentAlgorithmType"]
+            dataset.ROIGenerationAlgorithm = self.results['segmentAttributes'][0][number_roi-1]["SegmentAlgorithmType"]
             StructureSetROISequence.append(dataset)
         return StructureSetROISequence 
         
