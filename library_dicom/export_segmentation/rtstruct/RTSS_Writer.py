@@ -180,7 +180,7 @@ class RTSS_Writer:
         #filemeta = self.generates_file_meta()
         #filedataset = pydicom.dataset.FileDataset(filename, self.dataset, preamble=b"\0" * 128, file_meta=filemeta, is_implicit_VR = True, is_little_endian = True )
         #filedataset.save_as(os.path.join(directory_path, filename))
-        self.dataset.save_as(os.path.join(directory_path, filename))
+        self.dataset.save_as(os.path.join(directory_path, filename), write_like_original=False)
         return None 
 
 
