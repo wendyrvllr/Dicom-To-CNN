@@ -22,7 +22,7 @@ class StructureSetROISequence :
 
             else : dataset.ROIName = str(number_roi)
 
-            dataset.ROIVolume = self.get_roi_volume(number_roi, pixel_spacing)
+            dataset.ROIVolume = str(self.get_roi_volume(number_roi, pixel_spacing))
                 
              
             #if self.dict_roi_data[number_roi]['ROIGenerationAlgorithm'] != '' :

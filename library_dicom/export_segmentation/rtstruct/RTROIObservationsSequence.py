@@ -21,7 +21,7 @@ class RTROIObservationsSequence :
             else : dataset.ROIName = str(number_roi)
 
             #if 'ROIInterpretedType' in self.dict_roi_data[number_roi] : 
-            dataset.RTROIInterpretedType = '' #self.results['segmentAttributes'][0][number_roi-1]["SegmentAlgorithmType"]
+            dataset.RTROIInterpretedType = 'none' #self.results['segmentAttributes'][0][number_roi-1]["SegmentAlgorithmType"]
 
             RTROIObservationsSequence.append(dataset)
 
