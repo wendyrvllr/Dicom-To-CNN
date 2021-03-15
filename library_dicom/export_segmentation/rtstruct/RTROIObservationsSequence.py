@@ -15,13 +15,18 @@ class RTROIObservationsSequence :
         for number_roi in range(1, self.number_of_roi +1) : 
             dataset = pydicom.dataset.Dataset()
             dataset.ReferencedROINumber = number_roi
-            if self.results['segmentAttributes'][0][number_roi-1]["SegmentDescription"] != "None" : 
-                dataset.ROIObservationLabel = self.results['segmentAttributes'][0][number_roi-1]["SegmentDescription"]
+            dataset.ObservationNumber = number_roi 
 
-            else : dataset.ROIName = str(number_roi)
+            dataset.RTROIInterpretedType = ' '
+            dataset.ROIInterpreter = ' '
+            
+            #if self.results['segmentAttributes'][0][number_roi-1]["SegmentDescription"] != "None" : 
+            #    dataset.ROIObservationLabel = self.results['segmentAttributes'][0][number_roi-1]["SegmentDescription"]
+
+            #else : dataset.ROIName = str(number_roi)
 
             #if 'ROIInterpretedType' in self.dict_roi_data[number_roi] : 
-            dataset.RTROIInterpretedType = 'none' #self.results['segmentAttributes'][0][number_roi-1]["SegmentAlgorithmType"]
+            #dataset.RTROIInterpretedType = ' ' #self.results['segmentAttributes'][0][number_roi-1]["SegmentAlgorithmType"]
 
             RTROIObservationsSequence.append(dataset)
 
