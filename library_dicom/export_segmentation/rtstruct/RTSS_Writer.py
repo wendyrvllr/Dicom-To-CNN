@@ -33,7 +33,6 @@ class RTSS_Writer:
         #Get list of every sop instance uid 
         self.list_all_SOPInstanceUID = serie.get_all_SOPInstanceIUD()
     
-        #self.first_metadata = serie.get_first_instance_metadata()
 
         #str to float 
         for i in range(len(self.image_position)):
@@ -87,7 +86,7 @@ class RTSS_Writer:
         file_meta.MediaStorageSOPClassUID = '1.2.840.10008.5.1.4.1.1.481.3' # RT Structure Set Storage
         file_meta.MediaStorageSOPInstanceUID = pydicom.uid.generate_uid()
         #self.dataset.SOPInstanceUID = file_meta.MediaStorageSOPInstanceUID 
-        file_meta.TransferSyntaxUID = '1.2.840.10008.1.2' #Implicit VR Little Endian
+        #file_meta.TransferSyntaxUID = '1.2.840.10008.1.2' #Implicit VR Little Endian
         file_meta.ImplementationClassUID = '1.2.246.352.70.2.1.7'
         
         return file_meta, file_meta.MediaStorageSOPInstanceUID

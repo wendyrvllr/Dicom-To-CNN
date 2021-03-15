@@ -4,7 +4,7 @@ from library_dicom.dicom_processor.tools.folders import *
 def generate_dict(number_of_roi):
     results = {}
     results["ContentCreatorName"] = "dicom_to_cnn"
-    random_number = random.randint(0,999)
+    random_number = random.randint(0,1e3)
     name = str(input('Enter filename for json file (filename or None):'))
     while not name : 
         name = str(input('Enter filename for json file (filename or None):'))
