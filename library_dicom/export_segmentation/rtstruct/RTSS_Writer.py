@@ -51,10 +51,10 @@ class RTSS_Writer:
 
         #Add the data element in FileDataset
         self.set_tags(serie_path)
-        self.set_StructureSetROISequence()
-        self.set_RTROIObservationSequence()
+        #self.set_StructureSetROISequence()
+        #self.set_RTROIObservationSequence()
         #self.set_ROIContourSequence()
-        self.set_ReferencedFrameOfReferenceSequence()
+        #self.set_ReferencedFrameOfReferenceSequence()
         
         # Set the transfer syntax
         self.dataset.is_little_endian = True
