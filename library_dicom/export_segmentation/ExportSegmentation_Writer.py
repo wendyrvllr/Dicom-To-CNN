@@ -18,8 +18,6 @@ class ExportSegmentation_Writer :
         mode_available = ['rtstruct', 'dicomseg']
         if self.mode not in mode_available : 
             raise Exception ('Format not available')
-
-
         self.is_segmentation_in_good_modality()
 
 
