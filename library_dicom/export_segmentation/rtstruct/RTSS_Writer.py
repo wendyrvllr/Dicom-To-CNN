@@ -58,7 +58,7 @@ class RTSS_Writer:
         
         # Set the transfer syntax
         self.dataset.is_little_endian = True
-        self.dataset.is_implicit_VR = True  
+        self.dataset.is_implicit_VR = False 
 
     def generate_dict_json(self):
         number_of_roi = get_number_of_roi(self.mask)
@@ -86,7 +86,7 @@ class RTSS_Writer:
         file_meta.MediaStorageSOPClassUID = '1.2.840.10008.5.1.4.1.1.481.3' # RT Structure Set Storage
         file_meta.MediaStorageSOPInstanceUID = pydicom.uid.generate_uid()
         #self.dataset.SOPInstanceUID = file_meta.MediaStorageSOPInstanceUID 
-        file_meta.TransferSyntaxUID = pydicom.uid.ImplicitVRLittleEndian #pydicom.uid.ExplicitVRLittleEndian #pydicom.uid.ImplicitVRLittleEndian #Implicit VR Little Endian
+        file_meta.TransferSyntaxUID = pydicom.uid.ExplicitVRLittleEndian #pydicom.uid.ImplicitVRLittleEndian #pydicom.uid.ExplicitVRLittleEndian  #Implicit VR Little Endian
         file_meta.ImplementationClassUID =  pydicom.uid.PYDICOM_IMPLEMENTATION_UID #'1.2.246.352.70.2.1.7'
         
         return file_meta, file_meta.MediaStorageSOPInstanceUID
