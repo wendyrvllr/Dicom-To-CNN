@@ -76,12 +76,14 @@ class ROIContourSequence :
 
         for ContourData,SOPInstanceUID in zip(list_ContourData,list_ReferencedSOPInstanceUID):
             dataset = pydicom.dataset.Dataset()
-            dataset.ContourData = ContourData 
-            dataset.ContourGeometricType = 'CLOSED_PLANAR'
-            
-            dataset.ContourImageSequence = self.__create_ContourImageSequence(ReferencedSOPClassUID, SOPInstanceUID)
-            
-            dataset.NumberOfContourPoints = len(ContourData)/3
+            dataset.ContourData = ContourData             
+            dataset.ContourImageSequence = self.__create_ContourImageSequence(ReferencedSOPClassUID, SOPInstanceUID)            
+            number_of_points = len(ContourData)/3 
+            dataset.NumberOfContourPoints = len(ContourData)/3 
+            if number_of_points == 1 : 
+                dataset.ContourGeometricType = 'POINT'
+            else : 
+                dataset.ContourGeometricType = 'CLOSED_PLANAR'
 
             ContourSequence.append(dataset)
         return ContourSequence 
