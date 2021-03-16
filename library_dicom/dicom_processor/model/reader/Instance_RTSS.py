@@ -152,7 +152,6 @@ class Instance_RTSS(Instance):
                 return False
         return True 
 
-
     def get_contour_data(self, roi_number):
         number_item = len(self.dicomData[0x30060039][roi_number - 1].ContourSequence)
         liste = []
@@ -161,4 +160,7 @@ class Instance_RTSS(Instance):
         return liste #liste d'array 
 
 
- 
+    def get_ROIName_by_number(self, number):
+        for i in range(len(self.dicomData.StructureSetROISequence)):
+            if int(self.dicomData.StructureSetROISequence[i].ROINumber) == number : 
+                return self.dicomData.StructureSetROISequence[i].ROIName 
