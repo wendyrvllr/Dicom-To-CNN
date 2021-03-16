@@ -25,6 +25,7 @@ library_dicom/dicom_processor/model/csv_reader/RoiNifti.py
 library_dicom/dicom_processor/model/csv_reader/RoiPolygon.py
 library_dicom/dicom_processor/model/csv_reader/__init__.py
 library_dicom/dicom_processor/model/reader/Instance.py
+library_dicom/dicom_processor/model/reader/Instance_RTDose.py
 library_dicom/dicom_processor/model/reader/Instance_RTSS.py
 library_dicom/dicom_processor/model/reader/__init__.py
 library_dicom/dicom_processor/tools/__init__.py

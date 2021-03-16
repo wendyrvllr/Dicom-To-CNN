@@ -17,7 +17,7 @@ class RTROIObservationsSequence :
             dataset.ReferencedROINumber = number_roi
             dataset.ObservationNumber = number_roi 
 
-            dataset.RTROIInterpretedType = "None"
+            dataset.RTROIInterpretedType = " "
             dataset.ROIInterpreter = " "
             
             #if self.results['segmentAttributes'][0][number_roi-1]["SegmentDescription"] != "None" : 
