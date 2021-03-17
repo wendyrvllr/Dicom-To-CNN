@@ -49,13 +49,24 @@ class ROIContourSequence :
 
                 for point in range(number_point_contour): #[x,y]
                     x = dict_contours[list_slice[i]][j][point][0][0]
-                    liste.append(x0 + x*dx + dx/2 )
+                    liste.append(x0 + x*dx) #+dx/2
                     y = dict_contours[list_slice[i]][j][point][0][1]
-                    liste.append( y0 + y*dy + dy/2)
+                    liste.append( y0 + y*dy) #+dy/2
                     z = list_slice[i] 
                     z_spatial = find_corresponding_z_spatial(liste_position, z)
                     #liste.append(z0 + z*dz )
-                    liste.append(z_spatial)
+                    liste.append(z_spatial) 
+
+                if len(liste) == 3 : #1 pts 
+                    for i in range(2):
+                        liste.append(liste[0])
+                        liste.append(liste[1])
+                        liste.append(liste[2])
+
+                if len(liste) == 6 : #2 pts 
+                    liste.append(liste[0])
+                    liste.append(liste[1])
+                    liste.append(liste[2])
 
                 list_SOPInstanceUID.append(list_all_SOPInstanceUID[z])
                 list_contours.append(liste)
