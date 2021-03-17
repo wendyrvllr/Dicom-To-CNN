@@ -19,4 +19,6 @@ def get_number_of_roi(mask):
         else : return int(np.max(mask))
 
     elif len(mask.shape) == 4 : 
-        return mask.shape[3]
+        if np.max(mask) == 1 : 
+            return mask.shape[3]
+        else : return int(np.max(mask))
