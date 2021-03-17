@@ -42,7 +42,7 @@ class ROIContourSequence :
 
         for i in range(number_contour): #plusieurs contours dans une même slice 
             number_of_contour_in_slice = len(dict_contours[list_slice[i]])
-            for j in range(number_of_contour_in_slice)  : 
+            for j in range(number_of_contour_in_slice):
                 number_point_contour = len(dict_contours[list_slice[i]][j])
 
                 liste = []
@@ -57,19 +57,32 @@ class ROIContourSequence :
                     #liste.append(z0 + z*dz )
                     liste.append(z_spatial) 
 
-                if len(liste) == 3 : #1 pts 
-                    for i in range(2):
-                        liste.append(liste[0])
-                        liste.append(liste[1])
-                        liste.append(liste[2])
+                #if len(liste) == 3 : #1 pts 
+                #    for i in range(2):
+                #        liste.append(liste[0])
+                #        liste.append(liste[1])
+                #        liste.append(liste[2])
 
-                if len(liste) == 6 : #2 pts 
-                    liste.append(liste[0])
-                    liste.append(liste[1])
-                    liste.append(liste[2])
+                #if len(liste) == 6 : #2 pts 
+                #    liste.append(liste[0])
+                #    liste.append(liste[1])
+                #    liste.append(liste[2])
 
                 list_SOPInstanceUID.append(list_all_SOPInstanceUID[z])
                 list_contours.append(liste)
+
+        for contour in list_contours : 
+            if len(contour) == 3 : #1 pts 
+                for n in range(2):
+                    contour.append(liste[0])
+                    contour.append(liste[1])
+                    contour.append(liste[2])
+
+                if len(contour) == 6 : #2 pts 
+                    contour.append(liste[0])
+                    contour.append(liste[1])
+                    contour.append(liste[2])
+
 
         return list_contours, list_SOPInstanceUID
 
