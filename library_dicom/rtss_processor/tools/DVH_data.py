@@ -24,33 +24,98 @@ def generate_x_y_cumul(liste):
             x.append(somme)
     return x,y 
 
-def generate_plot(dictionnary):
+def generate_plot(dictionnary, mode = 'cumulative', dose_mode = 'Gray', volume_mode = '%'):
+    """[summary]
+
+    Args:
+        dictionnary ([type]): [description]
+        mode (str, optional): ['cumulative' or 'differentiel' only]. Defaults to 'cumulative'.
+        dose_mode (str, optional): ['%' or 'Gray' only ]. Defaults to 'Gray'.
+        volume_mode (str, optional): ['%' or 'cc' only ]. Defaults to '%'.
+
+    Returns:
+        [type]: [description]
+    """
     keys = list(dictionnary.keys())
-    s = []
+    dataframe  = []
     for key in keys : 
         data_str = dictionnary[key]['DVHData']
         name = dictionnary[key]['ReferencedROIName']
         data_float = convert_str_list_to_float_list(data_str)
         x,y = generate_x_y_cumul(data_float)
 
-        #normalize 
-        normalize_vol = []
-        maxi = np.max(y)
-        for vol in y : 
-            normalize_vol.append(vol / maxi * 100)
+
+        if mode == 'cumulative' : 
+
+            #volume
+            if volume_mode == '%' : 
+                new_y = []
+                maxi = np.max(y)
+                for vol in y : 
+                    new_y.append(vol / maxi * 100)
+            elif volume_mode == 'cc' : 
+                new_y = y 
+            else : print('Mode not available')
 
 
-        #subliste = []
-        for i in range(len(x)):
-            subliste = []
-            subliste.append(name)
-            subliste.append(x[i])
-            subliste.append(normalize_vol[i])
-            #print(subliste)
-            s.append(subliste)
+            #dose 
+            if dose_mode == 'Gray' : 
+                new_x = x 
+            elif dose_mode == '%' : 
+                new_x = []
+                maxi = np.max(x)
+                for rayon in x : 
+                    new_x.append(rayon/maxi * 100 )
+            else : print('Mode not available')
 
-    df = pd.DataFrame(s, columns=['ROIname', 'dose', 'volume'])
-    fig = px.line(df, x="dose", y="volume", color='ROIname')
+
+            for i in range(len(new_x)):
+                subliste = []
+                subliste.append(name)
+                subliste.append(new_x[i])
+                subliste.append(new_y[i])
+                dataframe.append(subliste)
+
+        if mode == 'differentiel' : 
+            #conversion volume to differentiel 
+            differentiel = []
+            y.reverse()
+            differentiel.append(y[0])
+            for i in range(1, len(y)):
+                differentiel.append(abs(y[i] - y[i-1]))
+
+            #volume 
+            if volume_mode == '%' : 
+                new_y = []
+                maxi = np.max(differentiel)
+                for vol in differentiel : 
+                    new_y.append(vol / maxi * 100)
+            elif volume_mode == 'cc' : 
+                new_y = differentiel
+            else : print('Mode not available')
+
+            new_y.reverse()
+
+            #dose 
+            if dose_mode == 'Gray' : 
+                new_x = x 
+            elif dose_mode == '%' : 
+                new_x = []
+                maxi = np.max(x)
+                for rayon in x : 
+                    new_x.append(rayon/maxi * 100 )
+            else : print('Mode not available')
+
+            for i in range(len(new_x)):
+                subliste = []
+                subliste.append(name)
+                subliste.append(new_x[i])
+                subliste.append(new_y[i])
+                dataframe.append(subliste)
+
+
+    df = pd.DataFrame(dataframe, columns=['ROIName', "dose_{}".format(dose_mode), "volume_{}".format(volume_mode)])
+    fig = px.line(df, x="dose_{}".format(dose_mode), y="volume_{}".format(volume_mode), color='ROIName', title=mode, width = 750, height = 550)
     fig.show()
 
     return None 
