@@ -22,3 +22,11 @@ def get_number_of_roi(mask):
         if np.max(mask) == 1 : 
             return mask.shape[3]
         else : return int(np.max(mask))
+
+
+def get_list_SOPInstance_UID(liste_instances):
+    liste = []
+    for instance in liste_instances : 
+        liste.append(instance.get_SOPInstanceUID())
+
+    return liste 

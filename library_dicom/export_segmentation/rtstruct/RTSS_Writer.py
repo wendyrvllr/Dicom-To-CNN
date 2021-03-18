@@ -31,7 +31,7 @@ class RTSS_Writer:
         self.pixel_spacing.append(serie.get_z_spacing())
         
         #Get list of every sop instance uid 
-        self.list_all_SOPInstanceUID = serie.get_all_SOPInstanceIUD()
+        self.list_all_SOPInstanceUID = get_list_SOPInstance_UID(self.instances)
     
 
         #str to float 

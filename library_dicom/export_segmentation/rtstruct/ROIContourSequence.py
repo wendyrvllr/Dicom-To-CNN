@@ -62,16 +62,6 @@ class ROIContourSequence :
                     #liste.append(z0 + z*dz )
                     liste.append(z_spatial) 
 
-                #if len(liste) == 3 : #1 pts 
-                #    for i in range(2):
-                #        liste.append(liste[0])
-                #        liste.append(liste[1])
-                #        liste.append(liste[2])
-
-                #if len(liste) == 6 : #2 pts 
-                #    liste.append(liste[0])
-                #    liste.append(liste[1])
-                #    liste.append(liste[2])
 
                 list_SOPInstanceUID.append(list_all_SOPInstanceUID[z])
                 list_contours.append(liste)
