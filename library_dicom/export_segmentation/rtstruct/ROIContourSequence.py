@@ -16,8 +16,13 @@ class ROIContourSequence :
 
         results = {}
         slice = []
-
-        binary_mask = np.array(self.mask[:,:,:,number_roi - 1], dtype=np.uint8)
+        if self.mask.shape[-1] != 1 : 
+            binary_mask = np.array(self.mask[:,:,:,number_roi - 1], dtype=np.uint8)
+        else : 
+            binary_mask = np.zeros((self.mask.shape[0], self.mask.shape[1], self.mask.shape[2]))
+            x,y,z = np.where(self.mask[:,:,:,0] == number_roi)
+            binary_mask[x,y,z] = 1
+            binary_mask = np.array(binary_mask, dtype=np.uint8 )
 
         for s in range(self.mask.shape[2]):
             contours, _ = cv2.findContours(binary_mask[:,:, s], cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE) 
@@ -74,14 +79,14 @@ class ROIContourSequence :
         for contour in list_contours : 
             if len(contour) == 3 : #1 pts 
                 for n in range(2):
-                    contour.append(liste[0])
-                    contour.append(liste[1])
-                    contour.append(liste[2])
+                    contour.append(contour[0])
+                    contour.append(contour[1])
+                    contour.append(contour[2])
 
                 if len(contour) == 6 : #2 pts 
-                    contour.append(liste[0])
-                    contour.append(liste[1])
-                    contour.append(liste[2])
+                    contour.append(contour[0])
+                    contour.append(contour[1])
+                    contour.append(contour[2])
 
 
         return list_contours, list_SOPInstanceUID

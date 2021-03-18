@@ -39,7 +39,9 @@ class StructureSetROISequence :
         if len(self.mask.shape) == 3 :
              x = np.where(self.mask == number_roi)[0]
         elif len(self.mask.shape) == 4 : 
-            x = np.where(self.mask[:,:,:,number_roi-1] != 0)[0]
+            if self.mask.shape[-1] != 1 : 
+                x = np.where(self.mask[:,:,:,number_roi-1] != 0)[0]
+            else : x = np.where(self.mask == number_roi)[0]
         number_pixel = len(x) #same as len(y) or len(z)
         volume_pixel = pixel_spacing[0] * pixel_spacing[1] * abs(pixel_spacing[2])
         volume_pixel = volume_pixel * 10**(-3) #mm3 to ml 
