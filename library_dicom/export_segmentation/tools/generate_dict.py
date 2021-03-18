@@ -5,38 +5,38 @@ def generate_dict(number_of_roi):
     results = {}
     results["ContentCreatorName"] = "dicom_to_cnn"
     random_number = random.randint(0,1e3)
-    name = str(input('Enter filename for json file (filename or None):'))
-    while not name : 
-        name = str(input('Enter filename for json file (filename or None):'))
-    if name != "None" : results["ClinicalTrialSeriesID"] = name #filename of dicom_seg 
-    else : results["ClinicalTrialSeriesID"] = "json_serie"+str(random_number)
+    
+    name = str(input('Enter filename for json file (filename or nothing):'))
+    if not name : results["ClinicalTrialSeriesID"] = "json_serie"+str(random_number)
+    else : results["ClinicalTrialSeriesID"] = name #name of json
+
     results["ClinicalTrialTimePointID"] = "1"
-    description = str(input('Enter serie description (serie description or None):'))
-    while not description : 
-        description = str(input('Enter serie description (serie description or None):'))
-    if description != "None" : results["SeriesDescription"] = description
-    else : results["SeriesDescription"] = "No serie description"
+
+    description = str(input('Enter serie description (serie description or nothing):'))
+    if not description : results["SeriesDescription"] = "No serie description"
+    else : results["SeriesDescription"] = description
+    
     results["SeriesNumber"] = str(random_number)
     results["InstanceNumber"] = str(number_of_roi)
-    body_part = str(input('Enter body part examined (body part or None) : '))
-    while not body_part : 
-        body_part = str(input('Enter body part examined (body part or None) : '))
-    if body_part != "None" : results["BodyPartExamined"] = body_part
-    else : results["BodyPartExamined"] = "all body"
 
+    body_part = str(input('Enter body part examined (body part or nothing) : '))
+    if not body_part : results["BodyPartExamined"] = "all body"
+    else : results["BodyPartExamined"] = body_part
 
     results["segmentAttributes"] = []
     subliste = []
     for i in range(number_of_roi):
         subdict = {}
         subdict["labelID"]: str(i+1)
-        segment_description = str(input('Enter ROI n°{} description (segment description or None) : '.format(i+1)))
-        while not segment_description : 
-            segment_description = str(input('Enter ROI n°{} description (segment description or None) : '.format(i+1)))
-        if segment_description != None : subdict["SegmentDescription"] = segment_description
-        else : subdict["SegmentDescription"] = str(i)
+        segment_description = str(input('Enter ROI n°{} description/name (segment description or nothing) : '.format(i+1)))
+        if not segment_description : subdict["SegmentDescription"] = str("ROI {}".format(i+1))
+        else : subdict["SegmentDescription"] = segment_description
         subdict["SegmentAlgorithmType"] = "SEMIAUTOMATIC"
         subdict["SegmentAlgorithmName"] =  "DeepOncology"
+        RTROIInterpretedType = str(input("Enter RTROIInterpredType for ROI n°{} (predefined type or nothing) : ".format(i+1)))
+        if not RTROIInterpretedType : subdict['RTROIInterpretedType'] = ''
+        else : subdict['RTROIInterpretedType'] = RTROIInterpretedType
+        
 
 
         #subdict["SegmentedPropertyCategoryCodeSequence"] 

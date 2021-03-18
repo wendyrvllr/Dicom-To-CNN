@@ -21,6 +21,12 @@ class RTSS_Writer:
     """
     
     def __init__(self, mask, serie_path):
+        """[summary]
+
+        Args:
+            mask ([array]): [4D array [x,y,z,t], if ROI/slice with 1 or 2 pixels, replace by background value = 0]
+            serie_path ([str]): [Serie path related to RTSTRUCT file ]
+        """
         self.mask = mask
 
         #data spécifique à la série ou on dessine les contours 
@@ -41,6 +47,7 @@ class RTSS_Writer:
 
         #generate dictionnary with paramter inside 
         self.generate_dict_json()
+        #print(self.results)
 
         #creation file_meta 
         self.file_meta, self.file_meta.MediaStorageSOPInstanceUID = self.generates_file_meta()

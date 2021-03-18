@@ -17,17 +17,9 @@ class RTROIObservationsSequence :
             dataset.ReferencedROINumber = number_roi
             dataset.ObservationNumber = number_roi 
 
-            dataset.RTROIInterpretedType = " "
-            dataset.ROIInterpreter = " "
+            dataset.RTROIInterpretedType = self.results["segmentAttributes"][0][number_roi-1]['RTROIInterpretedType']
+            dataset.ROIInterpreter = ''
             
-            #if self.results['segmentAttributes'][0][number_roi-1]["SegmentDescription"] != "None" : 
-            #    dataset.ROIObservationLabel = self.results['segmentAttributes'][0][number_roi-1]["SegmentDescription"]
-
-            #else : dataset.ROIName = str(number_roi)
-
-            #if 'ROIInterpretedType' in self.dict_roi_data[number_roi] : 
-            #dataset.RTROIInterpretedType = ' ' #self.results['segmentAttributes'][0][number_roi-1]["SegmentAlgorithmType"]
-
             RTROIObservationsSequence.append(dataset)
 
         return RTROIObservationsSequence 
