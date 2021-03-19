@@ -15,7 +15,10 @@ import os
 import numpy as np 
 import tempfile 
 
-
+#DOCU : 
+# MASK 4D X Y Z T , T = 1 OU PLUS. CHAQUE SLICE NE DOIT PAS AVOIR MOINS DE 3 PIXELS ISOLES
+#(cf clean_mask in tools)
+#DICT : generate_dict in tools : PAS PLUS DE 16 CARACTERES 
 class RTSS_Writer:
     """A class for DICOM RT format
     """

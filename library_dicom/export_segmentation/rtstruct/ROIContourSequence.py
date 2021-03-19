@@ -66,18 +66,6 @@ class ROIContourSequence :
                 list_SOPInstanceUID.append(list_all_SOPInstanceUID[z])
                 list_contours.append(liste)
 
-        for contour in list_contours : 
-            if len(contour) == 3 : #1 pts 
-                for n in range(2):
-                    contour.append(contour[0])
-                    contour.append(contour[1])
-                    contour.append(contour[2])
-
-                if len(contour) == 6 : #2 pts 
-                    contour.append(contour[0])
-                    contour.append(contour[1])
-                    contour.append(contour[2])
-
 
         return list_contours, list_SOPInstanceUID
 
