@@ -7,15 +7,16 @@ class FusionMask(Fusion):
 
     Args:
         Fusion ([type]): [description]
+        CT = MASK HERE (check heritance)
     """
-    def __init__(self, pet, mask, target_size=None, target_spacing=None, target_direction=None, mode = 'dict'):
-        #super().__init__()
-        self.pet_objet = pet
-        self.ct_object = mask #change name in Fusion 
-        self.target_size = target_size
-        self.target_spacing = target_spacing
-        self.target_direction = target_direction
-        self.mode = mode
+    def __init__(self, pet, ct, target_size=None, target_spacing=None, target_direction=None, mode = 'dict'):
+        super().__init__(pet, ct, target_size, target_spacing, target_direction, mode='dict')
+        #self.pet_objet = pet
+        #self.ct_object = mask #change name in Fusion 
+        #self.target_size = target_size
+        #self.target_spacing = target_spacing
+        #self.target_direction = target_direction
+        #self.mode = mode
 
 
     def resample(self, array = False): 
