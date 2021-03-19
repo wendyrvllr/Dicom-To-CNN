@@ -38,8 +38,8 @@ class FusionMask(Fusion):
             liste = []
             for roi in range(mask_size[3]):
                 extract = sitk.ExtractImageFilter()
-                extract.setSize([mask_size[0], mask_size[1], mask_size[2], 0])
-                extract.setIndex([0,0,0,roi])
+                extract.SetSize([mask_size[0], mask_size[1], mask_size[2], 0])
+                extract.SetIndex([0,0,0,roi])
                 extracted_img = extract.Execute(mask_img)
                 transformation = sitk.ResampleImageFilter()
                 transformation.SetOutputDirection(target_direction)
