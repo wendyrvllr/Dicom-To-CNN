@@ -11,7 +11,7 @@ class FusionMask(Fusion):
     def __init__(self, pet, mask, target_size=None, target_spacing=None, target_direction=None, mode = 'dict'):
         #super().__init__()
         self.pet_objet = pet
-        self.mask_object = mask
+        self.ct_object = mask #change name in Fusion 
         self.target_size = target_size
         self.target_spacing = target_spacing
         self.target_direction = target_direction
