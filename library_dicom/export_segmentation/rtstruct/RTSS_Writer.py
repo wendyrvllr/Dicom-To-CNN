@@ -105,7 +105,7 @@ class RTSS_Writer:
 
     def generate_dict_json(self):
         number_of_roi = get_number_of_roi(self.mask_array)
-        results = generate_dict(number_of_roi)
+        results = generate_dict(number_of_roi, 'rtstruct')
         self.results = results
         return None 
 

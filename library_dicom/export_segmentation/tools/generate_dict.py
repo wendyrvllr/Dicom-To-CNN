@@ -1,9 +1,8 @@
 from numpy import random 
 from library_dicom.dicom_processor.tools.folders import *
 
-def generate_dict(number_of_roi):
+def generate_dict(number_of_roi, mode):
     #PAS PLUS DE 16 CARACTERES
-
 
     results = {}
     results["ContentCreatorName"] = "dicom_to_cnn"
@@ -46,9 +45,10 @@ def generate_dict(number_of_roi):
 
         subdict["SegmentAlgorithmType"] = "SEMIAUTOMATIC"
         subdict["SegmentAlgorithmName"] =  "DeepOncology"
-        RTROIInterpretedType = str(input("Enter RTROIInterpredType for ROI n°{} (predefined type or nothing) : ".format(i+1)))
-        if not RTROIInterpretedType : subdict['RTROIInterpretedType'] = ''
-        else : subdict['RTROIInterpretedType'] = RTROIInterpretedType
+        if mode == 'rtstruct' : 
+            RTROIInterpretedType = str(input("Enter RTROIInterpredType for ROI n°{} (predefined type or nothing) : ".format(i+1)))
+            if not RTROIInterpretedType : subdict['RTROIInterpretedType'] = ''
+            else : subdict['RTROIInterpretedType'] = RTROIInterpretedType
         
 
 

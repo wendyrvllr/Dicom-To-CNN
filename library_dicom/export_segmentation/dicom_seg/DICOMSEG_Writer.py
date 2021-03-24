@@ -23,7 +23,7 @@ class DICOMSEG_Writer:
     def generate_dict_json(self, directory_path):
         pred_array = sitk.GetArrayFromImage(self.img_mask)
         number_of_roi = np.max(pred_array)
-        results = generate_dict(number_of_roi)
+        results = generate_dict(number_of_roi, 'dicomseg')
         self.results = results
         json_path = save_dict_as_json(results, directory_path)
         return json_path 
