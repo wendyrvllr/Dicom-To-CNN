@@ -4,9 +4,8 @@ from library_dicom.export_segmentation.tools.rtss_writer_tools import *
 
 class RTROIObservationsSequence :
 
-    def __init__(self, mask, results):
-        self.mask = mask
-        self.number_of_roi = get_number_of_roi(self.mask)
+    def __init__(self, results, number_of_roi):
+        self.number_of_roi = number_of_roi 
         self.results = results
 
 

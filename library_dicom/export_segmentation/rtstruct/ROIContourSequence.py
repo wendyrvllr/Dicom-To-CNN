@@ -4,14 +4,65 @@ import cv2
 from random import randrange
 from library_dicom.dicom_processor.model.reader.Instance_RTSS import Instance_RTSS
 from library_dicom.export_segmentation.tools.rtss_writer_tools import *
+from skimage.measure import label, find_contours
+import matplotlib.pyplot as plt 
 
 class ROIContourSequence : 
 
-    def __init__(self, mask):
-        self.mask = mask
-        self.number_of_roi = get_number_of_roi(self.mask)
+    def __init__(self, mask_array, mask_img, number_of_roi):
+        self.mask_array = mask_array 
+        self.mask_img = mask_img
+        self.number_of_roi = number_of_roi
 
 
+    def __define_contour_img(self, number_roi):
+        roi = np.zeros((self.mask_array.shape), dtype=np.uint8)
+        z,x,y = np.where(self.mask_array == number_roi)
+        roi[z,x,y] = 1
+        roi_img = sitk.GetImageFromArray(roi)
+
+        return roi_img 
+        """
+        depth = roi_img.GetDepth()
+        contours = []
+        for i in range(depth):
+            im = roi_img[:,:,i]
+            contour = sitk.BinaryContour(im, fullyConnected=True )
+            contours.append(contour)
+        vectorOfImages = sitk.VectorOfImage()
+        for contour in contours:
+            vectorOfImages.push_back(contour)
+        img = sitk.JoinSeries(vectorOfImages)
+        return img 
+        """
+
+
+
+    def get_spatial_coordonate(self, number_roi, list_all_SOPInstanceUID):
+        img_roi = self.__define_contour_img(number_roi)
+        depth = img_roi.GetDepth()
+        results = []
+        list_SOPInstance = []
+        for z in range(depth):
+            img_slice = img_roi[:,:,z]
+            array_slice = sitk.GetArrayFromImage(img_slice)
+            liste = []
+            contour = find_contours(array_slice, level = 0.0)
+            if contour != []: 
+                for i in range(len(contour)):
+                    l = contour[i].tolist()
+                    for item in l:
+                        spatial_coord = self.mask_img.TransformIndexToPhysicalPoint([int(item[1]), int(item[0]), int(z)])
+                        liste.append(spatial_coord[0])
+                        liste.append(spatial_coord[1])
+                        liste.append(spatial_coord[2])
+
+                results.append(liste)
+                list_SOPInstance.append(list_all_SOPInstanceUID[z])
+
+        return results, list_SOPInstance 
+
+    """
     def __get_contour_ROI(self, number_roi):
 
         results = {}
@@ -68,7 +119,7 @@ class ROIContourSequence :
 
 
         return list_contours, list_SOPInstanceUID
-
+    """
 
     def __create_ContourImageSequence(self, ReferencedSOPClassUID, ReferencedSOPInstanceUID):
         ContourImageSequence = pydicom.sequence.Sequence()
@@ -98,13 +149,15 @@ class ROIContourSequence :
         return [randrange(max), randrange(max), randrange(max)]
 
 
-    def create_ROIContourSequence(self, ReferencedSOPClassUID, image_position, pixel_spacing, list_all_SOPInstanceUID, liste_instances):
+    def create_ROIContourSequence(self, ReferencedSOPClassUID, list_all_SOPInstanceUID, liste_instances):
         ROIContourSequence = pydicom.sequence.Sequence()
         for number_roi in range(1, self.number_of_roi +1) : 
+            #print("number_roi :", number_roi)
             dataset = pydicom.dataset.Dataset()
             dataset.ROIDisplayColor = self.get_random_colour()
             dataset.ReferencedROINumber = number_roi
-            list_contour_data , list_SOP_instance_uid = self.pixel_to_spatial(number_roi, image_position, pixel_spacing, list_all_SOPInstanceUID, liste_instances)
+            #list_contour_data , list_SOP_instance_uid = self.pixel_to_spatial(number_roi, image_position, pixel_spacing, list_all_SOPInstanceUID, liste_instances)
+            list_contour_data, list_SOP_instance_uid = self.get_spatial_coordonate(number_roi, list_all_SOPInstanceUID )
             dataset.ContourSequence = self.__create_ContourSequence(ReferencedSOPClassUID, list_SOP_instance_uid, list_contour_data)
             ROIContourSequence.append(dataset)
         return ROIContourSequence 

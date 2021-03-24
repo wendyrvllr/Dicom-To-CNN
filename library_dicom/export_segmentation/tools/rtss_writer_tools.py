@@ -1,5 +1,6 @@
 import numpy as np 
 from skimage.measure import label 
+import SimpleITK as sitk 
 
 def get_image_position_per_slice(liste_instances):
     liste = []
@@ -32,12 +33,15 @@ def get_list_SOPInstance_UID(liste_instances):
 
     return liste 
 
+def read_sitk_img(sitk_img):
+    array = sitk.GetArrayFromImage(sitk_img) #z, x, y 
+    return array 
 
 def clean_mask(mask):
     """[summary]
 
     Args:
-        mask ([type]): [binary mask [x,y,z]]
+        mask ([type]): [binary mask [z, x, y]]
     """
     #Check if binary mask 
     
@@ -45,10 +49,10 @@ def clean_mask(mask):
         raise Exception("Not a binary mask")
 
     empty_mask = np.zeros((mask.shape))
-    for s in range(mask.shape[2]) : 
-        slice = mask[:,:,s]
+    for s in range(mask.shape[0]) : 
+        slice = mask[s, :, :]
         if int(np.max(slice)) == 0 : 
-            empty_mask[:,:,s] = slice
+            empty_mask[s, :, :] = slice
         else : 
             lw, num = label(slice, connectivity=2, return_num=True) #lw = 2D slice 
             item = np.arange(1, num+1).tolist()
@@ -60,7 +64,7 @@ def clean_mask(mask):
                 if int(ar) < 3 : 
                     x,y = np.where(lw == feature)
                     lw[x,y] = 0 
-            empty_mask[:,:,s] = lw 
+            empty_mask[s, :, :] = lw 
 
     #binarize image 
     matrix = np.where(empty_mask>0, 1, 0)
