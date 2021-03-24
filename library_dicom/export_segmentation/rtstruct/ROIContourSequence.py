@@ -6,6 +6,7 @@ from library_dicom.dicom_processor.model.reader.Instance_RTSS import Instance_RT
 from library_dicom.export_segmentation.tools.rtss_writer_tools import *
 from skimage.measure import label, find_contours
 import matplotlib.pyplot as plt 
+import SimpleITK as sitk 
 
 class ROIContourSequence : 
 
