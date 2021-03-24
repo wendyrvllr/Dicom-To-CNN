@@ -32,9 +32,9 @@ class ExportSegmentation_Writer :
             if str(type(self.segmentation)) != "<class 'SimpleITK.SimpleITK.Image'>" : 
                 raise Exception ('For DICOM-SEG format, segmentation has to be a SITK Image')
 
-    def generate_dicom(self, clean, label, filename, directory_path):
+    def generate_dicom(self, clean, sous_seg, filename, directory_path):
         if self.mode == 'rtstruct' : 
-            writer = RTSS_Writer(self.segmentation, self.serie_path, self.segmentation_type, clean, label)
+            writer = RTSS_Writer(self.segmentation, self.serie_path, self.segmentation_type, clean, sous_seg)
             writer.save_file(filename, directory_path) 
         elif self.mode == 'dicomseg' : 
             writer = DICOMSEG_Writer(self.segmentation, self.serie_path)
