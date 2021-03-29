@@ -71,7 +71,7 @@ def generate_dict(number_of_roi, mode):
 
     results["ContentLabel"] =  "SEGMENTATION"
     results["ContentDescription"] = "Image segmentation"
-    results["ClinicalTrialCoordinatingCenterName"] = "dicom_to_cnn"
+    results["ClinicalTrialCoordinatingCenterName"] = "dcmqi"
 
     return results
 
