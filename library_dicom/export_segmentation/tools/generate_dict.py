@@ -37,7 +37,7 @@ def generate_dict(number_of_roi, mode):
     subliste = []
     for i in range(number_of_roi):
         subdict = {}
-        subdict["labelID"]= str(i+1)
+        subdict["labelID"]= i+1
         segment_description = str(input('Enter ROI n°{} description/name (segment description or nothing) : '.format(i+1)))
         if not segment_description : subdict["SegmentDescription"] = str("ROI {}".format(i+1))
         else : 
