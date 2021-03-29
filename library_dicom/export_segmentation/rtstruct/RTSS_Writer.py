@@ -16,28 +16,24 @@ import numpy as np
 import tempfile 
 
 #DOCU : 
-# MASK : NDARRAY 3D [Z, X, Y] OR SITK IMG (X, Y, Z) => CHAQUE SLICE NE DOIT PAS AVOIR MOINS DE 3 PIXELS ISOLES
-#(cf clean argument)
+# MASK : NDARRAY 3D [Z, X, Y] BINARY OR SITK IMG (X, Y, Z) => CHAQUE SLICE NE DOIT PAS AVOIR MOINS DE 3 PIXELS ISOLES
+#(cf clean in init)
 #DICT : generate_dict in tools : PAS PLUS DE 16 CARACTERES 
 class RTSS_Writer:
     """A class for DICOM RT format
     """
     
-    def __init__(self, mask, serie_path, mask_mode, clean = True, sous_seg = True):
+    def __init__(self, mask, serie_path, mask_mode):
         """[summary]
 
         Args:
             mask ([ndarray or sitk_img]): []
             serie_path ([str]): [Serie path related to RTSTRUCT file ]
             mask_mode ([str]) : ['img' if a sitk_img or 'matrix' if ndarray]
-            clean ([bool]) : [Clean the mask or not. Set to True]
-            label ([bool]) : [Transform binary mask into labelled mask. Set to True]
         """
 
         self.mask = mask
         self.mask_mode = mask_mode 
-        self.clean = clean 
-        self.sous_seg = sous_seg
 
         serie = Series(serie_path)
         self.instances = serie.get_instances_ordered()
@@ -66,14 +62,8 @@ class RTSS_Writer:
             self.pixel_spacing = self.mask_img.GetSpacing()
             self.image_direction = self.mask_img.GetDirection()
 
-        if clean == True : 
-            self.mask_array = clean_mask(self.mask_array)
-
-        if sous_seg == True : 
-            #Ici implémenter watershed 
-            self.mask_array = label(self.mask_array, connectivity=2)
-
-
+         
+        self.mask_array = clean_mask(self.mask_array)
 
         #get number of ROI after label
         self.number_of_roi = int(np.max(self.mask_array))

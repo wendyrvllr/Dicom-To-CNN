@@ -47,10 +47,11 @@ class ROIContourSequence :
         for z in range(depth):
             img_slice = img_roi[:,:,z]
             array_slice = sitk.GetArrayFromImage(img_slice)
-            liste = []
+            #liste = []
             contour = find_contours(array_slice, level = 0.0)
             if contour != []: 
                 for i in range(len(contour)):
+                    liste = []
                     l = contour[i].tolist()
                     for item in l:
                         spatial_coord = self.mask_img.TransformIndexToPhysicalPoint([int(item[1]), int(item[0]), int(z)])
@@ -58,8 +59,8 @@ class ROIContourSequence :
                         liste.append(spatial_coord[1])
                         liste.append(spatial_coord[2])
 
-                results.append(liste)
-                list_SOPInstance.append(list_all_SOPInstanceUID[z])
+                    results.append(liste)
+                    list_SOPInstance.append(list_all_SOPInstanceUID[z])
 
         return results, list_SOPInstance 
 

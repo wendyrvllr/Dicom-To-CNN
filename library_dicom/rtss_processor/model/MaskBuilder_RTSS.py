@@ -6,6 +6,7 @@ import os
 import cv2 as cv2
 import numpy as np 
 import sys 
+from scipy.ndimage.morphology import binary_fill_holes
 
 
 class MaskBuilder_RTSS : 
@@ -13,6 +14,7 @@ class MaskBuilder_RTSS :
     def __init__(self, rtss_path, serie_path):
 
         self.serie = Series(serie_path)
+        self.serie.get_instances_ordered()
         self.serie_data = self.serie.get_series_details()
         self.instance_uid_serie = self.serie.get_all_SOPInstanceIUD()
         self.matrix_size = self.serie.get_size_matrix()
@@ -61,9 +63,7 @@ class MaskBuilder_RTSS :
         for i in range(len(instances)):
             print(instances[i].get_image_position())
         return pixel_spacing
-    """ 
-
-
+    """
     def __spatial_to_pixels(self, matrix_size, number_roi, list_all_SOPInstanceUID):
         """Transform contour data in spatial to contour data in pixels, return a dict 
 
@@ -139,13 +139,14 @@ class MaskBuilder_RTSS :
             slice.append(pixels[item + 1]['z'])
 
         return list_points, slice 
+    
 
-  
     def rtss_to_3D_mask(self, number_roi, matrix_size, list_all_SOPInstanceUID):
         number_of_slices = matrix_size[2]
         np_array_3D = np.zeros(( matrix_size[0],  matrix_size[1], number_of_slices)).astype(np.uint8)
         if self.rtss.is_closed_planar(number_roi) == False : raise Exception ("Not CLOSED_PLANAR contour")
         liste_points, slice = self.get_list_points(matrix_size, number_roi, list_all_SOPInstanceUID )
+        #print(liste_points)
         #print(slice)
         for item in range(len(slice)):
             np_array_3D[:,:,slice[item]] = cv2.drawContours(np.float32(np_array_3D[:,:,slice[item]]), [np.asarray(liste_points[item])], -1, number_roi , -1)
