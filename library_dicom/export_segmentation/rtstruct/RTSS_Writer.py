@@ -62,9 +62,6 @@ class RTSS_Writer:
             self.pixel_spacing = self.mask_img.GetSpacing()
             self.image_direction = self.mask_img.GetDirection()
 
-         
-        self.mask_array = clean_mask(self.mask_array)
-
         #get number of ROI after label
         self.number_of_roi = int(np.max(self.mask_array))
 
