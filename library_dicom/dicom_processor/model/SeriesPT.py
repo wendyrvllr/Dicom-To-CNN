@@ -95,9 +95,9 @@ class SeriesPT(Series):
         Returns:
             [float] -- [return SUV factor or "Calcul SUV impossible" if there is "Undefined" value in tags]
         """
+        
         series_details = self.get_series_details()
         units = series_details['series']['Units']
-    
         known_units = ['GML', 'BQML', 'CNTS']
         if units not in known_units : 
             raise Exception ('Unknown PET Units')
@@ -108,9 +108,10 @@ class SeriesPT(Series):
             philips_suv_factor = series_details['philips_tags']['PhilipsSUVFactor']
             if (philips_suv_factor != 'Undefined') : return philips_suv_factor
             if (philips_suv_factor == 'Undefined' and philips_suv_bqml == 'Undefined') : raise Exception('Missing Philips private Factors')
-        
+ 
+        if series_details['study']['PatientWeight'] == None : 
+            raise Exception('Missing patient weight')
         patient_weight = series_details['study']['PatientWeight'] * 1000 #kg to g conversion
-        
         series_time = series_details['series']['SeriesTime']
         series_date = series_details['series']['SeriesDate']
         series_datetime = series_date + series_time 
@@ -118,7 +119,6 @@ class SeriesPT(Series):
         series_datetime = self.__parse_datetime(series_datetime)
         acquisition_datetime = self.get_minimum_acquisition_datetime()
         acquisition_date = series_details['series']['AcquisitionDate']
-        
         decay_correction = series_details['series']['DecayCorrection']
         radionuclide_half_life = series_details['radiopharmaceutical']['RadionuclideHalfLife']
         total_dose = series_details['radiopharmaceutical']['TotalDose']
@@ -135,7 +135,7 @@ class SeriesPT(Series):
         radiopharmaceutical_start_date_time = self.__parse_datetime(radiopharmaceutical_start_date_time)
         
         if (total_dose == 'Undefined' or total_dose == None or  acquisition_datetime== 'Undefined' 
-            or patient_weight == 'Undefined' or patient_weight == 'None' or radionuclide_half_life == 'Undefined' ) :
+            or patient_weight == 'Undefined' or patient_weight == None or radionuclide_half_life == 'Undefined' ) :
             raise Exception('Missing Radiopharmaceutical data or patient weight')
         
         #Determine Time reference of image acqusition 
