@@ -33,7 +33,7 @@ class Fusion:
             instance_array = self.pet_objet.get_instances_ordered()
 
             original_pixel_spacing = instance_array[0].get_pixel_spacing()
-            original_pixel_spacing = (float(original_pixel_spacing[0]), float(original_pixel_spacing[1]), self.serie_pet_objet.get_z_spacing())
+            original_pixel_spacing = (float(original_pixel_spacing[0]), float(original_pixel_spacing[1]), self.pet_objet.get_z_spacing())
             original_direction = instance_array[0].get_image_orientation()
             original_direction = (float(original_direction[0]), float(original_direction[1]), float(original_direction[2]),
                                     float(original_direction[3]), float(original_direction[4]), float(original_direction[5]),
