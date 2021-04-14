@@ -163,7 +163,7 @@ class Fusion:
         transformation.SetOutputSpacing(self.target_spacing)
         transformation.SetSize(self.target_size)
         transformation.SetDefaultPixelValue(0.0)
-        transformation.SetInterpolator(sitk.sitkBSpline)
+        transformation.SetInterpolator(sitk.sitkLinear)
         new_pet_img = transformation.Execute(pet_img) 
         print("NEW PET --- %s seconds ---" % (time.time() - start_time_3))
 
@@ -175,7 +175,7 @@ class Fusion:
         transformation.SetOutputSpacing(self.target_spacing)
         transformation.SetSize(self.target_size)
         transformation.SetDefaultPixelValue(-1000.0)
-        transformation.SetInterpolator(sitk.sitkBSpline)
+        transformation.SetInterpolator(sitk.sitkLinear)
         new_ct_img = transformation.Execute(ct_img) 
         print("NEW CT --- %s seconds ---" % (time.time() - start_time_4))
 
