@@ -1,5 +1,6 @@
 import numpy as np 
 import SimpleITK as sitk 
+import time 
 
 #target_size = (128, 128, 256)
 #target_spacing = (4.0, 4.0, 4.0)
@@ -147,10 +148,15 @@ class Fusion:
         
 
     def resample(self, mode ='head'): 
+        start_time = time.time()
         pet_img, ct_img = self.generate_pet_ct_img()
+        print("READ PET AND CT --- %s seconds ---" % (time.time() - start_time))
+        start_time_2 = time.time()
         new_origin = self.calculate_new_origin(mode=mode)
+        print("CALCULATE NEW ORIGIN --- %s seconds ---" % (time.time() - start_time_2))
         
         #pet
+        start_time_3 = time.time()
         transformation = sitk.ResampleImageFilter()
         transformation.SetOutputDirection(self.target_direction)
         transformation.SetOutputOrigin(new_origin)
@@ -159,8 +165,10 @@ class Fusion:
         transformation.SetDefaultPixelValue(0.0)
         transformation.SetInterpolator(sitk.sitkBSpline)
         new_pet_img = transformation.Execute(pet_img) 
+        print("NEW PET --- %s seconds ---" % (time.time() - start_time_3))
 
         #ct 
+        start_time_4 = time.time()
         transformation = sitk.ResampleImageFilter()
         transformation.SetOutputDirection(self.target_direction)
         transformation.SetOutputOrigin(new_origin)
@@ -169,6 +177,7 @@ class Fusion:
         transformation.SetDefaultPixelValue(-1000.0)
         transformation.SetInterpolator(sitk.sitkBSpline)
         new_ct_img = transformation.Execute(ct_img) 
+        print("NEW CT --- %s seconds ---" % (time.time() - start_time_4))
 
         if self.mode == 'dict' : 
             return new_pet_img, new_ct_img
