@@ -131,6 +131,7 @@ class Series():
                 except Exception : 
                     return('Unconstant Spacing') #alerte #return
         return np.mean(self.calculate_z_spacing(round_=False))
+        
 
 
     def calculate_z_spacing(self, round_): 
@@ -170,9 +171,9 @@ class Series():
 
     def get_all_SOPInstanceIUD(self):
         liste = []
-        for filename in self.file_names : 
-            instanceData = Instance(os.path.join(self.path,filename), load_image=True)
-            liste.append(instanceData.get_SOPInstanceUID())
+        for instance in self.instance_array : 
+            #instanceData = Instance(os.path.join(self.path,filename), load_image=True)
+            liste.append(instance.get_SOPInstanceUID())
         return liste 
 
 

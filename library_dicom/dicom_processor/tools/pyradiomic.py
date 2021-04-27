@@ -29,6 +29,7 @@ def get_center_of_mass(mask_path, thresh = False, pet_path = None):
 
     mask_img = sitk.ReadImage(mask_path)
     mask_array = sitk.GetArrayFromImage(mask_img).transpose()
+    print(mask_array.shape)
 
 
     type_ = None 
@@ -104,25 +105,30 @@ def get_center_of_mass(mask_path, thresh = False, pet_path = None):
     if type_ == '4D' : 
         if thresh == False : 
             for i in range(mask_array.shape[3]):
-                mask_3d = mask_array[:,:,:,i]
-                mask_3d = mask_3d.transpose()
-                new_mask = sitk.GetImageFromArray(mask_3d)
-                new_mask.SetOrigin(origin)
-                new_mask.SetDirection(direction)
-                new_mask.SetSpacing(spacing)
-                extractor = RadiomicsFeatureExtractor()
-                results = extractor.execute(pet_sitk, new_mask)
-                x, y, z = results['diagnostics_Mask-original_CenterOfMass']
-                center.append([x,y,z])
+                mask_3d = mask_array[:,:,:,i].astype('int8')
+                mask_3d = mask_3d.transpose().astype('int8')
+                #print(len(np.unique(mask_3d)))
+                if len(np.unique(mask_3d)) > 1 : 
+                    new_mask = sitk.GetImageFromArray(mask_3d)
+                    new_mask.SetOrigin(origin)
+                    new_mask.SetDirection(direction)
+                    new_mask.SetSpacing(spacing)
+                    extractor = RadiomicsFeatureExtractor()
+                    results = extractor.execute(pet_sitk, new_mask)
+                    x, y, z = results['diagnostics_Mask-original_CenterOfMass']
+                    center.append([x,y,z])
+                else : pass 
 
         elif thresh == True : 
-            mask_4d_threshold = threshold_matrix(mask_array, pet_array, 0.41)
+            mask_4d_threshold = threshold_matrix(mask_array, pet_array, 0.41).astype('int8')
             print("mask seuillé")
+            #print(mask_4d_threshold.dtype)
             for i in range(mask_array.shape[3]):
-                mask_3d = mask_4d_threshold[:,:,:,i]
+                mask_3d = mask_4d_threshold[:,:,:,i].astype('int8')
                 x,y,z = np.where(mask_3d != 0)
-                if len(x) != 0 : 
-                    mask_3d = mask_3d.transpose()
+                if len(x) != 0 and len(np.unique(x)) > 1 : 
+                    mask_3d = mask_3d.transpose().astype('int8')
+                    
                     new_mask = sitk.GetImageFromArray(mask_3d)
                     new_mask.SetOrigin(origin)
                     new_mask.SetDirection(direction)

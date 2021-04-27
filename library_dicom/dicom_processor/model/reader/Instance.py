@@ -194,7 +194,7 @@ class Instance:
         return self.dicomData[TagsStudy['StudyTime'].value].value
 
     def get_referring_physician_name(self):
-        if "ReferringPhysisicianName" in self.dicomData : return self.dicomData.ReferringPhysicianName
+        if "ReferringPhysicianName" in self.dicomData : return self.dicomData.ReferringPhysicianName
         else : return "Undefined"
 
     def get_specific_character_set(self):

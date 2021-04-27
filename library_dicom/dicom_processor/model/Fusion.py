@@ -1,5 +1,6 @@
 import numpy as np 
 import SimpleITK as sitk 
+import time 
 
 #target_size = (128, 128, 256)
 #target_spacing = (4.0, 4.0, 4.0)
@@ -33,7 +34,7 @@ class Fusion:
             instance_array = self.pet_objet.get_instances_ordered()
 
             original_pixel_spacing = instance_array[0].get_pixel_spacing()
-            original_pixel_spacing = (float(original_pixel_spacing[0]), float(original_pixel_spacing[1]), self.serie_pet_objet.get_z_spacing())
+            original_pixel_spacing = (float(original_pixel_spacing[0]), float(original_pixel_spacing[1]), self.pet_objet.get_z_spacing())
             original_direction = instance_array[0].get_image_orientation()
             original_direction = (float(original_direction[0]), float(original_direction[1]), float(original_direction[2]),
                                     float(original_direction[3]), float(original_direction[4]), float(original_direction[5]),
@@ -147,28 +148,34 @@ class Fusion:
         
 
     def resample(self, mode ='head'): 
+        
         pet_img, ct_img = self.generate_pet_ct_img()
+        
         new_origin = self.calculate_new_origin(mode=mode)
         
         #pet
+        
         transformation = sitk.ResampleImageFilter()
         transformation.SetOutputDirection(self.target_direction)
         transformation.SetOutputOrigin(new_origin)
         transformation.SetOutputSpacing(self.target_spacing)
         transformation.SetSize(self.target_size)
         transformation.SetDefaultPixelValue(0.0)
-        transformation.SetInterpolator(sitk.sitkBSpline)
+        transformation.SetInterpolator(sitk.sitkLinear)
         new_pet_img = transformation.Execute(pet_img) 
+        
 
         #ct 
+        
         transformation = sitk.ResampleImageFilter()
         transformation.SetOutputDirection(self.target_direction)
         transformation.SetOutputOrigin(new_origin)
         transformation.SetOutputSpacing(self.target_spacing)
         transformation.SetSize(self.target_size)
         transformation.SetDefaultPixelValue(-1000.0)
-        transformation.SetInterpolator(sitk.sitkBSpline)
+        transformation.SetInterpolator(sitk.sitkLinear)
         new_ct_img = transformation.Execute(ct_img) 
+       
 
         if self.mode == 'dict' : 
             return new_pet_img, new_ct_img

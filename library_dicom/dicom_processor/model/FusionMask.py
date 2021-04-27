@@ -7,15 +7,16 @@ class FusionMask(Fusion):
 
     Args:
         Fusion ([type]): [description]
+        CT = MASK HERE (check heritance)
     """
-    def __init__(self, pet, mask, target_size=None, target_spacing=None, target_direction=None, mode = 'dict'):
-        #super().__init__()
-        self.pet_objet = pet
-        self.mask_object = mask
-        self.target_size = target_size
-        self.target_spacing = target_spacing
-        self.target_direction = target_direction
-        self.mode = mode
+    def __init__(self, pet, ct, target_size=None, target_spacing=None, target_direction=None, mode = 'dict'):
+        super().__init__(pet, ct, target_size, target_spacing, target_direction, mode='dict')
+        #self.pet_objet = pet
+        #self.ct_object = mask #change name in Fusion 
+        #self.target_size = target_size
+        #self.target_spacing = target_spacing
+        #self.target_direction = target_direction
+        #self.mode = mode
 
 
     def resample(self, array = False): 
@@ -38,8 +39,8 @@ class FusionMask(Fusion):
             liste = []
             for roi in range(mask_size[3]):
                 extract = sitk.ExtractImageFilter()
-                extract.setSize([mask_size[0], mask_size[1], mask_size[2], 0])
-                extract.setIndex([0,0,0,roi])
+                extract.SetSize([mask_size[0], mask_size[1], mask_size[2], 0])
+                extract.SetIndex([0,0,0,roi])
                 extracted_img = extract.Execute(mask_img)
                 transformation = sitk.ResampleImageFilter()
                 transformation.SetOutputDirection(target_direction)
@@ -47,7 +48,7 @@ class FusionMask(Fusion):
                 transformation.SetOutputSpacing(target_spacing)
                 transformation.SetSize(target_size)
                 transformation.SetDefaultPixelValue(0.0)
-                transformation.SetInterpolator(sitk.sitkNearestNeighbor)
+                transformation.SetInterpolator(sitk.sitkLinear)
                 new_mask_img = transformation.Execute(extracted_img)
                 liste.append(new_mask_img)
 

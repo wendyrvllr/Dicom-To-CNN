@@ -1,59 +1,98 @@
 
 from library_dicom.dicom_processor.model.Series import Series
 
-from library_dicom.rtss_processor.model.StructureSetROISequence import StructureSetROISequence
-from library_dicom.rtss_processor.model.RTROIObservationsSequence import RTROIObservationsSequence
-from library_dicom.rtss_processor.model.ROIContourSequence import ROIContourSequence
-from library_dicom.rtss_processor.model.ReferencedFrameOfReferenceSequence import ReferencedFrameOfReferenceSequence
+from library_dicom.export_segmentation.rtstruct.StructureSetROISequence import StructureSetROISequence
+from library_dicom.export_segmentation.rtstruct.RTROIObservationsSequence import RTROIObservationsSequence
+from library_dicom.export_segmentation.rtstruct.ROIContourSequence import ROIContourSequence
+from library_dicom.export_segmentation.rtstruct.ReferencedFrameOfReferenceSequence import ReferencedFrameOfReferenceSequence
 from library_dicom.export_segmentation.tools.generate_dict import *
+from library_dicom.export_segmentation.tools.rtss_writer_tools import *
 import pydicom
 import datetime
 import random 
 import warnings
 import os 
+import numpy as np 
+import tempfile 
 
-
-
+#DOCU : 
+# MASK : NDARRAY 3D [Z, X, Y] BINARY OR SITK IMG (X, Y, Z) => CHAQUE SLICE NE DOIT PAS AVOIR MOINS DE 3 PIXELS ISOLES
+#(cf clean in init)
+#DICT : generate_dict in tools : PAS PLUS DE 16 CARACTERES 
 class RTSS_Writer:
     """A class for DICOM RT format
     """
     
-    def __init__(self, mask, serie_path):
-        self.mask = mask
+    def __init__(self, mask, serie_path, mask_mode):
+        """[summary]
 
-        #data spécifique à la série ou on dessine les contours 
+        Args:
+            mask ([ndarray or sitk_img]): []
+            serie_path ([str]): [Serie path related to RTSTRUCT file ]
+            mask_mode ([str]) : ['img' if a sitk_img or 'matrix' if ndarray]
+        """
+
+        self.mask = mask
+        self.mask_mode = mask_mode 
+
         serie = Series(serie_path)
         self.instances = serie.get_instances_ordered()
-        self.image_position = self.instances[0].get_image_position()
-        self.pixel_spacing = self.instances[0].get_pixel_spacing()
-        self.pixel_spacing.append(serie.get_z_spacing())
-        
+
+
+        if mask_mode == 'matrix' : 
+            self.mask_array = mask # 3D ndarray [z, x, y]
+            self.mask_img = sitk.GetImageFromArray(self.mask_array)
+            #data spécifique à la série ou on dessine les contours : origin, spacing, direction 
+
+            self.image_position = self.instances[0].get_image_position() #origin 
+            self.pixel_spacing = self.instances[0].get_pixel_spacing()
+            self.pixel_spacing.append(abs(serie.get_z_spacing())) #spacing 
+            original_direction = self.instances[0].get_image_orientation()
+            self.image_direction = (float(original_direction[0]), float(original_direction[1]), float(original_direction[2]), 
+                                        float(original_direction[3]), float(original_direction[4]), abs(float(original_direction[5])), 
+                                        0.0, 0.0, 1.0) 
+            self.mask_img.SetSpacing(self.pixel_spacing)
+            self.mask_img.SetOrigin(self.image_position)
+            self.mask_img.SetDirection(self.image_direction)
+
+        elif mask_mode == 'img' : 
+            self.mask_img = mask
+            self.mask_array = read_sitk_img(self.mask_img) # 3Dndarray [z,x,y]
+            self.image_position = self.mask_img.GetOrigin()
+            self.pixel_spacing = self.mask_img.GetSpacing()
+            self.image_direction = self.mask_img.GetDirection()
+
+        #get number of ROI after label
+        self.number_of_roi = int(np.max(self.mask_array))
+
+
+
         #Get list of every sop instance uid 
-        self.list_all_SOPInstanceUID = serie.get_all_SOPInstanceIUD()
-    
-        #self.first_metadata = serie.get_first_instance_metadata()
+        self.list_all_SOPInstanceUID = get_list_SOPInstance_UID(self.instances)
 
-        #str to float 
-        for i in range(len(self.image_position)):
-            self.image_position[i] = float(self.image_position[i])
-            self.pixel_spacing[i] = float(self.pixel_spacing[i])
+        #generate dictionnary with paramter inside 
+        self.generate_dict_json()
 
+        #creation file_meta 
+        self.file_meta, self.file_meta.MediaStorageSOPInstanceUID = self.generates_file_meta()
+        suffix = '.dcm'
+        filename_little_endian = tempfile.NamedTemporaryFile(suffix=suffix).name
+        self.dataset = pydicom.dataset.FileDataset(filename_little_endian, {}, file_meta=self.file_meta, preamble=b"\0" * 128)
 
-        #dictionnaire entrée par l'utilisateur 
-        #self.dict_roi_data = dict_roi_data
-
-        #creation dataset 
-        self.dataset = pydicom.dataset.Dataset()
-        self.set_tags(serie_path)
+        #Add the data element in FileDataset
+        self.set_tags()
         self.set_StructureSetROISequence()
         self.set_RTROIObservationSequence()
         self.set_ROIContourSequence()
         self.set_ReferencedFrameOfReferenceSequence()
+        
+        # Set the transfer syntax
+        self.dataset.is_little_endian = True
+        self.dataset.is_implicit_VR = False 
 
     def generate_dict_json(self):
-        #pred_array = sitk.GetArrayFromImage(self.img_mask)
-        number_of_roi = np.max(pred_array)
-        results = generate_dict(number_of_roi)
+        number_of_roi = get_number_of_roi(self.mask_array)
+        results = generate_dict(number_of_roi, 'rtstruct')
         self.results = results
         return None 
 
@@ -70,21 +109,20 @@ class RTSS_Writer:
         """
 
 
-        file_meta = pydicom.dataset.Dataset()
+        file_meta = pydicom.dataset.FileMetaDataset()
 
         file_meta.FileMetaInformationGroupLength = 166
         file_meta.FileMetaInformationVersion = b'\x00\x01'
         file_meta.MediaStorageSOPClassUID = '1.2.840.10008.5.1.4.1.1.481.3' # RT Structure Set Storage
         file_meta.MediaStorageSOPInstanceUID = pydicom.uid.generate_uid()
-        self.dataset.SOPInstanceUID = file_meta.MediaStorageSOPInstanceUID 
-
-        file_meta.TransferSyntaxUID = '1.2.840.10008.1.2' #Implicit VR Little Endian
-        file_meta.ImplementationClassUID = '1.2.246.352.70.2.1.7'
+        #self.dataset.SOPInstanceUID = file_meta.MediaStorageSOPInstanceUID 
+        file_meta.TransferSyntaxUID = pydicom.uid.ExplicitVRLittleEndian #pydicom.uid.ImplicitVRLittleEndian #pydicom.uid.ExplicitVRLittleEndian  #Implicit VR Little Endian
+        file_meta.ImplementationClassUID =  pydicom.uid.PYDICOM_IMPLEMENTATION_UID #'1.2.246.352.70.2.1.7'
         
-        return file_meta
+        return file_meta, file_meta.MediaStorageSOPInstanceUID
 
 
-    def set_tags(self,serie_path):
+    def set_tags(self):
         """
             
             List of tags :
@@ -119,7 +157,6 @@ class RTSS_Writer:
         self.dataset.StudyTime = self.instances[0].get_study_time()
 
         #specific new tags for the serie 
-
         self.dataset.ApprovalStatus = 'UNAPPROVED'
         self.dataset.Manufacturer   = ''
         dt = datetime.datetime.now()
@@ -134,6 +171,7 @@ class RTSS_Writer:
         self.dataset.SeriesInstanceUID = pydicom.uid.generate_uid()
         self.dataset.SeriesNumber = random.randint(0,1e3)
         self.dataset.SOPClassUID = '1.2.840.10008.5.1.4.1.1.481.3' 
+        self.dataset.SOPInstanceUID = self.file_meta.MediaStorageSOPInstanceUID
         self.dataset.StructureSetDate = dt.strftime('%Y%m%d')
         self.dataset.StructureSetDescription = self.results["SeriesDescription"]
         self.dataset.StructureSetLabel = self.results["SeriesDescription"]
@@ -146,18 +184,18 @@ class RTSS_Writer:
     #StructureSetROISequence
     def set_StructureSetROISequence(self):
         referenced_frame_of_reference_uid = self.instances[0].get_frame_of_reference_uid()
-        self.dataset.StructureSetROISequence = StructureSetROISequence(self.mask, self.results).create_StructureSetROISequence(self.pixel_spacing, referenced_frame_of_reference_uid)
+        self.dataset.StructureSetROISequence = StructureSetROISequence(self.mask_array, self.results, self.number_of_roi).create_StructureSetROISequence(self.pixel_spacing, referenced_frame_of_reference_uid)
         
 
     #RTROIObservationSequence
     def set_RTROIObservationSequence(self):
-        self.dataset.RTROIObservationsSequence = RTROIObservationsSequence(self.mask, self.results).create_RTROIObservationsSequence()
+        self.dataset.RTROIObservationsSequence = RTROIObservationsSequence(self.results, self.number_of_roi).create_RTROIObservationsSequence()
         
 
     #ROIContourSequence 
     def set_ROIContourSequence(self):
         referenced_sop_class_uid = self.instances[0].get_sop_class_uid()
-        self.dataset.ROIContourSequence = ROIContourSequence(self.mask).create_ROIContourSequence(referenced_sop_class_uid, self.image_position, self.pixel_spacing, self.list_all_SOPInstanceUID, self.instances)
+        self.dataset.ROIContourSequence = ROIContourSequence(self.mask_array, self.mask_img, self.number_of_roi).create_ROIContourSequence(referenced_sop_class_uid, self.list_all_SOPInstanceUID, self.instances)
 
     #ReferencedFrameOfReferenceSequence 
     def set_ReferencedFrameOfReferenceSequence(self):
@@ -169,10 +207,10 @@ class RTSS_Writer:
 
 
     def save_file(self, filename, directory_path):
-        filemeta = self.generates_file_meta()
-        filedataset = pydicom.dataset.FileDataset(filename, self.dataset, preamble=b"\0" * 128, file_meta=filemeta, is_implicit_VR = True, is_little_endian = True )
-        filedataset.save_as(os.path.join(directory_path, filename))
-
+        #filemeta = self.generates_file_meta()
+        #filedataset = pydicom.dataset.FileDataset(filename, self.dataset, preamble=b"\0" * 128, file_meta=filemeta, is_implicit_VR = True, is_little_endian = True )
+        #filedataset.save_as(os.path.join(directory_path, filename))
+        self.dataset.save_as(os.path.join(directory_path, filename), write_like_original=False)
         return None 
 
 
