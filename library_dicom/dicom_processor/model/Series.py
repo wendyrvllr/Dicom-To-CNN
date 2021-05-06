@@ -161,13 +161,15 @@ class Series():
 
     #check origin direction spacing de nifti
 
-    def export_nifti(self, file_path, mask = None):
+    def export_nifti(self, file_path, mode='pet', mask = None):
         if (mask is None) : 
+            
             nifti_builder = NiftiBuilder(self)
-            nifti_builder.save_nifti(file_path)
+            nifti_builder.save_nifti(file_path, mode=mode, mask=None)
         else : 
+            
             nifti_builder = NiftiBuilder(self)
-            nifti_builder.save_nifti(file_path, mask)
+            nifti_builder.save_nifti(file_path, mode='mask', mask=mask)
 
     def get_all_SOPInstanceIUD(self):
         liste = []
