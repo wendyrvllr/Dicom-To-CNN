@@ -120,11 +120,12 @@ def get_center_of_mass(mask_path, thresh = False, pet_path = None):
                 else : pass 
 
         elif thresh == True : 
-            mask_4d_threshold = threshold_matrix(mask_array, pet_array, 0.41).astype('int8')
-            print("mask seuillé")
+            #mask_4d_threshold = threshold_matrix(mask_array.astype('int8'), pet_array, 0.41).astype('int8')
+            #print("mask seuillé")
             #print(mask_4d_threshold.dtype)
             for i in range(mask_array.shape[3]):
-                mask_3d = mask_4d_threshold[:,:,:,i].astype('int8')
+                mask_3d = mask_array[:,:,:,i].astype('int8')
+                mask_3d = threshold_matrix(mask_3d, pet_array, 0.41).astype('int8')
                 x,y,z = np.where(mask_3d != 0)
                 if len(x) != 0 and len(np.unique(x)) > 1 : 
                     mask_3d = mask_3d.transpose().astype('int8')
