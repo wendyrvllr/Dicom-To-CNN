@@ -44,7 +44,7 @@ class NiftiBuilder:
             slices = []
             for number_roi in range(number_of_roi):
 
-                sitk_img = sitk.GetImageFromArray( np.transpose(mask[:,:,:,number_roi], (2,0,1) ))
+                sitk_img = sitk.GetImageFromArray(np.transpose(mask[:,:,:,number_roi], (2,0,1) ), isVector=True)
                 #print('3d')
                 sitk_img = sitk.Cast(sitk_img, sitk.sitkUInt8)
         
