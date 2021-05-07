@@ -206,6 +206,7 @@ class SeriesPT(Series):
             [array] -- [return array of the SeriesPT with SUV and SUL factor in 32bis npArray ]
         """
         numpy_array = super().get_numpy_array()
+        
         try:
             if (self.sul_value == False) :
                 return numpy_array * self.__calculateSUVFactor()
@@ -213,3 +214,4 @@ class SeriesPT(Series):
                 return numpy_array * self.__calculateSUVFactor() * self.calculateSULFactor()
         except Exception as err:
             print("Error generating result array", err)
+        

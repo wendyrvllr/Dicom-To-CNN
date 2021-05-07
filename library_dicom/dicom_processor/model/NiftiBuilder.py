@@ -43,7 +43,7 @@ class NiftiBuilder:
             number_of_roi = mask.shape[3]
             #print(mask.shape)
             slices = []
-            
+            """
             for number_roi in range(number_of_roi) : 
                 slices.append(np.transpose(mask[:,:,:,number_roi], (2,0,1)))
                 
@@ -72,7 +72,7 @@ class NiftiBuilder:
                 slices.append(sitk_img)
             
             img = sitk.JoinSeries(slices)
-            print(img.GetSize())
+            #print(img.GetSize())
             #img = sitk.Cast(img, sitk.sitkUInt32)
             #print('4d')
             """
@@ -84,6 +84,6 @@ class NiftiBuilder:
             sitk_img.SetOrigin( self.series.instance_array[0].get_image_position() )
             sitk_img.SetSpacing( (original_pixel_spacing[0], original_pixel_spacing[1], self.series.get_z_spacing()) )
             
-            
-            sitk.WriteImage(sitk_img, filename)
+            """
+            sitk.WriteImage(img, filename)
 
