@@ -24,29 +24,31 @@ def get_center_of_mass(mask_path, thresh = False, pet_path = None):
 
     if pet_path != None : 
         pet_img = sitk.ReadImage(pet_path)
-        pet_array = sitk.GetArrayFromImage(pet_img).transpose()
+        pet_array = sitk.GetArrayFromImage(pet_img).transpose() #(x,y,z)
 
 
     mask_img = sitk.ReadImage(mask_path)
-    mask_array = sitk.GetArrayFromImage(mask_img).transpose()
+    mask_array = sitk.GetArrayFromImage(mask_img) #(z, x, y, c)
+    mask_array = np.transpose(mask_array, (3,0,1,2)).transpose() #(x,y,z, c)
+
     print(mask_array.shape)
 
 
     type_ = None 
     if len(mask_array.shape) != 3 : 
         type_ = '4D'
-        origin = mask_img.GetOrigin()[0:3]
-        direc = mask_img.GetDirection()
-        direction = direc[0:3] + direc[4:7] + direc[8:11]
-        spacing = mask_img.GetSpacing()[0:3]
-        size = mask_img.GetSize()[0:3]
+        origin = mask_img.GetOrigin()
+        direction = mask_img.GetDirection()
+        spacing = mask_img.GetSpacing()
+        size = mask_img.GetSize() 
 
         pet_arr = np.random.randint(10, size=(size)).transpose()
         #pet_arr = np.ones(size).transpose()
-        pet_sitk = sitk.GetImageFromArray(pet_arr)
-        pet_sitk.SetOrigin(origin)
-        pet_sitk.SetDirection(direction)
-        pet_sitk.SetSpacing(spacing)
+        if pet_path is None : 
+            pet_img = sitk.GetImageFromArray(pet_arr)
+            pet_img.SetOrigin(origin)
+            pet_img.SetDirection(direction)
+            pet_img.SetSpacing(spacing)
 
 
     else : 
@@ -58,10 +60,11 @@ def get_center_of_mass(mask_path, thresh = False, pet_path = None):
 
         #pet_arr = np.ones(size).transpose()
         pet_arr = np.random.randint(10, size=(size)).transpose()
-        pet_sitk = sitk.GetImageFromArray(pet_arr)
-        pet_sitk.SetOrigin(origin)
-        pet_sitk.SetDirection(direction)
-        pet_sitk.SetSpacing(spacing)
+        if pet_path is None : 
+            pet_img = sitk.GetImageFromArray(pet_arr)
+            pet_img.SetOrigin(origin)
+            pet_img.SetDirection(direction)
+            pet_img.SetSpacing(spacing)
 
 
     if type_ == '3D' : 
@@ -69,7 +72,7 @@ def get_center_of_mass(mask_path, thresh = False, pet_path = None):
             number_of_roi = int(np.max(mask_array))
             for i in range(1, number_of_roi + 1) : 
                 extractor = RadiomicsFeatureExtractor()
-                results = extractor.execute(pet_sitk, mask_img, label = i)
+                results = extractor.execute(pet_img, mask_img, label = i)
                 x, y, z = results['diagnostics_Mask-original_CenterOfMass']
                 center.append([x,y,z])
 
@@ -97,7 +100,7 @@ def get_center_of_mass(mask_path, thresh = False, pet_path = None):
                 new_mask.SetSpacing(spacing)
                 for i in range(1, number_of_roi + 1) : 
                     extractor = RadiomicsFeatureExtractor()
-                    results = extractor.execute(pet_sitk, new_mask, label = i)
+                    results = extractor.execute(pet_img, new_mask, label = i)
                     x, y, z = results['diagnostics_Mask-original_CenterOfMass']
                     center.append([x,y,z])
 
@@ -114,7 +117,7 @@ def get_center_of_mass(mask_path, thresh = False, pet_path = None):
                     new_mask.SetDirection(direction)
                     new_mask.SetSpacing(spacing)
                     extractor = RadiomicsFeatureExtractor()
-                    results = extractor.execute(pet_sitk, new_mask)
+                    results = extractor.execute(pet_img, new_mask)
                     x, y, z = results['diagnostics_Mask-original_CenterOfMass']
                     center.append([x,y,z])
                 else : pass 
