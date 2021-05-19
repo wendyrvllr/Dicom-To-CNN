@@ -1,11 +1,7 @@
 import numpy as np
 import os
-import imageio
 from os.path import basename,splitext
-import matplotlib.pyplot as plt 
 import SimpleITK as sitk 
-import scipy 
-import sys
 
 from library_dicom.dicom_processor.model.reader.Instance import Instance
 from library_dicom.dicom_processor.model.NiftiBuilder import NiftiBuilder

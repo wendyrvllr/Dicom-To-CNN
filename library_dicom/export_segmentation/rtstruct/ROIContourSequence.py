@@ -1,6 +1,5 @@
 import pydicom 
 import numpy as np
-import cv2 
 from random import randrange
 from library_dicom.dicom_processor.model.reader.Instance_RTSS import Instance_RTSS
 from library_dicom.export_segmentation.tools.rtss_writer_tools import *

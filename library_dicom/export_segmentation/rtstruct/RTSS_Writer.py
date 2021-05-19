@@ -1,4 +1,11 @@
 
+import pydicom
+import datetime
+import random 
+import warnings
+import os 
+import numpy as np 
+import tempfile 
 from library_dicom.dicom_processor.model.Series import Series
 
 from library_dicom.export_segmentation.rtstruct.StructureSetROISequence import StructureSetROISequence
@@ -7,13 +14,7 @@ from library_dicom.export_segmentation.rtstruct.ROIContourSequence import ROICon
 from library_dicom.export_segmentation.rtstruct.ReferencedFrameOfReferenceSequence import ReferencedFrameOfReferenceSequence
 from library_dicom.export_segmentation.tools.generate_dict import *
 from library_dicom.export_segmentation.tools.rtss_writer_tools import *
-import pydicom
-import datetime
-import random 
-import warnings
-import os 
-import numpy as np 
-import tempfile 
+
 
 #DOCU : 
 # MASK : NDARRAY 3D [Z, X, Y] BINARY OR SITK IMG (X, Y, Z) => CHAQUE SLICE NE DOIT PAS AVOIR MOINS DE 3 PIXELS ISOLES
