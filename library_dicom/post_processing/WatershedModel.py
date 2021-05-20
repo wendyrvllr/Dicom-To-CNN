@@ -1,7 +1,6 @@
 import numpy as np
 import SimpleITK as sitk 
 import matplotlib.pyplot as plt
-from scipy import ndimage
 from skimage.feature import peak_local_max
 from skimage import segmentation
 import scipy
