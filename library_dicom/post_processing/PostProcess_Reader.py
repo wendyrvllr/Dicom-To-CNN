@@ -2,7 +2,6 @@ import numpy as np
 import SimpleITK as sitk 
 import matplotlib.pyplot as plt
 import scipy as sc
-from sklearn import mixture
 from skimage.measure import label
 from library_dicom.post_processing.Mask3D import Mask3D
 from library_dicom.post_processing.Mask4D import Mask4D

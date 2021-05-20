@@ -1,11 +1,5 @@
 import numpy as np
 import SimpleITK as sitk 
-from skimage.measure import label
-#from radiomics.featureextractor import RadiomicsFeatureExtractor
-import matplotlib.pyplot as plt
-import scipy as sc
-from sklearn import mixture
-
 
 
 class Mask4D : 

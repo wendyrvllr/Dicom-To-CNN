@@ -16,17 +16,16 @@ class SeriesPT(Series):
         Series {[class]} -- [description]
     """
 
-    def __init__(self, path, sul_value=False):
+    def __init__(self, path):
         """Constructor
 
         Arguments:
             path {String} -- Path folder of series
 
-        Keyword Arguments:
-            sul_value {bool} -- [If true return NIFTI SUL] (default: {False})
+        
         """
         super().__init__(path)
-        self.sul_value=sul_value
+        
 
 
 
@@ -206,10 +205,51 @@ class SeriesPT(Series):
             [array] -- [return array of the SeriesPT with SUV and SUL factor in 32bis npArray ]
         """
         numpy_array = super().get_numpy_array()
+        
         try:
-            if (self.sul_value == False) :
-                return numpy_array * self.__calculateSUVFactor()
-            else :
-                return numpy_array * self.__calculateSUVFactor() * self.calculateSULFactor()
+            #if (self.sul_value == False) :
+            return numpy_array * self.__calculateSUVFactor()
+            #else :
+            #    return numpy_array * self.__calculateSUVFactor() * self.calculateSULFactor()
         except Exception as err:
             print("Error generating result array", err)
+        
+
+    def export_nifti(self, file_path, sul_value = False, mask = None):
+        if (mask is None) : 
+            pet_array = self.get_numpy_array()
+            if sul_value == True : 
+                pet_array = pet_array * self.calculateSULFactor()
+   
+            sitk_img = sitk.GetImageFromArray( np.transpose(pet_array, (2,0,1) ))
+             
+            sitk_img = sitk.Cast(sitk_img, sitk.sitkFloat32)
+            
+            original_pixel_spacing = self.instance_array[0].get_pixel_spacing()
+            
+            original_direction = self.instance_array[0].get_image_orientation()
+            sitk_img.SetDirection( (float(original_direction[0]), float(original_direction[1]), float(original_direction[2]), 
+                                    float(original_direction[3]), float(original_direction[4]), float(original_direction[5]), 
+                                    0.0, 0.0, 1.0) )
+            sitk_img.SetOrigin( self.instance_array[0].get_image_position() )
+            sitk_img.SetSpacing( (original_pixel_spacing[0], original_pixel_spacing[1], self.get_z_spacing()) )
+            sitk.WriteImage(sitk_img, file_path)
+
+        else : 
+            number_of_roi = mask.shape[3] #tjrs de taille 4, si une seule roi=> dernier channel =1
+            slices = []
+            for number_roi in range(number_of_roi) : 
+                slices.append(np.transpose(mask[:,:,:,number_roi], (2,0,1)))
+                
+            mask_4D = np.stack(slices, axis = 3)
+            sitk_img = sitk.GetImageFromArray(mask_4D, isVector = True)
+            sitk_img = sitk.Cast(sitk_img, sitk.sitkVectorUInt8)
+            
+            original_pixel_spacing = self.instance_array[0].get_pixel_spacing()
+            original_direction = self.instance_array[0].get_image_orientation()
+            sitk_img.SetDirection( (float(original_direction[0]), float(original_direction[1]), float(original_direction[2]), 
+                                    float(original_direction[3]), float(original_direction[4]), float(original_direction[5]), 
+                                    0.0, 0.0, 1.0) )
+            sitk_img.SetOrigin( self.instance_array[0].get_image_position() )
+            sitk_img.SetSpacing( (original_pixel_spacing[0], original_pixel_spacing[1], self.get_z_spacing()) )
+            sitk.WriteImage(sitk_img, file_path)

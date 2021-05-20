@@ -1,7 +1,6 @@
 import os
 import imageio
 from os.path import basename,splitext
-import scipy 
 import numpy as np
 import matplotlib.pyplot as plt
 
