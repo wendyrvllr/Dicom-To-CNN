@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 from library_dicom.dicom_processor.model.csv_reader.CsvReader import CsvReader
 from library_dicom.dicom_processor.model.csv_reader.RoiFactory import RoiFactory

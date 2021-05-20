@@ -1,11 +1,11 @@
 Metadata-Version: 2.1
 Name: dicom-to-cnn
-Version: 0.55
+Version: 0.59
 Summary: Python Library to handle Input / Output conversion in Dicom <=> Convolutional Neural Network 
 Home-page: https://github.com/wendyrvllr/Dicom-To-CNN
 Author: 
 License: UNKNOWN
-Download-URL: https://github.com/wendyrvllr/Dicom-To-CNN/archive/refs/tags/55.tar.gz
+Download-URL: https://github.com/wendyrvllr/Dicom-To-CNN/archive/refs/tags/59.tar.gz
 Description: # library-DICOM
         
         Features : 
@@ -34,7 +34,7 @@ Description: # library-DICOM
 Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3.7
 Classifier: Programming Language :: Python :: 3.8
-Classifier: License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)
+Classifier: License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)
 Classifier: Operating System :: OS Independent
 Requires-Python: >=3.7
 Description-Content-Type: text/markdown

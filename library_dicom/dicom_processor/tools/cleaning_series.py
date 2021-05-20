@@ -1,7 +1,6 @@
 import json
 import os
 import shutil
-import pprint
 from collections import defaultdict, Counter
 
 def generate_merged_file(json_path):

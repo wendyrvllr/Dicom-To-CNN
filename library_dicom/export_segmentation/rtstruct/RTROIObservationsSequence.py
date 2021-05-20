@@ -1,5 +1,4 @@
 import pydicom 
-import numpy as np
 from library_dicom.export_segmentation.tools.rtss_writer_tools import *
 
 class RTROIObservationsSequence :

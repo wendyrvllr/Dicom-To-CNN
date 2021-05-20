@@ -1,11 +1,7 @@
 import numpy as np
 import os
-import imageio
 from os.path import basename,splitext
-import matplotlib.pyplot as plt 
 import SimpleITK as sitk 
-import scipy 
-import sys
 
 from library_dicom.dicom_processor.model.reader.Instance import Instance
 from library_dicom.dicom_processor.model.NiftiBuilder import NiftiBuilder
@@ -99,17 +95,10 @@ class Series():
     def get_numpy_array(self):
         if self.is_image_modality == False : return
 
-        #instance_array = [Instance(os.path.join(self.path, file_name), load_image=True) for file_name in self.file_names]
-        #instance_array.sort(key=lambda instance_array:int(instance_array.get_image_position()[2]))
         pixel_data = [instance.get_image_nparray() for instance in self.instance_array]
         np_array = np.stack(pixel_data,axis=-1)
-        #A VERIF
-        #self.instance_array = instance_array
-
         return np_array
 
-
-    
 
     def get_z_positions(self):
         Z_positions = [ instance.get_image_position()[2] for instance in self.instance_array ]
@@ -120,7 +109,7 @@ class Series():
         """ called by __getMetadata """
         Z_positions = [ instance.get_image_position()[2] for instance in self.instance_array ]
         #print(Z_positions)
-
+        
         initial_z_spacing = round(abs(Z_positions[0] - Z_positions[1]), 1)
         for i in range(2,len(Z_positions)):
 
@@ -159,15 +148,48 @@ class Series():
 
 
 
-    #check origin direction spacing de nifti
-
     def export_nifti(self, file_path, mask = None):
+        #modality = self.get_modality()
+
         if (mask is None) : 
-            nifti_builder = NiftiBuilder(self)
-            nifti_builder.save_nifti(file_path)
+            
+            #nifti_builder = NiftiBuilder(self)
+            #nifti_builder.save_nifti(file_path, mode=mode, mask=None)
+            sitk_img = sitk.GetImageFromArray( np.transpose(self.get_numpy_array(), (2,0,1) ))
+
+            original_pixel_spacing = self.instance_array[0].get_pixel_spacing()
+            
+            original_direction = self.instance_array[0].get_image_orientation()
+            sitk_img.SetDirection( (float(original_direction[0]), float(original_direction[1]), float(original_direction[2]), 
+                                    float(original_direction[3]), float(original_direction[4]), float(original_direction[5]), 
+                                    0.0, 0.0, 1.0) )
+            sitk_img.SetOrigin( self.instance_array[0].get_image_position() )
+            sitk_img.SetSpacing( (original_pixel_spacing[0], original_pixel_spacing[1], self.get_z_spacing()) )
+            sitk.WriteImage(sitk_img, file_path)
+
+
         else : 
-            nifti_builder = NiftiBuilder(self)
-            nifti_builder.save_nifti(file_path, mask)
+            
+            #nifti_builder = NiftiBuilder(self)
+            #nifti_builder.save_nifti(file_path, mode='mask', mask=mask)
+
+            number_of_roi = mask.shape[3] #tjrs de taille 4, si une seule roi=> dernier channel =1
+            slices = []
+            for number_roi in range(number_of_roi) : 
+                slices.append(np.transpose(mask[:,:,:,number_roi], (2,0,1)))
+                
+            mask_4D = np.stack(slices, axis = 3)
+            sitk_img = sitk.GetImageFromArray(mask_4D, isVector = True)
+            sitk_img = sitk.Cast(sitk_img, sitk.sitkVectorUInt8)
+            
+            original_pixel_spacing = self.instance_array[0].get_pixel_spacing()
+            original_direction = self.instance_array[0].get_image_orientation()
+            sitk_img.SetDirection( (float(original_direction[0]), float(original_direction[1]), float(original_direction[2]), 
+                                    float(original_direction[3]), float(original_direction[4]), float(original_direction[5]), 
+                                    0.0, 0.0, 1.0) )
+            sitk_img.SetOrigin( self.instance_array[0].get_image_position() )
+            sitk_img.SetSpacing( (original_pixel_spacing[0], original_pixel_spacing[1], self.get_z_spacing()) )
+            sitk.WriteImage(sitk_img, file_path)
 
     def get_all_SOPInstanceIUD(self):
         liste = []

@@ -1,6 +1,4 @@
 import pydicom
-import os
-import numpy as np
 
 from library_dicom.dicom_processor.enums.TagEnum import *
 from library_dicom.dicom_processor.enums.SopClassUID import *

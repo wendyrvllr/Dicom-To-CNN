@@ -31,7 +31,7 @@ class FusionMask(Fusion):
             transformation.SetOutputSpacing(target_spacing)
             transformation.SetSize(target_size)
             transformation.SetDefaultPixelValue(0.0)
-            transformation.SetInterpolator(sitk.sitkNearestNeighbor)
+            transformation.SetInterpolator(sitk.sitkLinear)
             img = transformation.Execute(mask_img)
 
         

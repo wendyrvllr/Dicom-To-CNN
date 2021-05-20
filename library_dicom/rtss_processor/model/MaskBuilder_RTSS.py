@@ -5,9 +5,6 @@ import pydicom
 import os
 import cv2 as cv2
 import numpy as np 
-import sys 
-from scipy.ndimage.morphology import binary_fill_holes
-
 
 class MaskBuilder_RTSS : 
 

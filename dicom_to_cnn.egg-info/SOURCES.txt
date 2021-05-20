@@ -30,6 +30,7 @@ library_dicom/dicom_processor/model/reader/Instance_RTSS.py
 library_dicom/dicom_processor/model/reader/__init__.py
 library_dicom/dicom_processor/tools/__init__.py
 library_dicom/dicom_processor/tools/cleaning_series.py
+library_dicom/dicom_processor/tools/convert_format.py
 library_dicom/dicom_processor/tools/create_mip.py
 library_dicom/dicom_processor/tools/csv_volume.py
 library_dicom/dicom_processor/tools/folders.py
