@@ -3,8 +3,12 @@ import numpy as np
 #with any threshold 3d mask label
 
 def threshold_matrix(mask_array, pet_array, threshold):
-    """ Return a thresholded mask
     """
+
+    mask_array (z,x,y,C)
+    pet_array (z,x,y)
+    """
+
     if threshold < 1 : 
         if len(mask_array.shape) != 3 :  #mask 4D 
             number_of_roi = mask_array.shape[3]

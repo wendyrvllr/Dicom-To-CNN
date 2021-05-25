@@ -3,6 +3,7 @@ setup.py
 dicom_to_cnn.egg-info/PKG-INFO
 dicom_to_cnn.egg-info/SOURCES.txt
 dicom_to_cnn.egg-info/dependency_links.txt
+dicom_to_cnn.egg-info/requires.txt
 dicom_to_cnn.egg-info/top_level.txt
 library_dicom/__init__.py
 library_dicom/dicom_processor/__init__.py
@@ -51,7 +52,6 @@ library_dicom/export_segmentation/rtstruct/__init__.py
 library_dicom/export_segmentation/tools/__init__.py
 library_dicom/export_segmentation/tools/generate_dict.py
 library_dicom/export_segmentation/tools/rtss_writer_tools.py
-library_dicom/post_processing/GaussianModel.py
 library_dicom/post_processing/Mask3D.py
 library_dicom/post_processing/Mask4D.py
 library_dicom/post_processing/PostProcess_Reader.py
