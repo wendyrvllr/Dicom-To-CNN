@@ -6,13 +6,13 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="dicom_to_cnn",                     # This is the name of the package
-    version="0.61",                        # The initial release version
+    version="0.62",                        # The initial release version
     author="",                     # Full name of the author
     description="Python Library to handle Input / Output conversion in Dicom <=> Convolutional Neural Network ",
     long_description=long_description,      # Long description read from the the readme file
     long_description_content_type="text/markdown",
     url = 'https://github.com/wendyrvllr/Dicom-To-CNN',   # Provide either the link to your github or to your website
-    download_url = 'https://github.com/wendyrvllr/Dicom-To-CNN/archive/refs/tags/60.tar.gz ',
+    download_url = 'https://github.com/wendyrvllr/Dicom-To-CNN/archive/refs/tags/61.tar.gz ',
     packages=setuptools.find_packages(),    # List of all python modules to be installed
     classifiers=[
         'Programming Language :: Python :: 3.7',
@@ -28,7 +28,7 @@ setuptools.setup(
                     'kiwisolver==1.3.1',
                     'matplotlib==3.4.2',
                     'networkx==2.5.1',
-                    'numpy==1.20.3',
+                    'numpy>=1.19',
                     'Pillow==8.2.0',
                     'pydicom==2.1.2',
                     'pykwalify==1.8.0',
