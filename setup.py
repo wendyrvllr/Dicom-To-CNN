@@ -12,7 +12,7 @@ setuptools.setup(
     long_description=long_description,      # Long description read from the the readme file
     long_description_content_type="text/markdown",
     url = 'https://github.com/wendyrvllr/Dicom-To-CNN',   # Provide either the link to your github or to your website
-    download_url = 'https://github.com/wendyrvllr/Dicom-To-CNN/archive/refs/tags/63.tar.gz',
+    download_url = 'https://github.com/wendyrvllr/Dicom-To-CNN/archive/refs/tags/64.tar.gz',
     packages=setuptools.find_packages(),    # List of all python modules to be installed
     classifiers=[
         'Programming Language :: Python :: 3.7',

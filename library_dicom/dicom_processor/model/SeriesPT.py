@@ -3,6 +3,8 @@ from library_dicom.dicom_processor.model.reader.Instance import Instance
 import os 
 from math import exp, log, pow
 from datetime import datetime, timedelta
+import numpy as np 
+import SimpleITK as sitk 
 
 class SeriesPT(Series):
     """Specific methods to read PET series
@@ -213,43 +215,51 @@ class SeriesPT(Series):
             #    return numpy_array * self.__calculateSUVFactor() * self.calculateSULFactor()
         except Exception as err:
             print("Error generating result array", err)
-        
 
-    def export_nifti(self, file_path, sul_value = False, mask = None):
-        if (mask is None) : 
-            pet_array = self.get_numpy_array()
-            if sul_value == True : 
-                pet_array = pet_array * self.calculateSULFactor()
-   
+
+
+    def set_ExportType(self, export_type='suv'):
+        """set the export value for PET array
+
+        Args:
+            export_value (str, optional): ['raw', 'suv', 'sul']. Defaults to 'suv'.
+        """
+        self.export_type = export_type
+        return None 
+
+    def export_nifti(self, file_path):
+
+        pet_array = super().get_numpy_array()
+
+        if self.export_type == 'raw' : 
             sitk_img = sitk.GetImageFromArray( np.transpose(pet_array, (2,0,1) ))
-             
-            sitk_img = sitk.Cast(sitk_img, sitk.sitkFloat32)
-            
-            original_pixel_spacing = self.instance_array[0].get_pixel_spacing()
-            
+            sitk_img = sitk.Cast(sitk_img, sitk.sitkFloat16)              
+            original_pixel_spacing = self.instance_array[0].get_pixel_spacing()                
             original_direction = self.instance_array[0].get_image_orientation()
             sitk_img.SetDirection( (float(original_direction[0]), float(original_direction[1]), float(original_direction[2]), 
-                                    float(original_direction[3]), float(original_direction[4]), float(original_direction[5]), 
-                                    0.0, 0.0, 1.0) )
+                                        float(original_direction[3]), float(original_direction[4]), float(original_direction[5]), 
+                                        0.0, 0.0, 1.0) )
             sitk_img.SetOrigin( self.instance_array[0].get_image_position() )
             sitk_img.SetSpacing( (original_pixel_spacing[0], original_pixel_spacing[1], self.get_z_spacing()) )
             sitk.WriteImage(sitk_img, file_path)
+            return None 
 
-        else : 
-            number_of_roi = mask.shape[3] #tjrs de taille 4, si une seule roi=> dernier channel =1
-            slices = []
-            for number_roi in range(number_of_roi) : 
-                slices.append(np.transpose(mask[:,:,:,number_roi], (2,0,1)))
-                
-            mask_4D = np.stack(slices, axis = 3)
-            sitk_img = sitk.GetImageFromArray(mask_4D, isVector = True)
-            sitk_img = sitk.Cast(sitk_img, sitk.sitkVectorUInt8)
-            
-            original_pixel_spacing = self.instance_array[0].get_pixel_spacing()
-            original_direction = self.instance_array[0].get_image_orientation()
-            sitk_img.SetDirection( (float(original_direction[0]), float(original_direction[1]), float(original_direction[2]), 
+        elif self.export_type == 'suv' : 
+            pet_array = pet_array * self.__calculateSUVFactor() 
+
+        elif self.export_type == 'sul' : 
+            pet_array = pet_array * self.__calculateSUVFactor() * self.calculateSULFactor() 
+
+        sitk_img = sitk.GetImageFromArray( np.transpose(pet_array, (2,0,1) ))  
+        sitk_img = sitk.Cast(sitk_img, sitk.sitkFloat32)  
+        original_pixel_spacing = self.instance_array[0].get_pixel_spacing()   
+        original_direction = self.instance_array[0].get_image_orientation()
+        sitk_img.SetDirection( (float(original_direction[0]), float(original_direction[1]), float(original_direction[2]), 
                                     float(original_direction[3]), float(original_direction[4]), float(original_direction[5]), 
                                     0.0, 0.0, 1.0) )
-            sitk_img.SetOrigin( self.instance_array[0].get_image_position() )
-            sitk_img.SetSpacing( (original_pixel_spacing[0], original_pixel_spacing[1], self.get_z_spacing()) )
-            sitk.WriteImage(sitk_img, file_path)
+        sitk_img.SetOrigin( self.instance_array[0].get_image_position() )
+        sitk_img.SetSpacing( (original_pixel_spacing[0], original_pixel_spacing[1], self.get_z_spacing()) )
+        sitk.WriteImage(sitk_img, file_path)
+        return None 
+
+
