@@ -49,6 +49,12 @@ class CsvReader():
     def get_date(self):
         return self.csv_data[self.csv_data.index([]) - 1 ][1]
 
+    def get_time(self):
+        try : 
+            return self.csv_data[self.csv_data.index([]) - 1 ][5]
+        except Exception : 
+            return ('No time in this csv')
+
     def get_patient_id(self):
         return self.csv_data[self.csv_data.index([]) - 1 ][13]
 
