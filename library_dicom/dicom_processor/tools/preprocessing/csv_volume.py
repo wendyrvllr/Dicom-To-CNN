@@ -30,9 +30,6 @@ def keep_csv_higher_volume(liste_csv_path):
     return remove
 
 
-    
-
-
 def get_sum_rois_volume(liste):
     """sum all ROIs volume
 
