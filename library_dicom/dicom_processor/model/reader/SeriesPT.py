@@ -18,19 +18,14 @@ class SeriesPT(Series):
         Series {[class]} -- [description]
     """
 
-    def __init__(self, path):
+    def __init__(self, path:str):
         """Constructor
 
         Arguments:
-            path {String} -- Path folder of series
-
-        
+            path {Str} -- Path folder of series
         """
         super().__init__(path)
         
-
-
-
 
     def get_minimum_acquisition_datetime(self):
         """Get earlier acquisition datetime of the PET serie
@@ -75,11 +70,14 @@ class SeriesPT(Series):
         
 
     @classmethod
-    def __parse_datetime(cls, date_time):
-        """ class method to parse datetime
+    def __parse_datetime(cls, date_time:str):
+        """class method to parse date time 
 
-        Returns : 
-        [datetime] -- [Return parse datetime]
+        Args:
+            date_time (str): [date and time in  "%Y%m%d%H%M%S" format ]
+
+        Returns:
+            [datetime]: [return parsed datetime]]
         """
         #remove microsecond at it is inconstant over dicom
         if '.' in date_time : 
@@ -201,24 +199,17 @@ class SeriesPT(Series):
 
     
     def get_numpy_array(self):
-        """[summary]
+        """method to get 3D numpy array 
 
         Returns:
-            [array] -- [return array of the SeriesPT with SUV and SUL factor in 32bis npArray ]
+            [ndarray] -- [return array of the SeriesPT with SUV and SUL factor in 32bis npArray ]
         """
         numpy_array = super().get_numpy_array()
-        
-        try:
-            #if (self.sul_value == False) :
-            return numpy_array * self.__calculateSUVFactor()
-            #else :
-            #    return numpy_array * self.__calculateSUVFactor() * self.calculateSULFactor()
-        except Exception as err:
-            print("Error generating result array", err)
+        return numpy_array 
 
 
 
-    def set_ExportType(self, export_type='suv'):
+    def set_ExportType(self, export_type:str = 'suv'):
         """set the export value for PET array
 
         Args:
@@ -227,8 +218,12 @@ class SeriesPT(Series):
         self.export_type = export_type
         return None 
 
-    def export_nifti(self, file_path):
+    def export_nifti(self, file_path:str):
+        """method to export ndarray of series to nifti and save it 
 
+        Args:
+            file_path (str): [directory+filename of the nifti]
+        """
         pet_array = super().get_numpy_array()
 
         if self.export_type == 'raw' : 
@@ -245,10 +240,17 @@ class SeriesPT(Series):
             return None 
 
         elif self.export_type == 'suv' : 
-            pet_array = pet_array * self.__calculateSUVFactor() 
+            try : 
+                pet_array = pet_array * self.__calculateSUVFactor() 
+            except Exception as err : 
+                print("Error generating result array (suv mode)", err)
 
         elif self.export_type == 'sul' : 
-            pet_array = pet_array * self.__calculateSUVFactor() * self.calculateSULFactor() 
+            try : 
+                pet_array = pet_array * self.__calculateSUVFactor() * self.calculateSULFactor() 
+            except Exception as err :
+                print("Error generating result array (sul mode)", err) 
+
 
         sitk_img = sitk.GetImageFromArray( np.transpose(pet_array, (2,0,1) ))  
         sitk_img = sitk.Cast(sitk_img, sitk.sitkFloat32)  

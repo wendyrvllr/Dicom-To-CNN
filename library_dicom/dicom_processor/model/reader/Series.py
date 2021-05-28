@@ -13,11 +13,11 @@ class Series():
     """ A class representing a series Dicom
     """
     
-    def __init__(self, path):
+    def __init__(self, path:str):
         """Construct a Dicom Series Object
 
         Arguments:
-            path {String} -- [Absolute Path where Dicom Series is located (hirachical Dicoms)]
+            path {str} -- [Absolute Path where Dicom Series is located (hirachical Dicoms)]
         """
 
         self.path = path
@@ -25,9 +25,19 @@ class Series():
         self.number_of_files = len(self.file_names)
 
     def get_number_of_files(self):
+        """method to get number of instance in serie folder
+
+        Returns:
+            [int]: [return number of files/instances in serie folder]
+        """
         return self.number_of_files
     
     def get_first_instance_metadata(self):
+        """method to read the first dicom instance in the folder
+
+        Returns:
+            [Instance]: [return Instance object]
+        """
         firstFileName = self.file_names[0]
         return Instance(os.path.join(self.path,firstFileName), load_image=True)
 
@@ -62,6 +72,11 @@ class Series():
         }
 
     def is_series_valid(self):
+        """check if the number of slice is wrong, or if the Series Instance UID is the same
+
+        Returns:
+            [bool]: [description]
+        """
         firstDicomDetails = self.get_series_details()
         #Le tag number of slice n'est que pour PT et NM, pas trouvé d'autre tag fiable pour les autres series
         if firstDicomDetails['series']['NumberOfSlices']!="Undefined" and firstDicomDetails['series']['NumberOfSlices'] != len(self.file_names):
@@ -77,16 +92,35 @@ class Series():
         return True
         
     def is_image_modality(self):
+        """check if SOPClassUID from the first dicom is in sop values list
+
+        Returns:
+            [type]: [description]
+        """
         return self.get_first_instance_metadata().is_image_modality()
 
     def is_primary_image(self):
+        """check if "PRIMARY" in ImageType tag values
+
+        Returns:
+            [bool]: [description]
+        """
         return ( "PRIMARY" in self.series_details['ImageType'])
 
     def is_localizer_series(self):
+        """check if "LOCALIZER" in ImageType tag values
+
+        Returns:
+            [bool]: [description]
+        """
         return ( "LOCALIZER" in self.series_details['ImageType'])
 
-
     def get_instances_ordered(self):
+        """function to sort instances array by z positions
+
+        Returns:
+            [list]: [return ordered instance array]
+        """
         instance_array = [Instance(os.path.join(self.path, file_name), load_image=True) for file_name in self.file_names]
         instance_array.sort(key=lambda instance_array:int(instance_array.get_image_position()[2]))
         self.instance_array = instance_array
@@ -94,6 +128,11 @@ class Series():
 
 
     def get_numpy_array(self):
+        """method to get 3d numpy array of the serie 
+
+        Returns:
+            [ndarray]: [return ndarray of series]
+        """
         if self.is_image_modality == False : return
 
         pixel_data = [instance.get_image_nparray() for instance in self.instance_array]
@@ -102,12 +141,24 @@ class Series():
 
 
     def get_z_positions(self):
+        """method to gather z positions of each dicom in serie
+
+        Returns:
+            [list]: [return list of z positions]
+        """
         Z_positions = [ instance.get_image_position()[2] for instance in self.instance_array ]
         return Z_positions
 
     
     def get_z_spacing(self):
-        """ called by __getMetadata """
+        """method to calculate z_spacing 
+
+        Raises:
+            Exception: [raise Exception if unconstant z spacing]]
+
+        Returns:
+            [float]: [return z spacing value]
+        """
         Z_positions = [ instance.get_image_position()[2] for instance in self.instance_array ]
         #print(Z_positions)
         
@@ -124,31 +175,81 @@ class Series():
         
 
 
-    def calculate_z_spacing(self, round_): 
+    def calculate_z_spacing(self, round_:bool = False): 
+        """method to calculate the z_spacing between slice and gather in list
+
+        Args:
+            round_ (bool, optional): [choose if round the z_position or not]. Defaults to False.
+
+        Returns:
+            [list]: [return list of z spacing]
+        """
         Z_positions = [ instance.get_image_position()[2] for instance in self.instance_array ]
         spacing = []
-
         if round_ == False : 
             initial_z_spacing = Z_positions[0] - Z_positions[1]
             spacing.append(initial_z_spacing)
             for i in range(2,len(Z_positions)):
                 z_spacing = Z_positions[i - 1] - Z_positions[i]
                 spacing.append(z_spacing)
-
             return spacing
 
         else : 
-            #print(abs(Z_positions[0] - Z_positions[1]))
             initial_z_spacing = round(abs(Z_positions[0] - Z_positions[1]), 1)
             spacing.append(initial_z_spacing)
             for i in range(2,len(Z_positions)):
                 z_spacing = round(abs(Z_positions[i - 1] - Z_positions[i]), 1)
                 spacing.append(z_spacing)  
-
             return spacing 
 
 
-    def export_nifti(self, file_path):
+    def get_all_SOPInstanceIUD(self):
+        """method to gather all SOPInstanceUID of every Instance in serie
+
+        Returns:
+            [list]: [list of every SOPInstanceUID]
+        """
+        liste = []
+        for instance in self.instance_array : 
+            liste.append(instance.get_SOPInstanceUID())
+        return liste 
+
+
+    def get_all_acquisition_time(self):
+        """method to gather all AcquisitionTime of every Instance in serie
+
+        Returns:
+            [list]: [list of every Acquisition Time]
+        """
+        liste = []
+        for filename in self.file_names : 
+            instanceData = Instance(os.path.join(self.path,filename), load_image=True)
+            liste.append(instanceData.get_acquisition_time())
+        return sorted(liste)
+
+
+    def get_size_matrix(self):
+        """method to get size of PET matrix/array 
+
+        Returns:
+            [list]: [  [x,y,z]  ]
+        """
+        size = []
+        data = self.get_first_instance_metadata()
+        x = data.get_number_rows()
+        size.append(x)
+        y = data.get_number_columns()
+        size.append(y)
+        z = len(self.get_all_SOPInstanceIUD())
+        size.append(z)
+        return size
+
+    def export_nifti(self, file_path:str):
+        """method to export ndarray of series to nifti and save it 
+
+        Args:
+            file_path (str): [directory+filename of the nifti]
+        """
         sitk_img = sitk.GetImageFromArray( np.transpose(self.get_numpy_array(), (2,0,1) ))
         original_pixel_spacing = self.instance_array[0].get_pixel_spacing()          
         original_direction = self.instance_array[0].get_image_orientation()
@@ -160,37 +261,16 @@ class Series():
         sitk.WriteImage(sitk_img, file_path)
         return None 
 
-
-    def get_all_SOPInstanceIUD(self):
-        liste = []
-        for instance in self.instance_array : 
-            #instanceData = Instance(os.path.join(self.path,filename), load_image=True)
-            liste.append(instance.get_SOPInstanceUID())
-        return liste 
-
-
-    def get_all_acquisition_time(self):
-        liste = []
-        for filename in self.file_names : 
-            instanceData = Instance(os.path.join(self.path,filename), load_image=True)
-            liste.append(instanceData.get_acquisition_time())
-        return sorted(liste)
-
-
-    def get_size_matrix(self):
-        size = []
-        data = self.get_first_instance_metadata()
-        x = data.get_number_rows()
-        size.append(x)
-        y = data.get_number_columns()
-        size.append(y)
-        z = len(self.get_all_SOPInstanceIUD())
-        size.append(z)
-        return size
-
-
     @classmethod 
-    def get_series_object(cls, path):
+    def get_series_object(cls, path:str):
+        """class method to generate a Series object
+
+        Args:
+            path (str): [path folder of series]
+
+        Returns:
+            [Series]: [return a Series object]
+        """
         try:
             first_file_name = os.listdir(path)[0]
         except Exception as err:
@@ -203,7 +283,3 @@ class Series():
         elif (sop_class_uid == ImageModalitiesSOPClass.CT.value or sop_class_uid == ImageModalitiesSOPClass.EnhancedCT.value):
             return SeriesCT(path)
         else : return Series(path)
-
-
-
-    

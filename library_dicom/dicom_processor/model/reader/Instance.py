@@ -7,23 +7,33 @@ class Instance:
     """A class to represent a Dicom file 
     """
 
-    def __init__(self, path, load_image=True):
+    def __init__(self, path:str, load_image:bool=True):
         """Construct a Dicom file object
 
-        Arguments:
-            path {[String]} -- [Absolute path where the Dicom file is located]
+        Args:
+            path (str): [path of instance dicom]
+            load_image (bool, optional): [choose to load only metadata or metadata+image]. Defaults to True.
         """
         self.path = path
         if (load_image) : self.__load_full_instance()
         else : self.__load_metadata()
 
     def __load_metadata(self):
+        """load only metadata 
+        """
         self.dicomData = pydicom.dcmread(self.path, stop_before_pixels=True, force=True)
     
     def __load_full_instance(self):
+        """load metadata and image 
+        """
         self.dicomData = pydicom.dcmread(self.path, force=True)
   
     def get_series_tags(self):
+        """method to gather series tags 
+
+        Returns:
+            [dict]: [dictionnary of every series tags and value]
+        """
         series_tags={}
         for tag_address in TagsSeries:
             if tag_address.value in self.dicomData :
@@ -34,6 +44,11 @@ class Instance:
         return series_tags
 
     def get_patients_tags(self):
+        """method to gather patient tags 
+
+        Returns:
+            [dict]: [dictionnary of every patient tags and value]
+        """
         patient_tags={}
         for tag_address in TagsPatient:
             if tag_address.value in self.dicomData : 
@@ -45,6 +60,11 @@ class Instance:
         return patient_tags
 
     def get_studies_tags(self):
+        """method to gather study tags 
+
+        Returns:
+            [dict]: [dictionnary of every study tags and value]
+        """
         studies_tags={}
         for tag_address in TagsStudy:
             if tag_address.value in self.dicomData : studies_tags[tag_address.name] = self.dicomData[tag_address.value].value
@@ -52,7 +72,11 @@ class Instance:
         return studies_tags
 
     def get_instance_tags(self):
+        """method to gather instance tags 
 
+        Returns:
+            [dict]: [dictionnary of every instance tags and value]
+        """
         instance_tags={}
         instance_tags['PixelSpacing'] = self.get_pixel_spacing()
         instance_tags['ImagePosition'] = self.get_image_position()
@@ -62,32 +86,30 @@ class Instance:
         instance_tags['SOPInstanceUID'] = self.get_SOPInstanceUID()
         return instance_tags
 
-    def get_sop_class_uid(self):
-        if 'SOPClassUID' in self.dicomData.dir() : return self.dicomData.SOPClassUID
-        else : raise Exception('Undefined SOP Class UID')
-
     def get_radiopharmaceuticals_tags(self):
+        """method to gather radiopharmaceutical tags 
+
+        Returns:
+            [dict]: [dictionnary of every radiopharmaceutical tags and value]
+        """
         radiopharmaceuticals_tags={}
         radiopharmaceutical_sequence = []
-
         try :
             radiopharmaceutical_sequence = self.dicomData[0x00540016][0]
         except Exception: 
             print("no Radiopharmaceuticals tags")
-
         for tag_address in TagsRadioPharmaceuticals:
             if tag_address.value in radiopharmaceutical_sequence : radiopharmaceuticals_tags[tag_address.name] = radiopharmaceutical_sequence[tag_address.value].value
             else : radiopharmaceuticals_tags[tag_address.name] = "Undefined"
-            
+
         return radiopharmaceuticals_tags
-
-    def get_pet_correction_tags(self):
-        if TagPTCorrection.CorrectedImage.value in self.dicomData :
-            return list(self.dicomData[TagPTCorrection.CorrectedImage.value].value)
-        else: return "Undefined"
-
-
+    
     def get_philips_private_tags(self):
+        """method to gather philips private tags 
+
+        Returns:
+            [dict]: [dictionnary of every philips private tags and value]
+        """
         philips_tags={}
         for tag_address in PhilipsPrivateTags:
             if tag_address.value in self.dicomData : 
@@ -95,7 +117,34 @@ class Instance:
             else : philips_tags[tag_address.name] = "Undefined"
         return philips_tags
 
+    def get_pet_correction_tags(self):
+        """method to gather pet correction tags 
+
+        Returns:
+            [dict]: [dictionnary of every pet correction tags and value]
+        """
+        if TagPTCorrection.CorrectedImage.value in self.dicomData :
+            return list(self.dicomData[TagPTCorrection.CorrectedImage.value].value)
+        else: return "Undefined"
+
+    def get_sop_class_uid(self):
+        """method to get sop class uid 
+
+        Raises:
+            Exception: [raise exception if undefined SOPClassUID]
+
+        Returns:
+            [str]: [return SOPClassUID value if defined]
+        """
+        if 'SOPClassUID' in self.dicomData.dir() : return self.dicomData.SOPClassUID
+        else : raise Exception('Undefined SOP Class UID')
+
     def is_secondary_capture(self):
+        """check if SOPClassUID in CapturesSOPClass list
+
+        Returns:
+            [bool]: [return True if SOPCLassUID in CapturesSOPClass list, False instead]
+        """
         return True if self.get_sop_class_uid in CapturesSOPClass else False
 
     def get_SOPInstanceUID(self):
@@ -116,51 +165,12 @@ class Instance:
     def get_pixel_spacing(self):
         return list(self.dicomData[PixelSpacing.PixelSpacing.value].value)    
         
-
     def get_image_type(self):
         return list(self.dicomData[ImageType.ImageType.value].value)
 
-    def is_image_modality(self):
-        sop_values = set(item.value for item in ImageModalitiesSOPClass)
-        return True if self.get_sop_class_uid() in sop_values else False
-
-    def get_image_nparray(self):
-        if self.is_image_modality() == False : 
-            raise Exception('Not Image Modality')
-        else:
-            pixel_array = self.dicomData.pixel_array
-            rescale_slope = self.get_rescale_slope()
-            rescale_intercept = self.get_rescale_intercept()
-
-            resultArray = ( pixel_array * rescale_slope) + rescale_intercept
-            return resultArray
-    
-
     def get_series_instance_uid(self):
         return self.dicomData[TagsSeries['SeriesInstanceUID'].value].value
-
-    def get_number_rows(self):
-        return self.dicomData.Rows
-
-    def get_number_columns(self):
-        return self.dicomData.Columns
-
-
-    def get_acquisition_date(self):
-        if "AcquisitionDate" in self.dicomData : 
-            return self.dicomData.AcquisitionDate
-        else : return "Undefined"
-        
-
-    def get_acquisition_time(self):
-        if 'AcquisitionTime' in self.dicomData : 
-            return self.dicomData.AcquisitionTime
-        else : return "Undefined"
-
-
-    #for RTSS Writer 
-    #check si ces informations sont bien dans le dataset sinon erreur 
-
+    
     def get_accession_number(self):
         return self.dicomData[TagsStudy['AccessionNumber'].value].value 
 
@@ -191,6 +201,25 @@ class Instance:
     def get_study_time(self):
         return self.dicomData[TagsStudy['StudyTime'].value].value
 
+    def get_number_rows(self):
+        return self.dicomData.Rows
+
+    def get_number_columns(self):
+        return self.dicomData.Columns
+
+    def get_frame_of_reference_uid(self):
+        return self.dicomData.FrameOfReferenceUID
+
+    def get_acquisition_date(self):
+        if "AcquisitionDate" in self.dicomData : 
+            return self.dicomData.AcquisitionDate
+        else : return "Undefined"
+        
+    def get_acquisition_time(self):
+        if 'AcquisitionTime' in self.dicomData : 
+            return self.dicomData.AcquisitionTime
+        else : return "Undefined"
+
     def get_referring_physician_name(self):
         if "ReferringPhysicianName" in self.dicomData : return self.dicomData.ReferringPhysicianName
         else : return "Undefined"
@@ -202,11 +231,34 @@ class Instance:
     def get_physicians_of_record(self):
         if "PhysiciansOfRecord" in self.dicomData : return self.dicomData.PhysiciansOfRecord
         else : return "Undefined"
+ 
+    def is_image_modality(self):
+        """check if SOPClassUID in sop values list 
 
-    
-    def get_frame_of_reference_uid(self):
-        return self.dicomData.FrameOfReferenceUID 
+        Returns:
+            [bool]: [return True if SOPCLassUID in sop values list]
+        """
+        sop_values = set(item.value for item in ImageModalitiesSOPClass)
+        return True if self.get_sop_class_uid() in sop_values else False
 
+    def get_image_nparray(self):
+        """get instance image ndarray 
+
+        Raises:
+            Exception: [raise Exception if SOPClassUID not in sop values list]
+
+        Returns:
+            [ndarray]: [return instance image ndarray]
+        """
+        if self.is_image_modality() == False : 
+            raise Exception('Not Image Modality')
+        else:
+            pixel_array = self.dicomData.pixel_array
+            rescale_slope = self.get_rescale_slope()
+            rescale_intercept = self.get_rescale_intercept()
+
+            resultArray = ( pixel_array * rescale_slope) + rescale_intercept
+            return resultArray
 
 
 

@@ -9,15 +9,24 @@ class SeriesCT(Series):
         Series {String} -- Series Location Path
     """
 
-    def __init__(self,path):
+    def __init__(self,path:str):
+        """constructor
+
+        Args:
+            path (str): [path folder of CT serie ]
+        """
         super().__init__(path)
 
     def get_numpy_array(self):
         numpy_array = super().get_numpy_array()
         return numpy_array.astype(np.int16)
 
-    def export_nifti(self, file_path):
+    def export_nifti(self, file_path:str):
+        """method to export ndarray of series to nifti and save it 
 
+        Args:
+            file_path (str): [directory+filename of the nifti]
+        """
         sitk_img = sitk.GetImageFromArray( np.transpose(self.get_numpy_array(), (2,0,1) ))
         sitk_img = sitk.Cast(sitk_img, sitk.sitkInt16)
         original_pixel_spacing = self.instance_array[0].get_pixel_spacing()        
