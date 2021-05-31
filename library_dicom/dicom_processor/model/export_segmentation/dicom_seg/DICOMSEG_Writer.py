@@ -8,19 +8,28 @@ import SimpleITK as sitk
 
 
 class DICOMSEG_Writer:
+    """a class to write a DICOMSEG file
+    """
 
-    def __init__(self, img_mask, serie_path):
-        """[summary]
+    def __init__(self, img_mask:sitk.Image, serie_path:str):
+        """constructor
 
         Args:
-            img_mask ([sitk Image]): [sitk image of mask]
-            serie_path ([str]): [Path to an imaging serie related to the segmentation ]
+            img_mask ([sitk.Image]): [sitk img of segmentation, [x,y,z]]
+            serie_path ([str]): [Serie path related to DICOMSEG file]
         """
-
         self.img_mask = img_mask
         self.serie_path = serie_path
 
-    def generate_dict_json(self, directory_path):
+    def generate_dict_json(self, directory_path:str):
+        """method to generate dict with metainfo for DICOM SEG file and save it as json file
+
+        Args:
+            directory_path (str): [directory's path where to save the json file with metainfo]
+
+        Returns:
+            [str]: [return the path of the json generated]
+        """
         pred_array = sitk.GetArrayFromImage(self.img_mask)
         number_of_roi = np.max(pred_array)
         results = generate_dict(number_of_roi, 'dicomseg')
@@ -28,9 +37,15 @@ class DICOMSEG_Writer:
         json_path = save_dict_as_json(results, directory_path)
         return json_path 
 
+    def dicom_seg_writer(self, directory_path:str):
+        """method to write a DICOMSEG file from a segmentation
 
+        Args:
+            directory_path (str): [directory's path where to save the json file with metainfo]
 
-    def dicom_seg_writer(self, directory_path):
+        Returns:
+            [pydicom.FileDataset]: [return the new DICOMSEG]
+        """
         json_path = self.generate_dict_json(directory_path)
 
         segmentation = self.img_mask
@@ -56,7 +71,14 @@ class DICOMSEG_Writer:
         return dcm
 
 
-    def save_file(self, filename, directory_path):
+    def save_file(self, filename:str, directory_path:str):
+        """method to save the new DICOMSEG file
+
+        Args:
+            filename (str): [name of the new DICOMSEG file]
+            directory_path (str): [directory's path where to save the new DICOMSEG file]
+
+        """
         dcm = self.dicom_seg_writer(directory_path)
         dcm.save_as(os.path.join(directory_path, filename))
         return None 
