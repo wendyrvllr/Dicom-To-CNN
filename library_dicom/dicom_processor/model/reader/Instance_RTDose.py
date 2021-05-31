@@ -1,5 +1,3 @@
-import os 
-import pydicom
 import numpy as np 
 from library_dicom.dicom_processor.model.reader.Instance import Instance
 from library_dicom.dicom_processor.model.reader.Instance_RTSS import Instance_RTSS
