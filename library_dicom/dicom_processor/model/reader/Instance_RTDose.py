@@ -7,6 +7,11 @@ from library_dicom.dicom_processor.model.reader.Instance_RTSS import Instance_RT
 
 
 class Instance_RTDose(Instance): 
+    """A class to represent a RTDose Dicom File
+
+    Args:
+        Instance ([type]): [description]
+    """
 
     def __init__(self, path_dose :str ):
         """constructor

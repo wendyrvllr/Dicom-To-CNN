@@ -7,7 +7,7 @@ import sys
 
 
 class Instance_RTSS(Instance):
-    """Class to read dicom RT file and build mask 
+    """A class to represent a RTSTRUCT Dicom file 
     """
 
     def __init__(self, path_rtss:str):
