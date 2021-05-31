@@ -1,9 +1,8 @@
 import pydicom_seg 
 import pydicom 
 import numpy as np 
-import json 
 import os
-from library_dicom.export_segmentation.tools.generate_dict import *
+from library_dicom.dicom_processor.tools.export_segmentation.generate_dict import *
 import SimpleITK as sitk 
 
 
