@@ -30,6 +30,26 @@ class Instance_RTDose(Instance):
 
     def wrap_DHVSequence_in_dict(self): 
         """wrap in dictionnary DVH Sequence of each ROI 
+        dict = { (roi) 1) : {'ReferencedROINumber' : value
+                                'DVHType' : value
+                                'DoseUnits' : value
+                                'DVHDoseScaling' : value
+                                'DVHVolumeUnits':  value
+                                'DVHNumberOfBins' : value
+                                'DVHMinimumDose' : value
+                                'DVHMaximumDose' : value
+                                'DVHMeanDose' : value
+                                'DVHData' : value},
+                (roi) 2 : {'ReferencedROINumber' : value
+                                'DVHType' : value
+                                'DoseUnits' : value
+                                'DVHDoseScaling' : value
+                                'DVHVolumeUnits':  value
+                                'DVHNumberOfBins' : value
+                                'DVHMinimumDose' : value
+                                'DVHMaximumDose' : value
+                                'DVHMeanDose' : value
+                                'DVHData' : value}, ...}
 
         Returns:
             [dict]: [return a dictionnary, with, for each ROI, DVHSequence in the RTDose file]
@@ -60,7 +80,7 @@ class Instance_RTDose(Instance):
             rtss_file (str): [file path of the rtss file associated]
 
         Returns:
-            [dict]: [description]
+            [dict]: [same dict as input, with ROI name in it]
         """
         instance_rtss_object = Instance_RTSS(rtss_file)
         keys = list(dictionnary.keys())
