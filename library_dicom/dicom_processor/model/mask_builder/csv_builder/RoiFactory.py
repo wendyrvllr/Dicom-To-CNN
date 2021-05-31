@@ -1,21 +1,21 @@
-from library_dicom.dicom_processor.model.csv_reader.RoiPolygon import RoiPolygon
-from library_dicom.dicom_processor.model.csv_reader.RoiElipse import RoiElipse
-from library_dicom.dicom_processor.model.csv_reader.RoiNifti import RoiNifti
+from library_dicom.dicom_processor.model.mask_builder.csv_builder.RoiPolygon import RoiPolygon
+from library_dicom.dicom_processor.model.mask_builder.csv_builder.RoiElipse import RoiElipse
+from library_dicom.dicom_processor.model.mask_builder.csv_builder.RoiNifti import RoiNifti
 
-"""Create ROI object from a CSV Roi Details
-    ROI Object is able to build the Nifti Mask according to CSV informations
 
-Returns:
-    [RoiFactory] -- Factory for ROI instanciation according to csv details
-"""
 class RoiFactory():
+    """Create ROI object from a CSV Roi details
 
-    def __init__(self, details, volume_dimension, roi_number):
-       """[summary]
+    Returns:
+        [RoiFactory] -- Factory for ROI instanciation according to csv details
+    """
+
+    def __init__(self, details:dict, volume_dimension:tuple, roi_number:int):
+       """constructor
 
        Arguments:
            details {dict} -- Parsed ROI informations
-           volume_dimension {(x,y,z)} -- Matrice dimension for Mask (should match DICOM input size)
+           volume_dimension {tuple} -- Matrice dimension for Mask (should match DICOM input size, (shape x, shape y, shape z))
            roi_number {int} -- Integer number that will have to be written in the mask
        """
        self.details = details

@@ -1,48 +1,50 @@
 import matplotlib.patches
 import numpy as np
-from library_dicom.dicom_processor.model.csv_reader.Roi import Roi
+from library_dicom.dicom_processor.model.mask_builder.csv_builder.Roi import Roi
 
-"""Derivated Class for manual Polygon ROI of PetCtViewer.org
 
-Returns:
-    [RoiPolygon] -- Polygone ROI
-"""
 class RoiPolygon(Roi):
+    """Derivated Class for manual Polygon ROI of PetCtViewer.org
 
-    def __init__(self, axis, first_slice, last_slice, roi_number, type_number, list_point, volume_dimension):
+    Returns:
+        [RoiPolygon] -- Polygone ROI
+    """
+
+    def __init__(self, axis:int, first_slice:int, last_slice:int, roi_number:int, type_number:int, list_point:list, volume_dimension:tuple):
+        """constructor
+
+        Args:
+            axis (int): [1 for axial, 2 for coronal, 3 for saggital]
+            first_slice (int): [slice number where ROI begin]
+            last_slice (int): [slice number where ROI end]
+            roi_number (int): [roi number]
+            type_number (int): [ 1 for axial polygone, 2 for coronal polygone, 3 for saggital polygone]
+            list_point (list): [list of [x,y] coordonates of polygon in CSV]
+            volume_dimension (tuple): [(shape x, shape y, shape z)]
+        """
         super().__init__(axis, first_slice, last_slice, roi_number, type_number, list_point, volume_dimension)
         self.list_points = self.calculateMaskPoint()
 
     def calculateMaskPoint(self):
-        """list of [x,y,z] coordonates of a ROI 
+        """  calculate [x,y,z] coordonates/voxel which belong to the ROI in polygon patches
 
         Returns:
-            [type] -- [description]
+            [list]: [list of [x,y,z] coordonates of ROI]
         """
-        #np_array_3D = super().get_empty_np_array()
-        #x,y,z = np_array_3D.shape
-
         roi_pixel_matplot = self.__create_closed_polygon()
         list_points = []
-        #list_slices = []
         for number_slice in range(self.first_slice - 1  , self.last_slice ) : 
-            #print(number_slice)
             point = super().mask_roi_in_slice(roi_pixel_matplot)
-            #np_array_3D[:,:,number_of_slices] = mask
             for i in range(len(point)):
                 point[i].append(number_slice) 
-
-
             list_points.extend(point)
-        
-        #if (self.axis == 2) : 
-           # return super().coronal_to_axial(np_array_3D)
-        #elif (self.axis == 3) :
-            #return super().sagittal_to_axial(np_array_3D)
-
-        #return np.transpose(np_array_3D.astype(np.uint8), (1,0,2)), list_points, list_slices
         return list_points
 
     def __create_closed_polygon(self):
+        """generate an polygon patches from matplotlib
+
+        Returns:
+            [matplotlib.patches.Polygon]: [Polygon patche]
+        """
         points_array = self.list_point_np
-        return matplotlib.patches.Polygon(points_array  , closed = True)
+        return matplotlib.patches.Polygon(points_array, closed = True)

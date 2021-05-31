@@ -1,8 +1,22 @@
 import numpy as np
+import matplotlib.patches 
 
 class Roi():
+    """A class to represent a ROI
+    """
 
-    def __init__(self, axis, first_slice, last_slice, roi_number, type_number, list_point, volume_dimension):
+    def __init__(self, axis:int, first_slice:int, last_slice:int, roi_number:int, type_number:int, list_point:list, volume_dimension:tuple):
+        """constructor
+
+        Args:
+            axis (int): [1 for axial, 2 for coronal, 3 for saggital]
+            first_slice (int): [slice number where ROI begin]
+            last_slice (int): [slice number where ROI end]
+            roi_number (int): [roi number]
+            type_number (int): [0 for nifti, 1 for axial polygone, 11 for axial ellipse, 2 for coronal polygone, 12 for coronal ellipse, 3 for saggital polygone, 13 for saggital ellipse]
+            list_point (list): [list of [x,y] coordonates of polygone or ellipse / list of [x,y,z] coordonates of nifti]
+            volume_dimension (tuple): [(shape x, shape y, shape z)]
+        """
         self.axis = axis
         self.first_slice = first_slice
         self.last_slice = last_slice
@@ -19,26 +33,21 @@ class Roi():
         """Compute extrema of ROI in which we will loop to find included voxel
 
         Arguments:
-            point_list {np array} -- numpy point list
+            point_list {np.ndarray} -- numpy point list
 
         Returns:
             [minx, miny, maxx, maxy] -- X/Y extremas
         """
         points_array = self.list_point_np
-
         all_x = points_array[:][:,0]
         all_y = points_array[:][:,1]
-
-        if (self.type_number == 1 or self.type_number == 2 or self.type_number == 3) : #si polygone
-
-
+        if (self.type_number == 1 or self.type_number == 2 or self.type_number == 3) : #POLYGONE
             xmin = min(all_x)
             xmax = max(all_x)
             ymin = min(all_y)
             ymax = max(all_y)
-        
             return xmin , xmax , ymin , ymax 
-        else : #ellipse
+        else : #ELLIPSE
             height =  abs(all_x[0] - all_x[1])
             width = abs(all_y[0] - all_y[2])
             xmin = all_x[0] - height
@@ -48,8 +57,15 @@ class Roi():
             return xmin , xmax , ymin, ymax
 
 
-    def mask_roi_in_slice(self, patch): #patch = ellipse ou polygone 
-        #get Roi limits in wich we will loop
+    def mask_roi_in_slice(self, patch:matplotlib.patches):
+        """get ROI x and y limits in which we will loop, to gather [x,y] pixel which are in the patch
+
+        Args:
+            patch (matplotlib.patches): [polygon or ellipse]]
+
+        Returns:
+            [list]: [list of [x,y] coordonates]
+        """
         points = []
         xmin, xmax, ymin, ymax  = self.__get_min_max_of_roi()
         for x in range(xmin, xmax + 1): 
@@ -65,45 +81,42 @@ class Roi():
         Returns:
             numpy array -- zero filled numpy array
         """
-
-        #change les coordonnées dans mask_builder pour passer en axial directement donc pas besoin 
-        #ici de différencier axial, saggital et coronal 
-        #if (self.axis == 1):
         return (np.zeros((self.x, self.y, self.z)))
-            
-       # elif (self.axis == 2):
-            #return (np.zeros((self.z, self.y, self.x)))
-            
 
-        #elif (self.axis == 3):
-            #return (np.zeros((self.z, self.y, self.x)))
+    def coronal_to_axial(self, np_array_3D:np.ndarray):
+        """transform coronal 3d ndarray to 3d axial ndarray
 
-    def coronal_to_axial(self, np_array_3D):
+        Args:
+            np_array_3D (np.ndarray): [ROI ndarray]]
+
+        Returns:
+            [np.ndarray]: [return axial ndarray]
+        """
         return np.transpose(np_array_3D, (2,1,0))
-        #return np.transpose(np_array_3D, (0,2,1))
-         #coronnal x y z -> axial x z y
-        #SK A VERIFRO
 
-    def sagittal_to_axial(self, np_array_3D):
+    def sagittal_to_axial(self, np_array_3D:np.ndarray):
+        """transform saggital 3d ndarray to 3d axial ndarray
+
+        Args:
+            np_array_3D (np.ndarray): [ROI ndarray]]
+
+        Returns:
+            [np.ndarray]: [return axial ndarray]
+        """
         return np.transpose(np_array_3D, (0,2,1))
-         #sagittal x y z - > axial y z x   
-        #SK A VERIF
 
-    def get_mask(self, list_points): #list_points = [[x,y,z], [x,y,z], ...]
+    def get_mask(self, list_points:list): #list_points = [[x,y,z], [x,y,z], ...]
+        """generate an empty ndarray and fill up with ROI coordonates
+
+        Args:
+            list_points (list): [ [[x,y,z], [x,y,z], [x,y,z], ...] ]
+
+        Returns:
+            [np.ndarray]: [return binary ndarray of the ROI]
+        """
         np_array_3D = self.get_empty_np_array()
         for point in list_points:
             np_array_3D[point[1], point[0] , point[2]] = 1
-            #x et y inversé dans matplotlib 
-
-        #if (self.axis == 2) : 
-            #np_array_3D = self.coronal_to_axial(np_array_3D)
-            #print("shape après coronal to axial", np_array_3D.shape)
-            #return np.transpose(np_array_3D, (1,0,2)).astype(np.uint8)
-            #return np_array_3D.astype(np.uint8)
-        #elif (self.axis == 3) :
-            #np_array_3D = self.sagittal_to_axial(np_array_3D)
-            #return np_array_3D.astype(np.uint8)
-
         return np_array_3D.astype(np.uint8)
 
 
