@@ -9,31 +9,24 @@ from library_dicom.dicom_processor.tools.threshold_mask import *
 """
 
 
-def get_center_of_mass(mask_path, thresh = False, pet_path = None):
+def get_center_of_mass(mask_path:str, thresh:bool = False, pet_path:str = None):
     """Get the list of every ROIs center
 
     Args:
-        mask_path ([str]): [nifti MASK path ]
-        thresh (bool, optional): [True if want to threshold MASK ]. Defaults to False.
+        mask_path ([str]): [path of nifti mask (3D image, PixelVector type), size (x,y,z)]
+        thresh (bool, optional): [True if want to threshold MASK at 41%]. Defaults to False.
         pet_path ([str], optional): [If thresh is True, nifti PET path]. Defaults to None.
 
     Returns:
         [list]: [Return a list of list of x,y,z physical coordonates of every ROIs center.]
     """
     center = []
-
     if pet_path != None : 
         pet_img = sitk.ReadImage(pet_path)
         pet_array = sitk.GetArrayFromImage(pet_img).transpose() #(x,y,z)
-
-
     mask_img = sitk.ReadImage(mask_path)
     mask_array = sitk.GetArrayFromImage(mask_img) #(z, x, y, c)
-    mask_array = np.transpose(mask_array, (3,0,1,2)).transpose() #(x,y,z, c)
-
-    print(mask_array.shape)
-
-
+    mask_array = np.transpose(mask_array, (3,0,1,2)).transpose() #(x,y,z,c)
     type_ = None 
     if len(mask_array.shape) != 3 : 
         type_ = '4D'
@@ -41,15 +34,12 @@ def get_center_of_mass(mask_path, thresh = False, pet_path = None):
         direction = mask_img.GetDirection()
         spacing = mask_img.GetSpacing()
         size = mask_img.GetSize() 
-
         pet_arr = np.random.randint(10, size=(size)).transpose()
-        #pet_arr = np.ones(size).transpose()
         if pet_path is None : 
             pet_img = sitk.GetImageFromArray(pet_arr)
             pet_img.SetOrigin(origin)
             pet_img.SetDirection(direction)
             pet_img.SetSpacing(spacing)
-
 
     else : 
         type_ = '3D'
@@ -57,8 +47,6 @@ def get_center_of_mass(mask_path, thresh = False, pet_path = None):
         direction = mask_img.GetDirection()
         spacing = mask_img.GetSpacing()
         size = mask_img.GetSize() 
-
-        #pet_arr = np.ones(size).transpose()
         pet_arr = np.random.randint(10, size=(size)).transpose()
         if pet_path is None : 
             pet_img = sitk.GetImageFromArray(pet_arr)
@@ -77,7 +65,6 @@ def get_center_of_mass(mask_path, thresh = False, pet_path = None):
                 center.append([x,y,z])
 
         elif thresh == True : 
-            print("mask_seuillé")
             if np.max(mask_array) == 1.0 : 
                 mask_threshold = threshold_matrix(mask_array, pet_array, 0.41)
                 mask_threshold = mask_threshold.transpose()
@@ -91,7 +78,7 @@ def get_center_of_mass(mask_path, thresh = False, pet_path = None):
                 center.append([x,y,z])
 
             else : 
-            
+                number_of_roi = int(np.max(mask_array))
                 mask_threshold = threshold_matrix(mask_array, pet_array, 0.41)
                 mask_threshold = mask_threshold.transpose()
                 new_mask = sitk.GetImageFromArray(mask_threshold)
@@ -110,7 +97,6 @@ def get_center_of_mass(mask_path, thresh = False, pet_path = None):
             for i in range(mask_array.shape[3]):
                 mask_3d = mask_array[:,:,:,i].astype('int8')
                 mask_3d = mask_3d.transpose().astype('int8')
-                #print(len(np.unique(mask_3d)))
                 if len(np.unique(mask_3d)) > 1 : 
                     new_mask = sitk.GetImageFromArray(mask_3d)
                     new_mask.SetOrigin(origin)
@@ -123,16 +109,12 @@ def get_center_of_mass(mask_path, thresh = False, pet_path = None):
                 else : pass 
 
         elif thresh == True : 
-            #mask_4d_threshold = threshold_matrix(mask_array.astype('int8'), pet_array, 0.41).astype('int8')
-            #print("mask seuillé")
-            #print(mask_4d_threshold.dtype)
             for i in range(mask_array.shape[3]):
                 mask_3d = mask_array[:,:,:,i].astype('int8')
                 mask_3d = threshold_matrix(mask_3d, pet_array, 0.41).astype('int8')
                 x,y,z = np.where(mask_3d != 0)
                 if len(x) != 0 and len(np.unique(x)) > 1 : 
                     mask_3d = mask_3d.transpose().astype('int8')
-                    
                     new_mask = sitk.GetImageFromArray(mask_3d)
                     new_mask.SetOrigin(origin)
                     new_mask.SetDirection(direction)
@@ -146,12 +128,12 @@ def get_center_of_mass(mask_path, thresh = False, pet_path = None):
     return center 
 
 
-def distance(coord_A, coord_B):
+def distance(coord_A:list, coord_B:list):
     """calcul euclidian distance between 2 points in 3D 
 
     Args:
-        coord_A ([liste]): [[x,y,z] coordonate point A]
-        coord_B ([liste]): [[x,y,z] coordonate point A]
+        coord_A ([list]): [[x,y,z] coordonate point A]
+        coord_B ([list]): [[x,y,z] coordonate point A]
 
     Returns:
         [float]: [Return euclidian distance]
@@ -159,11 +141,11 @@ def distance(coord_A, coord_B):
     return np.sqrt((coord_A[0]-coord_B[0])**2 + (coord_A[1]-coord_B[1])**2 + (coord_A[2]-coord_B[2])**2)
 
 
-def calcul_distance_max(list_center):
+def calcul_distance_max(list_center:list):
     """Calcul the maximum distance between two ROIs
 
     Args:
-        list_center ([list]): [Return a list of list of x,y,z physical coordonates of every ROIs center]
+        list_center ([list]): [list of [x,y,z] physical coordonates of every ROIs center]
 
     Returns:
         [float]: [Return maximum distance, in mm]
@@ -178,63 +160,74 @@ def calcul_distance_max(list_center):
             point_A = combinaison[0]
             point_B = combinaison[1]
             liste_distance.append(distance(point_A, point_B))
-
         maxi = np.max(liste_distance)
-  
         return np.round(maxi,2)
 
 
 
-def get_bigger_roi_number(mask_path, pet_path):
-    img_mask = sitk.ReadImage(mask_path)
-    img_pet = sitk.ReadImage(pet_path)
-    mask_array = sitk.GetArrayFromImage(img_mask).transpose()
-    pet_array = sitk.GetArrayFromImage(img_pet).transpose()
+def get_bigger_roi_number(mask_path:str, pet_path:str):
+    """function to find the biggest ROI (volume) in mask
 
+    Args:
+        mask_path ([str]): [path of nifti mask (3D image, PixelVector type), size (x,y,z)]
+        pet_path (str): [path of nifti PET]
+
+    Returns:
+        [int]: [Return number of the biggest ROI]
+        [float] :[Return the SUV max value of the biggest ROI]
+    """
+    img_mask = sitk.ReadImage(mask_path) #(x,y,z)
+    img_pet = sitk.ReadImage(pet_path) #(x,y,z)
+    mask_array = sitk.GetArrayFromImage(img_mask)
+    mask_array = np.transpose(mask_array, (3,0,1,2)).transpose()
+    pet_array = sitk.GetArrayFromImage(img_pet).transpose()
     mask_array = threshold_matrix(mask_array, pet_array, 0.41)
     pixel_spacing = img_pet.GetSpacing() #[x,y,z]
-
     volume_voxel = pixel_spacing[0]*pixel_spacing[1]*pixel_spacing[2] * 10**(-3)
 
+    #get number_of_roi
     if len(mask_array.shape) != 3 : 
         number_of_roi = mask_array.shape[3]
     else : 
-        number_of_roi = 1
+        if int(np.max(mask_array))== 1 : 
+            number_of_roi = 1 
+        else : 
+            number_of_roi = int(np.max(mask_array))
 
+    #calculate each ROI volume
     volume = []
-
     for i in range(number_of_roi) : 
-        if number_of_roi != 1 :
+        if len(mask_array.shape) == 4 :
             number_pixel = len(np.where(mask_array[:,:,:,i] == 1)[0])
         else : 
-            number_pixel = len(np.where(mask_array == 1)[0])
-
+            number_pixel = len(np.where(mask_array == i)[0])
         volume.append(volume_voxel * number_pixel)
-
+    #get the number of the ROI which have the biggest volume
     volume_max = np.max(volume)
     roi_max = volume.index(volume_max)
 
-    if number_of_roi != 1 : 
+    #get the higher SUV value from the biggest ROI
+    if len(mask_array.shape) == 4 : 
         roi = mask_array[:,:,:,roi_max]
-
-    else : roi = mask_array
-
+    else : 
+        if number_of_roi == 1 : roi = mask_array
+        else : 
+            roi = np.zeros((mask_array.shape))
+            roi[np.where(mask_array == roi_max)] = 1
     x,y,z = np.where(roi == 1)
-
     suv_values = []
     for j in range(len(x)):
         suv_values.append(pet_array[x[j],y[j],z[j]])
-
     return roi_max, np.round(np.max(suv_values), 2)
 
 
 
-def get_diameter(mask_path, pet_path, number_bigger_roi) : 
+def get_diameter(mask_path:str, pet_path:str, number_bigger_roi:int) : 
     """get 2D and 3D diameter of the biggest ROI in MASK
 
     Args:
-        mask_path ([str]): [Nifti MASK path]
-        pet_path ([str]): [Nifti PET path]
+        mask_path ([str]): [path of nifti mask (3D image, PixelVector type), size (x,y,z)]
+        pet_path ([str]): [path of nifti PET]
         number_bigger_roi ([int]): [Number of the bigger ROI (in volume)]
 
     Returns:
@@ -250,24 +243,23 @@ def get_diameter(mask_path, pet_path, number_bigger_roi) :
 
     #MASK
     img_mask = sitk.ReadImage(mask_path)
-    array_mask = sitk.GetArrayFromImage(img_mask).transpose()
+    mask_array = sitk.GetArrayFromImage(img_mask)
+    mask_array = np.transpose(mask_array, (3,0,1,2)).transpose() #(x,y,z,c)
 
     #seuillage 41% 
-    array_mask = threshold_matrix(array_mask, pet_array, 0.41)
+    mask_array = threshold_matrix(mask_array, pet_array, 0.41)
     
-    if len(array_mask.shape) != 3 :
-        bigger_roi = array_mask[:,:,:,number_bigger_roi - 1]
+    if len(mask_array.shape) == 4 :
+        bigger_roi = mask_array[:,:,:,number_bigger_roi - 1]
 
     else : 
-        if np.max(array_mask) == 1.0 : 
-            bigger_roi = array_mask
+        if np.max(mask_array) == 1.0 : 
+            bigger_roi = mask_array
         else  : 
-    
-            x,y,z = np.where(array_mask == number_bigger_roi - 1)
+            x,y,z = np.where(mask_array == number_bigger_roi - 1)
             bigger_roi = np.zeros(size)
             bigger_roi[x,y,z] = 1
 
- 
     new_mask_img = sitk.GetImageFromArray(bigger_roi.transpose())
     new_mask_img.SetOrigin(origin)
     new_mask_img.SetDirection(direction)
