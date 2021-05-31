@@ -22,7 +22,7 @@ class SeriesCT(Series):
         return numpy_array.astype(np.int16)
 
     def export_nifti(self, file_path:str):
-        """method to export ndarray of series to nifti and save it 
+        """method to export/save ndarray of series to nifti format
 
         Args:
             file_path (str): [directory+filename of the nifti]
