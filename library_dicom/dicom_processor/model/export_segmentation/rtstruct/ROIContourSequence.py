@@ -1,10 +1,7 @@
 import pydicom 
 import numpy as np
 from random import randrange
-from library_dicom.dicom_processor.model.reader.Instance_RTSS import Instance_RTSS
-from library_dicom.export_segmentation.tools.rtss_writer_tools import *
 from skimage.measure import label, find_contours
-import matplotlib.pyplot as plt 
 import SimpleITK as sitk 
 
 class ROIContourSequence : 

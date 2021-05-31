@@ -5,19 +5,14 @@ import os
 import numpy as np 
 import tempfile 
 import SimpleITK as sitk 
-from library_dicom.dicom_processor.model.Series import Series
-
-from library_dicom.export_segmentation.rtstruct.StructureSetROISequence import StructureSetROISequence
-from library_dicom.export_segmentation.rtstruct.RTROIObservationsSequence import RTROIObservationsSequence
-from library_dicom.export_segmentation.rtstruct.ROIContourSequence import ROIContourSequence
-from library_dicom.export_segmentation.rtstruct.ReferencedFrameOfReferenceSequence import *
-from library_dicom.export_segmentation.tools.generate_dict import *
-from library_dicom.export_segmentation.tools.rtss_writer_tools import *
+from library_dicom.dicom_processor.model.reader.Series import Series
+from library_dicom.dicom_processor.model.export_segmentation.rtstruct.StructureSetROISequence import StructureSetROISequence
+from library_dicom.dicom_processor.model.export_segmentation.rtstruct.RTROIObservationsSequence import RTROIObservationsSequence
+from library_dicom.dicom_processor.model.export_segmentation.rtstruct.ROIContourSequence import ROIContourSequence
+from library_dicom.dicom_processor.model.export_segmentation.rtstruct.ReferencedFrameOfReferenceSequence import *
+from library_dicom.dicom_processor.tools.export_segmentation.generate_dict import *
 
 
-#DOCU : 
-# MASK : NDARRAY 3D [Z, X, Y] BINARY OR SITK IMG (X, Y, Z) => CHAQUE SLICE NE DOIT PAS AVOIR MOINS DE 3 PIXELS ISOLES
-#(cf clean in init)
 class RTSS_Writer:
     """A class to write a DICOM RTSTRUCT file
     """
@@ -25,7 +20,7 @@ class RTSS_Writer:
     def __init__(self, mask:sitk.Image, serie_path:str):
         """constructor
         Args:
-            mask ([sitk.Image]): [3D sitk.Image of segmentation, labelled or not, but has to be clean (cf less than 3 isolated pixels per slice)]
+            mask ([sitk.Image]): [3D sitk.Image of segmentation (x,y,z), labelled or not, but has to be clean (cf less than 3 isolated pixels per slice)]
             serie_path ([str]): [Serie path related to RTSTRUCT file ]
         """
         #SERIE

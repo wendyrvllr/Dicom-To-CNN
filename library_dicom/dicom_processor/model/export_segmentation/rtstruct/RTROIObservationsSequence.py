@@ -1,5 +1,4 @@
 import pydicom 
-from library_dicom.export_segmentation.tools.rtss_writer_tools import *
 
 class RTROIObservationsSequence :
     """a class to represent RTROIObservationsSequence
