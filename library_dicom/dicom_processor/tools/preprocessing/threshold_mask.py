@@ -1,13 +1,17 @@
 import numpy as np
 
-#with any threshold 3d mask label
+def threshold_matrix(mask_array:np.ndarray, pet_array:np.ndarray, threshold:float):
+    """function to threshold a ndarray mask
 
-def threshold_matrix(mask_array, pet_array, threshold):
-    """
+    Args:
+        mask_array (np.ndarray): [(z,x,y,c)]
+        pet_array (np.ndarray): [(z,x,y)]
+        threshold (float): [0.41, 2.5, 4.0 or other]
 
-    mask_array (z,x,y,C)
-    pet_array (z,x,y)
+    Returns:
+        [ndarray]: [threshold mask]
     """
+   
     mask_array = mask_array.astype('int8')
     if threshold < 1 : 
         if len(mask_array.shape) != 3 :  #mask 4D 
@@ -19,15 +23,10 @@ def threshold_matrix(mask_array, pet_array, threshold):
                 x,y,z = np.where(mask_array[:,:,:,i] != 0)
                 if len(x) != 0 : 
                     suv_values = pet_array[x,y,z].tolist()
-                   
                     seuil = np.max(suv_values) * threshold
-                    
                     new_mask[np.where((pet_array > seuil) & (mask_array[:,:,:,i] > 0))] = 1
-                    
                     liste.append(new_mask.astype('iunt8'))
-                    
                 else : liste.append(new_mask.astype('uint8'))
-
             return np.stack(liste, axis = 3).astype('uint8')   
 
         else : 
@@ -39,8 +38,6 @@ def threshold_matrix(mask_array, pet_array, threshold):
                 seuil = np.max(suv_values) * threshold
                 new_mask[np.where((pet_array > seuil) & (mask_array > 0))] = 1
                 return new_mask.astype('uint8')
-                 
-
             else :  
                 number_of_roi = maxi
                 new_mask = np.zeros((mask_array.shape[0],mask_array.shape[1], mask_array.shape[2] )).astype('uint8')
@@ -52,8 +49,6 @@ def threshold_matrix(mask_array, pet_array, threshold):
                     new_mask[np.where((pet_array > seuil) & (mask_array == i))] = i
                 return new_mask.astype('uint8')
 
-
-
     else : 
         if len(mask_array.shape) != 3 :  #mask 4D 
             number_of_roi = mask_array.shape[3]
@@ -63,7 +58,6 @@ def threshold_matrix(mask_array, pet_array, threshold):
                 seuil = threshold
                 new_mask[np.where((pet_array > seuil) & (mask_array[:,:,:,i] > 0))] = 1
                 liste.append(new_mask)
-
             return np.stack(liste, axis = 3)    
 
         else : 
@@ -73,8 +67,6 @@ def threshold_matrix(mask_array, pet_array, threshold):
                 seuil = threshold
                 new_mask[np.where((pet_array > seuil) & (mask_array > 0))] = 1
                 return new_mask
-                 
-
             else :  
                 number_of_roi = maxi
                 new_mask = np.zeros((mask_array.shape[0],mask_array.shape[1], mask_array.shape[2] ))

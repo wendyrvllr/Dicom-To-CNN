@@ -1,10 +1,9 @@
 import os
+from library_dicom.dicom_processor.model.reader.Instance import Instance
+from library_dicom.dicom_processor.tools.cleaning_dicom.folders import get_series_path
 
-from library_dicom.dicom_processor.model.Series import Series
-from library_dicom.dicom_processor.model.Instance import Instance
-from library_dicom.dicom_processor.tools.folders import get_series_path
-from library_dicom.dicom_processor.tools.series import get_series_object
-
+"""script to scan series and print True if Secondary_Capture, False instead
+"""
 series_paths = get_series_path('/home/salim/Test dicom MM/151949')
 print(series_paths)
 
