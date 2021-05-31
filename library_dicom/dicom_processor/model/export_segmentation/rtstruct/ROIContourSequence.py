@@ -8,37 +8,49 @@ import matplotlib.pyplot as plt
 import SimpleITK as sitk 
 
 class ROIContourSequence : 
+    """a class to represente ROIContourSequence in RTSTRUCT file
+    """
 
-    def __init__(self, mask_array, mask_img, number_of_roi):
+    def __init__(self, mask_array:np.ndarray, mask_img:sitk.Image, number_of_roi:int):
+        """constructor
+
+        Args:
+            mask_array (np.ndarray]): [mask ndarray]
+            mask_img ([sitk.Image]): [mask sitk image]
+            number_of_roi ([int]): [total number of roi ]
+        """
         self.mask_array = mask_array 
         self.mask_img = mask_img
         self.number_of_roi = number_of_roi
 
 
-    def __define_contour_img(self, number_roi):
+    def __define_contour_img(self, number_roi:int):
+        """method to extract mask img per ROI number
+
+        Args:
+            number_roi (int): [A roi number, start at 1]
+
+        Returns:
+            [sitk.Image]: [mask img of ROI number 'number_roi']
+        """
         roi = np.zeros((self.mask_array.shape), dtype=np.uint8)
         z,x,y = np.where(self.mask_array == number_roi)
         roi[z,x,y] = 1
         roi_img = sitk.GetImageFromArray(roi)
-
         return roi_img 
+
+
+    def get_spatial_coordonate(self, number_roi:int, list_all_SOPInstanceUID:list):
+        """Per ROI number, gather spatial coordonates per slices (when there is a contour)
+        Args:
+            number_roi (int): [a ROI number, start at 1]
+            list_all_SOPInstanceUID (list): [list of every SOPInstanceUID from associated dicom serie]
+
+        Returns:
+            results [list]: [list of spatial coordonates [ [contour 1 : [x, y, z, x, y, z...] ], [contour 2 : [x, y, z, x, y, z...]], ... ]
+            list_SOPInstance [list] : [SOPInstanceUID_contour1, SOPINStanceUID_contour2, ...]
+
         """
-        depth = roi_img.GetDepth()
-        contours = []
-        for i in range(depth):
-            im = roi_img[:,:,i]
-            contour = sitk.BinaryContour(im, fullyConnected=True )
-            contours.append(contour)
-        vectorOfImages = sitk.VectorOfImage()
-        for contour in contours:
-            vectorOfImages.push_back(contour)
-        img = sitk.JoinSeries(vectorOfImages)
-        return img 
-        """
-
-
-
-    def get_spatial_coordonate(self, number_roi, list_all_SOPInstanceUID):
         img_roi = self.__define_contour_img(number_roi)
         depth = img_roi.GetDepth()
         results = []
@@ -46,7 +58,6 @@ class ROIContourSequence :
         for z in range(depth):
             img_slice = img_roi[:,:,z]
             array_slice = sitk.GetArrayFromImage(img_slice)
-            #liste = []
             contour = find_contours(array_slice, level = 0.0)
             if contour != []: 
                 for i in range(len(contour)):
@@ -63,66 +74,18 @@ class ROIContourSequence :
 
         return results, list_SOPInstance 
 
-    """
-    def __get_contour_ROI(self, number_roi):
+    
 
-        results = {}
-        slice = []
-        if self.mask.shape[-1] != 1 : 
-            binary_mask = np.array(self.mask[:,:,:,number_roi - 1], dtype=np.uint8)
-        else : 
-            binary_mask = np.zeros((self.mask.shape[0], self.mask.shape[1], self.mask.shape[2]))
-            x,y,z = np.where(self.mask[:,:,:,0] == number_roi)
-            binary_mask[x,y,z] = 1
-            binary_mask = np.array(binary_mask, dtype=np.uint8 )
+    def __create_ContourImageSequence(self, ReferencedSOPClassUID:str, ReferencedSOPInstanceUID:str):
+        """method to generate ContourImageSequence from ROIContourSequence 
 
-        for s in range(self.mask.shape[2]):
-            contours, _ = cv2.findContours(binary_mask[:,:, s], cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE) 
-            if (contours != []) : 
-                results[s] = contours
-                slice.append(s)
+        Args:
+            ReferencedSOPClassUID (str): [Referenced SOP Class UID value from associated serie]
+            ReferencedSOPInstanceUID (str): [Reference SOPInstance UID value from associated serie]
 
-        return results, slice 
-
-
-    def pixel_to_spatial(self, number_roi, image_position, pixel_spacing, list_all_SOPInstanceUID, liste_instances):
-        liste_position = get_image_position_per_slice(liste_instances)
-
-
-        list_contours = []
-        list_SOPInstanceUID = []
-        x0,y0,z0 = image_position
-        dx,dy,dz = pixel_spacing
-        dict_contours, list_slice = self.__get_contour_ROI(number_roi)
-
-        number_contour = len(dict_contours)
-
-        for i in range(number_contour): #plusieurs contours dans une même slice 
-            number_of_contour_in_slice = len(dict_contours[list_slice[i]])
-            for j in range(number_of_contour_in_slice):
-                number_point_contour = len(dict_contours[list_slice[i]][j])
-
-                liste = []
-
-                for point in range(number_point_contour): #[x,y]
-                    x = dict_contours[list_slice[i]][j][point][0][0]
-                    liste.append(x0 + x*dx) #+dx/2
-                    y = dict_contours[list_slice[i]][j][point][0][1]
-                    liste.append( y0 + y*dy) #+dy/2
-                    z = list_slice[i] 
-                    z_spatial = find_corresponding_z_spatial(liste_position, z)
-                    #liste.append(z0 + z*dz )
-                    liste.append(z_spatial) 
-
-
-                list_SOPInstanceUID.append(list_all_SOPInstanceUID[z])
-                list_contours.append(liste)
-
-
-        return list_contours, list_SOPInstanceUID
-    """
-
-    def __create_ContourImageSequence(self, ReferencedSOPClassUID, ReferencedSOPInstanceUID):
+        Returns:
+            [pydicom.Sequence]: [return ContourImageSequence]
+        """
         ContourImageSequence = pydicom.sequence.Sequence()
         dataset = pydicom.dataset.Dataset()
         dataset.ReferencedSOPClassUID = ReferencedSOPClassUID
@@ -130,7 +93,18 @@ class ROIContourSequence :
         ContourImageSequence.append(dataset)
         return ContourImageSequence 
 
-    def __create_ContourSequence(self, ReferencedSOPClassUID, list_ReferencedSOPInstanceUID, list_ContourData):
+    def __create_ContourSequence(self, ReferencedSOPClassUID:str, list_ReferencedSOPInstanceUID:list, list_ContourData:list):
+        """method to generate ContourSequence from ROIContourSequence
+
+        Args:
+            ReferencedSOPClassUID (str): [Referenced SOP Class UID value from associated serie]
+            list_ReferencedSOPInstanceUID (list): [list of every SOPInstanceUID (in which we find contour), same size as list_ContourData]
+            list_ContourData (list): [list of every ContourData [[x,y,z,x,y,z], [x,y,z,...], ...], same size as list_ReferencedSOPInstanceUID]
+
+
+        Returns:
+            [pydicom.Sequence]: [return ContourSequence]
+        """
         ContourSequence = pydicom.sequence.Sequence()
 
         for ContourData,SOPInstanceUID in zip(list_ContourData,list_ReferencedSOPInstanceUID):
@@ -146,18 +120,31 @@ class ROIContourSequence :
 
     @classmethod
     def get_random_colour(cls):
+        """a class method to generate random color for ROI
+
+        Returns:
+            [list]: [return color [r,g,b]]
+        """
         max = 256
         return [randrange(max), randrange(max), randrange(max)]
 
 
-    def create_ROIContourSequence(self, ReferencedSOPClassUID, list_all_SOPInstanceUID, liste_instances):
+    def create_ROIContourSequence(self, ReferencedSOPClassUID:str, list_all_SOPInstanceUID:list):
+        """method to generate ROIContourSequence from RTSTRUCT file 
+
+        Args:
+            ReferencedSOPClassUID (str): [ReferencedSOPClass UID value from associated serie]
+            list_all_SOPInstanceUID (list): [list of every SOPInstanceUID of each instance from associated dicom serie]
+
+        Returns:
+            [pydicom.Sequence]: [return ROIContourSequence]
+        """
+
         ROIContourSequence = pydicom.sequence.Sequence()
         for number_roi in range(1, self.number_of_roi +1) : 
-            #print("number_roi :", number_roi)
             dataset = pydicom.dataset.Dataset()
             dataset.ROIDisplayColor = self.get_random_colour()
             dataset.ReferencedROINumber = number_roi
-            #list_contour_data , list_SOP_instance_uid = self.pixel_to_spatial(number_roi, image_position, pixel_spacing, list_all_SOPInstanceUID, liste_instances)
             list_contour_data, list_SOP_instance_uid = self.get_spatial_coordonate(number_roi, list_all_SOPInstanceUID )
             dataset.ContourSequence = self.__create_ContourSequence(ReferencedSOPClassUID, list_SOP_instance_uid, list_contour_data)
             ROIContourSequence.append(dataset)
