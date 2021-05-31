@@ -1,84 +1,61 @@
-from library_dicom.dicom_processor.model.Series import Series
-from library_dicom.dicom_processor.model.reader.Instance import Instance
+from library_dicom.dicom_processor.model.reader.Series import Series
 from library_dicom.dicom_processor.model.reader.Instance_RTSS import Instance_RTSS
-import pydicom
-import os
 import cv2 as cv2
 import numpy as np 
 
 class MaskBuilder_RTSS : 
+    """a class to build an ndarray mask from a RTSS File 
+    """
 
-    def __init__(self, rtss_path, serie_path):
+    def __init__(self, rtss_path:str, serie_path:str):
+        """constructor
+
+        Args:
+            rtss_path (str): [file path of RTSTRUCT dicom file]
+            serie_path (str): [directory path of associated serie]
+        """
 
         self.serie = Series(serie_path)
         self.serie.get_instances_ordered()
         self.serie_data = self.serie.get_series_details()
         self.instance_uid_serie = self.serie.get_all_SOPInstanceIUD()
-        self.matrix_size = self.serie.get_size_matrix()
+        self.matrix_size = self.serie.get_size_matrix() #[x,y,z] from associated serie
         self.instances = self.serie.get_instances_ordered()
-        
-        #to recenter spatial coordonate 
         self.image_position = self.instances[0].get_image_position()
         self.pixel_spacing = self.instances[0].get_pixel_spacing()
         self.pixel_spacing.append(self.serie.get_z_spacing())
 
-        #print(self.image_position)
-        #print(self.pixel_spacing)
-
         self.rtss = Instance_RTSS(rtss_path)
         self.number_of_roi = self.rtss.get_number_of_roi()
 
-    def get_list_all_SOP_Instance_UID_serie(self):
-        return self.instance_uid_serie
-
 
     def is_sop_instance_uid_same(self):
-        uid_serie = self.get_list_all_SOP_Instance_UID_serie()
+        """check if every SOPInstanceUID from RTSTRUCT correspond to SOPINstanceUID from associated serie
+
+        Returns:
+            [type]: [description]
+        """
         uid_rtss = self.rtss.get_list_all_SOP_Instance_UID_RTSS()
         for uid in uid_rtss : 
-            if uid not in uid_serie : 
+            if uid not in self.instance_uid_serie : 
                 return False
 
         return True
 
-    def get_image_position_per_slice(self):
-        liste = []
-        for i in range(len(self.instances)):
-            liste.append(self.instances[i].get_image_position())
-        return liste
+    def __spatial_to_pixels(self, number_roi:int):
+        """Transform spatial contour data to matrix coordonate contour
 
-
-    """
-    def get_image_position(self):
-        #print("origin : ", self.serie_data['instance']['ImagePosition'] )
-        return self.serie_data['instance']['ImagePosition']
-
-    def get_pixel_spacing(self):
-        pixel_spacing =  self.serie_data['instance']['PixelSpacing']
-        instances = self.serie.get_instances_ordered()
-        pixel_spacing.append(self.serie.get_z_spacing())
-        for i in range(len(instances)):
-            print(instances[i].get_image_position())
-        return pixel_spacing
-    """
-    def __spatial_to_pixels(self, matrix_size, number_roi, list_all_SOPInstanceUID):
-        """Transform contour data in spatial to contour data in pixels, return a dict 
-
+        Arguments :
+            number_roi [(int)]: [a ROI number, start at 1]
 
         Returns:
-            [dict] -- [{1 : { x : []
+            [dict] -- [{(roi)1 : { x : []
                                y : []
                                z : []} , 
-                       {2 : { x : []
+                       {(roi)2 : { x : []
                                y : []
                                z : []} , ...]
         """
-        #frame_of_reference_UID = self.get_frame_of_reference_UID()
-
-        #pixel_spacing = self.get_pixel_spacing()
-        #image_position = self.get_image_position()
-
-        #list_referenced_SOP_instance_uid = self.rtss.get_list_referenced_SOP_Instance_UID(number_roi)
         
         list_contour_data = self.rtss.get_contour_data(number_roi) #x y z en mm 
         list_pixels = {}
@@ -90,37 +67,27 @@ class MaskBuilder_RTSS :
             contour_item = {}
             x = contour_data[::3]  #list
             x = [int(round((i - self.image_position[0]) / self.pixel_spacing[0] )) for i in x ] 
-            #x = [int((i / self.pixel_spacing[0] )) for i in x ]
             contour_item['x'] = x
             y = contour_data[1::3] #list
             y = [int(round((i - self.image_position[1]) / self.pixel_spacing[1] ))  for i in y ]
-            #y = [int((i  / self.pixel_spacing[1] ))  for i in y ]  
             contour_item['y'] = y
-
             z = contour_data[2::3]
-            #print(z)
             z = [int(round((i - self.image_position[2]) / abs(self.pixel_spacing[2]) )) for i in z ][0]
-            #print(z)
-            #z = [int((i  / self.pixel_spacing[2] )) for i in z ]
-            #z = list_referenced_SOP_instance_uid[number_item]
-            #z = list_all_SOPInstanceUID.index(z) #numero de coupe correspondant
             contour_item['z'] = z
             list_pixels[number_item + 1] = contour_item
-
-
         return list_pixels
 
-    #eventuellement en privé
-    def get_list_points(self, matrix_size, number_roi, list_all_SOPInstanceUID):
-        """transform a list of pixels of a ROI to a list nx2 (n points, coordonate (x,y)) for each contour
+    def get_list_points(self, number_roi:int):
+        """transform a list of pixels of a ROI to a list nx2 (n points, coordonate (x,y)) for each contour and list of corresponding z slices
 
         Arguments:
+            number_roi ([int]): [a ROI number, start at 1]
           
 
         Returns:
-            [list] -- list of (x,y) points and list of z slices in which there is a contour
+            [list] -- list of (x,y) points and list of corresponding z slices (in which there is a contour)
         """
-        pixels = self.__spatial_to_pixels(matrix_size, number_roi, list_all_SOPInstanceUID) #dict 
+        pixels = self.__spatial_to_pixels(number_roi) #dict 
         number_item = len(pixels)
         list_points = []
         slice = []
@@ -134,17 +101,26 @@ class MaskBuilder_RTSS :
             list_points.append(subliste)
 
             slice.append(pixels[item + 1]['z'])
-
         return list_points, slice 
     
 
-    def rtss_to_3D_mask(self, number_roi, matrix_size, list_all_SOPInstanceUID):
+    def rtss_to_3D_mask(self, number_roi:int, matrix_size:list):
+        """method to generate 3D segmentation mask per ROI number
+
+        Args:
+            number_roi (int): [a ROI number, start at 1]
+            matrix_size (list): [[shape x, shape y, shape z]]
+
+        Raises:
+            Exception: [raise Exception if one contour is not CLOSED_PLANAR ]
+
+        Returns:
+            [ndarray]: [return 3d ndarray of a ROI]
+        """
         number_of_slices = matrix_size[2]
         np_array_3D = np.zeros(( matrix_size[0],  matrix_size[1], number_of_slices)).astype(np.uint8)
         if self.rtss.is_closed_planar(number_roi) == False : raise Exception ("Not CLOSED_PLANAR contour")
-        liste_points, slice = self.get_list_points(matrix_size, number_roi, list_all_SOPInstanceUID )
-        #print(liste_points)
-        #print(slice)
+        liste_points, slice = self.get_list_points(number_roi)
         for item in range(len(slice)):
             np_array_3D[:,:,slice[item]] = cv2.drawContours(np.float32(np_array_3D[:,:,slice[item]]), [np.asarray(liste_points[item])], -1, number_roi , -1)
 
@@ -152,11 +128,15 @@ class MaskBuilder_RTSS :
 
 
     def rtss_to_4D_mask(self):
+        """method to generate 3d ndarray for each ROI, and stack them in a 4D ndarray
+
+        Returns:
+            [ndarray]: [return 4d ndarray of mask segmentation]
+        """
         matrix_size = self.matrix_size
-        list_all_SOPInstanceUID = self.rtss.get_list_all_SOP_Instance_UID_RTSS()
         np_array_3D = []
         for number_roi in range(1, self.number_of_roi +1):
-            np_array_3D.append(self.rtss_to_3D_mask(number_roi, matrix_size, list_all_SOPInstanceUID))
+            np_array_3D.append(self.rtss_to_3D_mask(number_roi, matrix_size))
         np_array_4D = np.stack((np_array_3D), axis = 3)
 
         return np_array_4D.astype(np.uint8)
