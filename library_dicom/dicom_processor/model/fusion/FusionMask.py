@@ -2,25 +2,32 @@ from library_dicom.dicom_processor.model.Fusion import Fusion
 import SimpleITK as sitk 
 
 class FusionMask(Fusion):
-    """ReshapeResampleAlign CT/PET with MASK 
-    If 'dict' or 'img'. Missing 'serie' option ! 
+    """Reshape resample aligne MASK sitk.Image to PET or CT sitk.Image
 
     Args:
-        Fusion ([type]): [description]
-        CT = MASK HERE (check heritance)
+        Fusion ([type]): [heritance from Fusion class ]
     """
-    def __init__(self, pet, ct, target_size=None, target_spacing=None, target_direction=None, mode = 'dict'):
-        super().__init__(pet, ct, target_size, target_spacing, target_direction, mode='dict')
-        #self.pet_objet = pet
-        #self.ct_object = mask #change name in Fusion 
-        #self.target_size = target_size
-        #self.target_spacing = target_spacing
-        #self.target_direction = target_direction
-        #self.mode = mode
+    def __init__(self, pet:sitk.Image, ct:sitk.Image, target_size:tuple=None, target_spacing:tuple=None, target_direction:tuple=None):
+        """constructor
+
+        Args:
+            pet (sitk.Image): [pet sitk.Image]
+            ct (sitk.Image): [mask sitk.Image]
+            target_size (tuple, optional): [target size]. Defaults to None.
+            target_spacing (tuple, optional): [target spacing]. Defaults to None.
+            target_direction (tuple, optional): [target direction]. Defaults to None.
+        """
+        super().__init__(pet, ct, target_size, target_spacing, target_direction)
+        self.mask_objet = self.ct_objet
 
 
-    def resample(self, array = False): 
-        _, mask_img = self.generate_pet_ct_img()
+    def resample(self): 
+        """"resample mask sitk.Image with same spacing, size, direction, origin than PET sitk.Image
+
+        Returns:
+            [sitk.Image]: [return resampled mask img]
+        """
+        mask_img = self.mask_objet
         target_spacing, target_direction, target_origin, target_size = self.get_feature_pet_img()
         _, _, _, mask_size = self.get_feature_ct_img()
         
@@ -53,11 +60,6 @@ class FusionMask(Fusion):
                 liste.append(new_mask_img)
 
             img = sitk.JoinSeries(liste)
-
-
-        if array==True : 
-            mask_array = sitk.GetArrayFromImage(img)
-            return mask_array 
 
         return img
 
