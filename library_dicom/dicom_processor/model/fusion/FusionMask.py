@@ -1,4 +1,4 @@
-from library_dicom.dicom_processor.model.Fusion import Fusion 
+from library_dicom.dicom_processor.model.fusion.Fusion import Fusion 
 import SimpleITK as sitk 
 
 class FusionMask(Fusion):
