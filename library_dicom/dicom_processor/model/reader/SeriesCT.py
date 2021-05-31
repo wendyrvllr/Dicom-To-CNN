@@ -1,4 +1,4 @@
-from library_dicom.dicom_processor.model.Series import Series
+from library_dicom.dicom_processor.model.reader.Series import Series
 import numpy as np
 import SimpleITK as sitk 
 

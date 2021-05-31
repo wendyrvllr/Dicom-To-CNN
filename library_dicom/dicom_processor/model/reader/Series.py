@@ -6,8 +6,8 @@ import SimpleITK as sitk
 from library_dicom.dicom_processor.model.reader.Instance import Instance
 from library_dicom.dicom_processor.enums.TagEnum import *
 from library_dicom.dicom_processor.enums.SopClassUID import *
-from library_dicom.dicom_processor.model.SeriesCT import SeriesCT 
-from library_dicom.dicom_processor.model.SeriesPT import SeriesPT 
+from library_dicom.dicom_processor.model.reader.SeriesCT import SeriesCT 
+from library_dicom.dicom_processor.model.reader.SeriesPT import SeriesPT 
 
 class Series():
     """ A class representing a series Dicom
@@ -263,7 +263,8 @@ class Series():
 
     @classmethod 
     def get_series_object(cls, path:str):
-        """class method to generate a Series object
+        """
+        class method to generate a Series object
 
         Args:
             path (str): [path folder of series]
@@ -283,3 +284,4 @@ class Series():
         elif (sop_class_uid == ImageModalitiesSOPClass.CT.value or sop_class_uid == ImageModalitiesSOPClass.EnhancedCT.value):
             return SeriesCT(path)
         else : return Series(path)
+ 
