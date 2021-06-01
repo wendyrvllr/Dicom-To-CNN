@@ -41,7 +41,7 @@ def mip_projection(numpy_array:np.ndarray, angle:int, study_uid:str, type:str, c
         [str]: [return the abs path to the MIP]
     """
     if len(numpy_array.shape) == 4 : 
-        numpy_array = np.amax(numpy_array, axis = -1)
+        numpy_array = np.sum(numpy_array, axis = -1)
     axis = 1 
     vol_angle = scipy.ndimage.interpolation.rotate(numpy_array , angle=angle , reshape=False, axes = (1,2))
     MIP = np.amax(vol_angle,axis=axis)
@@ -51,42 +51,27 @@ def mip_projection(numpy_array:np.ndarray, angle:int, study_uid:str, type:str, c
     if directory_path is None : 
         if type == 'mask' : 
             plt.imshow(MIP, cmap = cmap, origin='lower')
+            plt.title(study_uid)
             plt.show()
             return None
         elif type == 'pet':
             plt.imshow(MIP, cmap = cmap, origin='lower', vmin = vmin, vmax = vmax)
+            plt.title(study_uid)
             plt.show()
             return None 
     else : #save 
         if type == 'mask' : 
             plt.imshow(MIP, cmap = cmap, origin='lower')
+            plt.title(study_uid)
             filename = study_uid+'_mip_'+type+"_"+str(int(angle))+".png"
         elif type == 'pet':
             plt.imshow(MIP, cmap = cmap, origin='lower', vmin = vmin, vmax = vmax)
+            plt.title(study_uid)
             filename = study_uid+'_mip_'+type+"_"+str(int(angle))+".png"
         angle_filename = os.path.join(directory_path, filename)
         f.savefig(angle_filename, bbox_inches='tight')
         plt.close()   
         return angle_filename
-
-
-def create_pdf_mip(angle_filenames:list, output_path_name:str) : 
-    """function generate pdf file of PET MIP and MASK MIP 
-    
-        Arguments : 
-        angle_filenames ([list]) : [list of mip path and study_uid : [path_mip_pet, path_mip_mask, study_uid], [path_mip_pet, path_mip_mask, study_uid],... ]
-        output_path_name ([str]) : [directory+filename of the pdf file]
-    """
-    pdf = FPDF()
-    for mip in angle_filenames : 
-        pdf.add_page()
-        pdf.image(mip[0], x = 0, y = 10, w = 100, h = 190)
-        pdf.image(mip[1], x = 100, y = 10, w = 100, h = 190)
-        pdf.set_font("Arial", size=12)
-        pdf.cell(200, 0, txt= str(mip[2]), ln=2, align="C")
-    pdf.output(output_path_name)
-    return None 
-
 
 def create_mip_gif(numpy_array, path_image, study_uid, type, cmap, borne_max):
     """return a gif of a numpy_array MIP 
@@ -112,9 +97,9 @@ def mip_pet_mask_projection(pet_array:np.ndarray, mask_array:np.ndarray, angle:i
         mask_array (np.ndarray): [3D ndarray (z,y,x) or 4D ndarray (z,y,x,C)]
         angle (int): [angle of rotation of the MIP, 0 for coronal, 90 saggital]
         study_uid (str): [study_uid of the patient]
-        cmap_pet (str): [color of PET ]
-        cmap_mask (str): [color of MASK ]
-        alpha (float): [alpha value for transparancy of the MASK]
+        cmap_pet (str): [color of PET, according to matplotlib]
+        cmap_mask (str): [color of MASK, according to matplotlib ]
+        alpha (float): [alpha value for transparancy of the MASK, between 0 and 1]
         vmin (int): [minimum value of PET MIP]
         vmax (int): [maximum value of PET MIP]
         directory_path (str, optional): [If choose to save the MIP, set a directory's path]. Defaults to None.
@@ -128,22 +113,25 @@ def mip_pet_mask_projection(pet_array:np.ndarray, mask_array:np.ndarray, angle:i
         mask_array = np.amax(mask_array, axis=-1)
     axis = 1 
     vol_angle_mask = scipy.ndimage.interpolation.rotate(mask_array , angle , reshape=False, axes = (1,2))
-    MIP_mask = np.amax(vol_angle_mask,axis=2)
-
+    MIP_mask = np.amax(vol_angle_mask,axis=axis)
     vol_angle_pet = scipy.ndimage.interpolation.rotate(pet_array , angle , reshape=False, axes = (1,2))
-    MIP_pet = np.amax(vol_angle_pet,axis=2)
-
+    MIP_pet = np.amax(vol_angle_pet,axis=axis)
     f = plt.figure(figsize=(10,10))
     axes = plt.gca()
     axes.set_axis_off()
+    a = np.empty(MIP_mask.shape)
+    a[:] = np.NaN
+    for label in range(1, int(np.max(MIP_mask))+1):
+        y,x = np.where(MIP_mask == label)
+        a[y,x] = label
     if directory_path is None : 
         plt.imshow(MIP_pet, vmin=vmin, vmax=vmax, cmap=cmap_pet, origin='lower')
-        plt.imshow(np.where(MIP_mask, 0, np.nan), cmap=cmap_mask, alpha = alpha, origin='lower')
+        plt.imshow(a, cmap=cmap_mask, alpha = alpha, origin='lower')
         plt.show()
         return None
     else : #save 
         plt.imshow(MIP_pet, vmin=vmin, vmax=vmax, cmap=cmap_pet, origin='lower')
-        plt.imshow(np.where(MIP_mask, 0, np.nan), cmap=cmap_mask, alpha = alpha, origin='lower')
+        plt.imshow(a, cmap=cmap_mask, alpha = alpha, origin='lower')
         filename = study_uid + '_PET_MASK'+"_"+str(int(angle))+".png"
         angle_filename = os.path.join(directory_path, filename)
         f.savefig(angle_filename, bbox_inches='tight')
@@ -151,24 +139,23 @@ def mip_pet_mask_projection(pet_array:np.ndarray, mask_array:np.ndarray, angle:i
         return angle_filename
 
 
-def mip_superposition_gif(pet_array, mask_array, study_uid, cmap_pet, cmap_mask, vmin, vmax,alpha, directory, name):
+def mip_superposition_gif(pet_array:np.ndarray, mask_array:np.ndarray, study_uid:str, cmap_pet:str, cmap_mask:str, vmin:int, vmax:int ,alpha:float, directory:str, name:str):
     """Generate PET/MASK MIP superposition gif 
 
     Args:
         pet_array (np.ndarray): [3D ndarray (z,y,x) or 4D ndarray (z,y,x,C)]
         mask_array (np.ndarray): [3D ndarray (z,y,x) or 4D ndarray (z,y,x,C)]
         study_uid (str): [study_uid of the patient]
-        cmap_pet (str): [color of PET ]
-        cmap_mask (str): [color of MASK ]
+        cmap_pet (str): [color of PET, according to matplotlib ]
+        cmap_mask (str): [color of MASK, according to matplotlib ]
         vmin (int): [minimum value of PET MIP]
         vmax (int): [maximum value of PET MIP]
-        alpha (float): [alpha value for transparancy of the MASK]
+        alpha (float): [alpha value for transparancy of the MASK, between 0 and 1]
         directory ([str]): [directory's path where to save the GIF]
         name ([str]): [name of the GIF]
     """
     duration = 0.1
     number_images = 60
-
     angles = np.linspace(0, 360, number_images)
     angles_filenames = []
     for angle in angles:
@@ -177,5 +164,20 @@ def mip_superposition_gif(pet_array, mask_array, study_uid, cmap_pet, cmap_mask,
     for image in angles_filenames : 
         os.remove(image)
 
-
+def create_pdf_mip(angle_filenames:list, output_path_name:str) : 
+    """function generate pdf file of PET MIP and MASK MIP 
+    
+        Arguments : 
+        angle_filenames ([list]) : [list of mip path and study_uid : [path_mip_pet, path_mip_mask, study_uid], [path_mip_pet, path_mip_mask, study_uid],... ]
+        output_path_name ([str]) : [directory+filename of the pdf file]
+    """
+    pdf = FPDF()
+    for mip in angle_filenames : 
+        pdf.add_page()
+        pdf.image(mip[0], x = 0, y = 10, w = 100, h = 190)
+        pdf.image(mip[1], x = 100, y = 10, w = 100, h = 190)
+        pdf.set_font("Arial", size=12)
+        pdf.cell(200, 0, txt= str(mip[2]), ln=2, align="C")
+    pdf.output(output_path_name)
+    return None 
 

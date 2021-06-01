@@ -25,7 +25,7 @@ def threshold_matrix(mask_array:np.ndarray, pet_array:np.ndarray, threshold:floa
                     suv_values = pet_array[x,y,z].tolist()
                     seuil = np.max(suv_values) * threshold
                     new_mask[np.where((pet_array > seuil) & (mask_array[:,:,:,i] > 0))] = 1
-                    liste.append(new_mask.astype('iunt8'))
+                    liste.append(new_mask.astype('uint8'))
                 else : liste.append(new_mask.astype('uint8'))
             return np.stack(liste, axis = 3).astype('uint8')   
 
