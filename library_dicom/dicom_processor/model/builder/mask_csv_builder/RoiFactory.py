@@ -1,6 +1,6 @@
-from library_dicom.dicom_processor.model.mask_builder.csv_builder.RoiPolygon import RoiPolygon
-from library_dicom.dicom_processor.model.mask_builder.csv_builder.RoiElipse import RoiElipse
-from library_dicom.dicom_processor.model.mask_builder.csv_builder.RoiNifti import RoiNifti
+from library_dicom.dicom_processor.model.builder.mask_csv_builder.RoiPolygon import RoiPolygon
+from library_dicom.dicom_processor.model.builder.mask_csv_builder.RoiElipse import RoiElipse
+from library_dicom.dicom_processor.model.builder.mask_csv_builder.RoiNifti import RoiNifti
 
 
 class RoiFactory():

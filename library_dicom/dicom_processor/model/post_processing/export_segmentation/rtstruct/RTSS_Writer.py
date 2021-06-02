@@ -6,10 +6,10 @@ import numpy as np
 import tempfile 
 import SimpleITK as sitk 
 from library_dicom.dicom_processor.model.reader.Series import Series
-from library_dicom.dicom_processor.model.export_segmentation.rtstruct.StructureSetROISequence import StructureSetROISequence
-from library_dicom.dicom_processor.model.export_segmentation.rtstruct.RTROIObservationsSequence import RTROIObservationsSequence
-from library_dicom.dicom_processor.model.export_segmentation.rtstruct.ROIContourSequence import ROIContourSequence
-from library_dicom.dicom_processor.model.export_segmentation.rtstruct.ReferencedFrameOfReferenceSequence import *
+from library_dicom.dicom_processor.model.post_processing.export_segmentation.rtstruct.StructureSetROISequence import StructureSetROISequence
+from library_dicom.dicom_processor.model.post_processing.export_segmentation.rtstruct.RTROIObservationsSequence import RTROIObservationsSequence
+from library_dicom.dicom_processor.model.post_processing.export_segmentation.rtstruct.ROIContourSequence import ROIContourSequence
+from library_dicom.dicom_processor.model.post_processing.export_segmentation.rtstruct.ReferencedFrameOfReferenceSequence import *
 from library_dicom.dicom_processor.tools.export_segmentation.generate_dict import *
 
 

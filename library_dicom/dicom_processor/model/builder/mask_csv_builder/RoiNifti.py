@@ -1,4 +1,4 @@
-from library_dicom.dicom_processor.model.mask_builder.csv_builder.Roi import Roi
+from library_dicom.dicom_processor.model.builder.mask_csv_builder.Roi import Roi
 
 class RoiNifti(Roi):
     """Derivated Class for automatic Nifti ROI of PetCtViewer.org

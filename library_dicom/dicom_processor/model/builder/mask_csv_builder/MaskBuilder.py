@@ -1,6 +1,6 @@
 import numpy as np
-from library_dicom.dicom_processor.model.mask_builder.csv_builder.CsvReader import CsvReader 
-from library_dicom.dicom_processor.model.mask_builder.csv_builder.RoiFactory import RoiFactory
+from library_dicom.dicom_processor.model.builder.mask_csv_builder.CsvReader import CsvReader 
+from library_dicom.dicom_processor.model.builder.mask_csv_builder.RoiFactory import RoiFactory
 from library_dicom.dicom_processor.model.reader.SeriesPT import SeriesPT
 
 

@@ -49,24 +49,20 @@ def mip_projection(numpy_array:np.ndarray, angle:int, study_uid:str, type:str, c
     axes = plt.gca()
     axes.set_axis_off()
     if directory_path is None : 
-        if type == 'mask' : 
-            plt.imshow(MIP, cmap = cmap, origin='lower')
-            plt.title(study_uid)
+        if type == 'pet':
+            plt.imshow(MIP, cmap = cmap, origin='lower', vmin = vmin, vmax = vmax)
             plt.show()
             return None
-        elif type == 'pet':
-            plt.imshow(MIP, cmap = cmap, origin='lower', vmin = vmin, vmax = vmax)
-            plt.title(study_uid)
+        else :
+            plt.imshow(MIP, cmap = cmap, origin='lower')
             plt.show()
             return None 
     else : #save 
-        if type == 'mask' : 
-            plt.imshow(MIP, cmap = cmap, origin='lower')
-            plt.title(study_uid)
-            filename = study_uid+'_mip_'+type+"_"+str(int(angle))+".png"
-        elif type == 'pet':
+        if type == 'pet':
             plt.imshow(MIP, cmap = cmap, origin='lower', vmin = vmin, vmax = vmax)
-            plt.title(study_uid)
+            filename = study_uid+'_mip_'+type+"_"+str(int(angle))+".png"
+        else:
+            plt.imshow(MIP, cmap = cmap, origin='lower')
             filename = study_uid+'_mip_'+type+"_"+str(int(angle))+".png"
         angle_filename = os.path.join(directory_path, filename)
         f.savefig(angle_filename, bbox_inches='tight')
