@@ -2,19 +2,19 @@ from radiomics.featureextractor import RadiomicsFeatureExtractor
 import SimpleITK as sitk 
 from itertools import combinations
 import numpy as np
-from library_dicom.dicom_processor.tools.threshold_mask import *
+from library_dicom.dicom_processor.tools.pre_processing.threshold_mask import *
 
 
 """Tools to extract metrics from PET/MASK using pyradiomics
 """
 
 
-def get_center_of_mass(mask_path:str, thresh:bool = False, pet_path:str = None):
+def get_center_of_mass(mask_path:str, thresh:float = 0.41, pet_path:str = None):
     """Get the list of every ROIs center
 
     Args:
         mask_path ([str]): [path of nifti mask (3D image, PixelVector type), size (x,y,z)]
-        thresh (bool, optional): [True if want to threshold MASK at 41%]. Defaults to False.
+        thresh (float, optional): [If choose to threshold the mask, set a threshold. Instead, thresh=None]. Defaults to 0.41.
         pet_path ([str], optional): [If thresh is True, nifti PET path]. Defaults to None.
 
     Returns:
@@ -56,7 +56,7 @@ def get_center_of_mass(mask_path:str, thresh:bool = False, pet_path:str = None):
 
 
     if type_ == '3D' : 
-        if thresh == False : 
+        if thresh == None : 
             number_of_roi = int(np.max(mask_array))
             for i in range(1, number_of_roi + 1) : 
                 extractor = RadiomicsFeatureExtractor()
@@ -64,9 +64,9 @@ def get_center_of_mass(mask_path:str, thresh:bool = False, pet_path:str = None):
                 x, y, z = results['diagnostics_Mask-original_CenterOfMass']
                 center.append([x,y,z])
 
-        elif thresh == True : 
+        else : 
             if np.max(mask_array) == 1.0 : 
-                mask_threshold = threshold_matrix(mask_array, pet_array, 0.41)
+                mask_threshold = threshold_matrix(mask_array, pet_array, thresh)
                 mask_threshold = mask_threshold.transpose()
                 new_mask = sitk.GetImageFromArray(mask_threshold)
                 new_mask.SetOrigin(origin)
@@ -79,7 +79,7 @@ def get_center_of_mass(mask_path:str, thresh:bool = False, pet_path:str = None):
 
             else : 
                 number_of_roi = int(np.max(mask_array))
-                mask_threshold = threshold_matrix(mask_array, pet_array, 0.41)
+                mask_threshold = threshold_matrix(mask_array, pet_array, thresh)
                 mask_threshold = mask_threshold.transpose()
                 new_mask = sitk.GetImageFromArray(mask_threshold)
                 new_mask.SetOrigin(origin)
@@ -93,7 +93,7 @@ def get_center_of_mass(mask_path:str, thresh:bool = False, pet_path:str = None):
 
 
     if type_ == '4D' : 
-        if thresh == False : 
+        if thresh == None : 
             for i in range(mask_array.shape[3]):
                 mask_3d = mask_array[:,:,:,i].astype('int8')
                 mask_3d = mask_3d.transpose().astype('int8')
@@ -108,10 +108,10 @@ def get_center_of_mass(mask_path:str, thresh:bool = False, pet_path:str = None):
                     center.append([x,y,z])
                 else : pass 
 
-        elif thresh == True : 
+        else : 
             for i in range(mask_array.shape[3]):
                 mask_3d = mask_array[:,:,:,i].astype('int8')
-                mask_3d = threshold_matrix(mask_3d, pet_array, 0.41).astype('int8')
+                mask_3d = threshold_matrix(mask_3d, pet_array, thresh).astype('int8')
                 x,y,z = np.where(mask_3d != 0)
                 if len(x) != 0 and len(np.unique(x)) > 1 : 
                     mask_3d = mask_3d.transpose().astype('int8')

@@ -5,7 +5,7 @@ from skimage.feature import peak_local_max
 from skimage.segmentation import watershed
 import scipy.ndimage
 from skimage import morphology
-from library_dicom.dicom_processor.tools.postprocessing.clean_mask import *
+from library_dicom.dicom_processor.tools.post_processing.clean_mask import *
 from library_dicom.dicom_processor.tools.visualization.create_mip import *
 
 
@@ -74,7 +74,7 @@ class Watershed:
         """calculate local peak from a given distance map (np.ndarray)
 
         Args:
-            distance_map (np.ndarray): [a 3D ndarray/distance map]
+            distance_map (np.ndarray): [a 3D ndarray/distance map (z,y,x)]
 
         Returns:
             [np.ndarray]: [return a np.ndarray with local peak points (= 1)]
@@ -92,7 +92,7 @@ class Watershed:
         """method to attribute a label on every local peak points
 
         Args:
-            localMax (np.ndarray): [a np.ndarray with local peak points]
+            localMax (np.ndarray): [a np.ndarray with local peak points (z,y,x)]
 
         Returns:
             [np.ndarray]: [return a labelled local peak points np.ndarray]
@@ -106,7 +106,7 @@ class Watershed:
         """applied watershed model process
 
         Returns:
-            [np.ndarray]: [return the watershed labelled ndarray]
+            [sitk.Image]: [return the watershed labelled sitk.Image]
         """
         new_coordonates = []
         labels = np.arange(1, self.number_of_cc+1, 1)
@@ -125,4 +125,13 @@ class Watershed:
         watershed_array = np.zeros(self.binary_array.shape)
         for coordonate, label in zip(new_coordonates, np.arange(1, number_total_of_label+1, 1)):
             watershed_array[coordonate] = label 
-        return watershed_array.astype(np.uint8)
+        pet_spacing = self.pet_img.GetSpacing()
+        pet_direction = self.pet_img.GetDirection()
+        pet_origin = self.pet_img.GetOrigin()
+
+        watershed_img = sitk.GetImageFromArray(watershed_array)
+        watershed_img.SetSpacing(pet_spacing)
+        watershed_img.SetOrigin(pet_origin)
+        watershed_img.SetDirection(pet_direction)
+        
+        return watershed_img
