@@ -1,5 +1,3 @@
-import os 
-import pydicom
 import numpy as np 
 from library_dicom.dicom_processor.model.reader.Instance import Instance
 from library_dicom.dicom_processor.model.reader.Instance_RTSS import Instance_RTSS
@@ -7,15 +5,55 @@ from library_dicom.dicom_processor.model.reader.Instance_RTSS import Instance_RT
 
 
 class Instance_RTDose(Instance): 
+    """A class to represent a RTDose Dicom File
 
-    def __init__(self, path_dose):
+    Args:
+        Instance ([type]): [description]
+    """
+
+    def __init__(self, path_dose :str ):
+        """constructor
+
+        Args:
+            path_dose (str): [path of the rt dose file ]
+        """
         super().__init__(path_dose, load_image=True)
 
     def get_image_nparray(self):
+        """get 3d matrix of rt dose 
+
+        Returns:
+            [ndarray]: []
+        """
         return np.transpose(self.dicomData.pixel_array, axes = (1,2,0))
 
 
     def wrap_DHVSequence_in_dict(self): 
+        """wrap in dictionnary DVH Sequence of each ROI 
+        dict = { (roi) 1) : {'ReferencedROINumber' : value
+                                'DVHType' : value
+                                'DoseUnits' : value
+                                'DVHDoseScaling' : value
+                                'DVHVolumeUnits':  value
+                                'DVHNumberOfBins' : value
+                                'DVHMinimumDose' : value
+                                'DVHMaximumDose' : value
+                                'DVHMeanDose' : value
+                                'DVHData' : value},
+                (roi) 2 : {'ReferencedROINumber' : value
+                                'DVHType' : value
+                                'DoseUnits' : value
+                                'DVHDoseScaling' : value
+                                'DVHVolumeUnits':  value
+                                'DVHNumberOfBins' : value
+                                'DVHMinimumDose' : value
+                                'DVHMaximumDose' : value
+                                'DVHMeanDose' : value
+                                'DVHData' : value}, ...}
+
+        Returns:
+            [dict]: [return a dictionnary, with, for each ROI, DVHSequence in the RTDose file]
+        """
         dictionnary = {}
         for i in range(len(self.dicomData.DVHSequence)) : 
             referenced_roi = int(self.dicomData.DVHSequence[i].DVHReferencedROISequence[0].ReferencedROINumber)
@@ -34,21 +72,19 @@ class Instance_RTDose(Instance):
 
         return dictionnary
  
-    def add_ROIName_from_RTSS_to_dict(self, dictionnary, rtss_file):
+    def add_ROIName_from_RTSS_to_dict(self, dictionnary:dict, rtss_file:str):
+        """From the RTSS file associated, add the roi's name in the dictionnary of DVH Sequence
+
+        Args:
+            dictionnary (dict): [dictionnary from  wrap_DHVSequence_in_dict function]
+            rtss_file (str): [file path of the rtss file associated]
+
+        Returns:
+            [dict]: [same dict as input, with ROI name in it]
+        """
         instance_rtss_object = Instance_RTSS(rtss_file)
         keys = list(dictionnary.keys())
         for key in keys : 
             referenced_number = int(dictionnary[key]['ReferencedROINumber'])
-            dictionnary[key]['ReferencedROIName'] = instance_rtss_object.get_ROIName_by_number(referenced_number)
+            dictionnary[key]['ReferencedROIName'] = instance_rtss_object.get_ROI_name(referenced_number)
         return dictionnary 
-
-
-    
-
-        
-
-
-    #DHV Sequence 
-
-
-    
