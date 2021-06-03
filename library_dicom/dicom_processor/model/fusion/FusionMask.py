@@ -42,7 +42,7 @@ class FusionMask(Fusion):
             img = transformation.Execute(mask_img)
 
         
-        else : #mask 4D => mask 4D
+        else : 
             liste = []
             for roi in range(mask_size[3]):
                 extract = sitk.ExtractImageFilter()

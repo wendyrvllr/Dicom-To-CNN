@@ -53,7 +53,6 @@ class Fusion:
             [tuple]: [return new calculated center in 'head' or 'center' format]
         """
         if mode == 'head' : return self.compute_new_origin_head2hips()
-
         elif mode == 'center' : return self.compute_new_origin_center()
 
     def compute_new_origin_head2hips(self):
@@ -138,12 +137,8 @@ class Fusion:
         """
         pet_img, ct_img = self.resample(mode=mode) #[c, z, y, x]
         s = []
-        #pet
         s.append(pet_img)
-
-        #ct
         s.append(ct_img)
-    
         concat_img = sitk.JoinSeries(s)
         sitk.WriteImage(concat_img, os.path.join(directory,filename))
         return concat_img
