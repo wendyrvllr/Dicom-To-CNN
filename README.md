@@ -1,5 +1,7 @@
 # library-DICOM
 
+
+## Install : pip install dicom-to-cnn 
 Features : 
 - Description of Series content in a huge dataset of DICOM (output JSON descriptor for each series containings main DICOM tags).
 - Conversion Dicom to Nifti
