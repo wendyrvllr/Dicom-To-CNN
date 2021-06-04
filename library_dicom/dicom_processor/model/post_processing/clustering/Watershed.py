@@ -5,7 +5,6 @@ from skimage.feature import peak_local_max
 from skimage.segmentation import watershed
 import scipy.ndimage
 from skimage import morphology
-from library_dicom.dicom_processor.tools.post_processing.clean_mask import *
 from library_dicom.dicom_processor.tools.visualization.create_mip import *
 
 
@@ -20,7 +19,7 @@ class Watershed:
             binary_img (sitk.Image): [binary segmentation sitk.Image (x,y,z) ]
             pet_img (sitk.Image): [pet sitk.Image associated (x,y,z)]
         """
-        self.binary_img = remove_small_roi(binary_img, pet_img)
+        self.binary_img = self.remove_small_roi(binary_img, pet_img)
         self.pet_img = pet_img
         self.binary_array = sitk.GetArrayFromImage(self.binary_img) #(z,y,x)
         self.pet_array = sitk.GetArrayFromImage(self.pet_img) # (z,y,x)
@@ -135,3 +134,46 @@ class Watershed:
         watershed_img.SetDirection(pet_direction)
         
         return watershed_img
+
+
+    @classmethod
+    def remove_small_roi(cls, binary_img:sitk.Image, pet_img:sitk.Image):
+        """function to remove ROI under 30 ml on a binary sitk.Image
+
+        Args:
+            binary_img (sitk.Image): [sitk.Image of size (z,y,x)]
+            pet_img (sitk.Image): [sitk.Image of the PET, size (z,y,x)]
+
+        Raises:
+            Exception: [raise Exception if not a 3D binary mask]
+
+        Returns:
+            [sitk.Image]: [Return cleaned image]
+        """
+
+        binary_array = sitk.GetArrayFromImage(binary_img)
+        if len(binary_array.shape) != 3 or int(np.max(binary_array)) != 1 : 
+            raise Exception("Not a 3D binary mask, need to transform into 3D binary mask")
+        else : 
+            pet_spacing = pet_img.GetSpacing()
+            pet_origin = pet_img.GetOrigin()
+            pet_direction = pet_img.GetDirection()
+            labelled_img = sitk.ConnectedComponent(binary_img)
+            stats = sitk.LabelIntensityStatisticsImageFilter()
+            stats.Execute(labelled_img, pet_img)
+            labelled_array = sitk.GetArrayFromImage(labelled_img).transpose()
+            number_of_label = stats.GetNumberOfLabels()
+            volume_voxel = pet_spacing[0] * pet_spacing[1] * pet_spacing[2] * 10**(-3) #in ml 
+            for i in range(1, number_of_label + 1) :
+                volume_roi = stats.GetNumberOfPixels(i) * volume_voxel
+                if volume_roi < float(30) : 
+                    x,y,z = np.where(labelled_array == i)
+                    for j in range(len(x)):
+                        labelled_array[x[j], y[j], z[j]] = 0
+            new_binary_array = np.zeros((labelled_array.shape))
+            new_binary_array[np.where(labelled_array != 0)] = 1
+            new_binary_img = sitk.GetImageFromArray(new_binary_array.transpose().astype(np.uint8))
+            new_binary_img.SetOrigin(pet_origin)
+            new_binary_img.SetSpacing(pet_spacing)
+            new_binary_img.SetDirection(pet_direction)
+            return new_binary_img

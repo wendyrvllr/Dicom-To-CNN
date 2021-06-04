@@ -5,6 +5,7 @@ import os
 import numpy as np 
 import tempfile 
 import SimpleITK as sitk 
+from skimage.measure import label 
 from library_dicom.dicom_processor.model.reader.Series import Series
 from library_dicom.dicom_processor.model.post_processing.export_segmentation.rtstruct.StructureSetROISequence import StructureSetROISequence
 from library_dicom.dicom_processor.model.post_processing.export_segmentation.rtstruct.RTROIObservationsSequence import RTROIObservationsSequence
@@ -20,7 +21,7 @@ class RTSS_Writer:
     def __init__(self, mask:sitk.Image, serie_path:str):
         """constructor
         Args:
-            mask ([sitk.Image]): [3D sitk.Image of segmentation (x,y,z), labelled or not, but has to be clean (cf less than 3 isolated pixels per slice)]
+            mask ([sitk.Image]): [3D sitk.Image of segmentation (x,y,z), labelled or not]
             serie_path ([str]): [Serie path related to RTSTRUCT file ]
         """
         #SERIE
@@ -33,6 +34,7 @@ class RTSS_Writer:
         #MASK
         self.mask_img = mask #GetSize() = [x,y,z]
         self.mask_array = sitk.GetArrayFromImage(self.mask_img) #shape = [z,x,y]
+        self.mask_array = self.__clean_mask(self.mask_array)
         self.image_position = self.mask_img.GetOrigin()
         self.pixel_spacing = self.mask_img.GetSpacing()
         self.image_direction = self.mask_img.GetDirection()
@@ -61,6 +63,46 @@ class RTSS_Writer:
         self.dataset.is_little_endian = True
         self.dataset.is_implicit_VR = False 
 
+    def __clean_mask(self):
+        """a function to clean mask : remove pixel (=1) when there is less than 3 pixels (=1) in slice
+
+        Args:
+            mask (np.ndarray): [mask of shape [z,y,x]]
+
+        Returns:
+            [ndarray]: [return the cleaned mask in shape [z,y,x]]
+        """
+        if int(np.max(self.mask_array)) != 1 : #binarize the mask 
+            mask = np.where(self.mask_array>0, 1, 0)
+            number_of_roi = int(np.max(self.mask_array))
+        empty_mask = np.zeros((self.mask_array.shape))
+        for s in range(self.mask_array.shape[0]) : 
+            slice = self.mask_array[s, :, :]
+            if int(np.self.mask_array(slice)) == 0 : 
+                empty_mask[s, :, :] = slice
+            else : 
+                lw, num = label(slice, connectivity=2, return_num=True) #lw = 2D slice 
+                item = np.arange(1, num+1).tolist()
+                area = []
+                for it in item : 
+                    area.append(len(np.where(lw== it)[0]))
+                for ar in area : 
+                    feature = area.index(ar) + 1 
+                    if int(ar) < 3 : 
+                        x,y = np.where(lw == feature)
+                        lw[x,y] = 0 
+                empty_mask[s, :, :] = lw 
+        matrix = np.where(empty_mask>0, 1, 0)
+        #labelled again 
+        label_ = 1
+        for i in range(1, number_of_roi+1):
+            z,y,x = np.where((matrix > 0) & (mask == i))
+            if len(z) == 0 : 
+                pass 
+            else : 
+                matrix[np.where((matrix > 0) & (mask == i))] = label_ 
+                label_ += 1 
+        return matrix
 
     def generates_file_meta(self):
         """
