@@ -2,6 +2,9 @@ import numpy as np
 import SimpleITK as sitk 
 from library_dicom.dicom_processor.model.reader.SeriesPT import SeriesPT
 
+#VOIR AVEC EXPORTSEGMENTATION WRITER 
+
+
 
 class Mask: 
     """A class to generate mask nifti associated to a PET Series
