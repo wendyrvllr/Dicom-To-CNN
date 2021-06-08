@@ -6,6 +6,7 @@ import numpy as np
 import tempfile 
 import SimpleITK as sitk 
 from skimage.measure import label 
+from dicom_to_cnn.model.segmentation.Abstract_Writer import Abstract_Writer
 from library_dicom.model.reader.Series import Series
 from library_dicom.model.segmentation.rtstruct.StructureSetROISequence import StructureSetROISequence
 from library_dicom.model.segmentation.rtstruct.RTROIObservationsSequence import RTROIObservationsSequence
@@ -14,25 +15,25 @@ from library_dicom.model.segmentation.rtstruct.ReferencedFrameOfReferenceSequenc
 from library_dicom.tools.export_segmentation.generate_dict import *
 
 
-class RTSS_Writer:
+class RTSS_Writer(Abstract_Writer):
     """A class to write a DICOM RTSTRUCT file
     """
     
-    def __init__(self, mask:sitk.Image, serie_path:str):
+    def __init__(self, mask_img:sitk.Image, serie_path:str):
         """constructor
         Args:
             mask ([sitk.Image]): [3D sitk.Image of segmentation (x,y,z), labelled or not]
             serie_path ([str]): [Serie path related to RTSTRUCT file ]
         """
         #SERIE
+        super().__init__(mask_img)#GetSize() = [x,y,z]
         serie = Series(serie_path)
         self.instances = serie.get_instances_ordered()
 
         #Get list of every sop instance uid from associated serie
         self.list_all_SOPInstanceUID = serie.get_all_SOPInstanceIUD()
 
-        #MASK
-        self.mask_img = mask #GetSize() = [x,y,z]
+        #MASKs
         self.mask_array = sitk.GetArrayFromImage(self.mask_img) #shape = [z,x,y]
         self.mask_array = self.__clean_mask(self.mask_array)
         self.image_position = self.mask_img.GetOrigin()

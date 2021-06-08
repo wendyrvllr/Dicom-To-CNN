@@ -5,6 +5,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 from library_dicom.model.MIP_Generator import MIP_Generator
 
+def transform_to_nan(MIP:np.ndarray):
+    """[summary]
+
+    Args:
+        MIP (np.ndarray): [2D np.ndarray of MIP]
+    """
+    nan_MIP = np.empty(MIP.shape)
+    nan_MIP[:] = np.NaN
+    y,x = np.where(MIP>0)
+    nan_MIP[y,x] = MIP[y,x]
+
+
 def projection_two_modality(pet_array:np.ndarray, mask_array:np.ndarray, angle:int, vmin:int=0, vmax:int=7):
     mip_pet = MIP_Generator(pet_array).projection(angle)
     mip_mask = MIP_Generator(mask_array).projection(angle)

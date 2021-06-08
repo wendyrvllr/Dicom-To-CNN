@@ -32,12 +32,8 @@ class MIP_Generator :
         axis = 1 
         vol_angle = scipy.ndimage.interpolation.rotate(array , angle=angle , reshape=False, axes = (1,2))
         MIP = np.amax(vol_angle,axis=axis)
-        nan_MIP = np.empty(MIP.shape)
-        nan_MIP[:] = np.NaN
-        y,x = np.where(MIP>0)
-        nan_MIP[y,x] = MIP[y,x]
-        self.MIP = nan_MIP
-        return nan_MIP
+        self.MIP = MIP
+        return MIP
 
     def show(self, vmin:int=0, vmax:int=7):
         """method to show MIP in a matplotlib.Figure
@@ -57,14 +53,24 @@ class MIP_Generator :
             return plt.imshow(self.MIP, cmap = 'Greys', origin='lower', vmin = vmin, vmax = vmax)
         
 
-    def save(self, filename:str, directory:str):
+    def save(self, filename:str, directory:str, vmin:int=0, vmax:int=7):
         """method to save matplotlib.Figure of the generated MIP as png image
 
         Args:
-            filename (str): [name of the image+'.png']
+            filename (str): [name of the image]
             directory (str): [directory's path where to save the new png image]
+            vmin (int, optional): [minimum value of the MIP. If mask, vmin=None]. Defaults to 0.
+            vmax (int, optional): [maximum value of the MIP, If mask, vmax=None]. Defaults to 7.
         """
-        self.figure.savefig(os.path.join(directory, filename), bbox_inches='tight')
+        filename = filename+'.png'
+        f = plt.figure(figsize=(10,10))
+        axes = plt.gca()
+        axes.set_axis_off()
+        if vmin is None or vmax is None : #mask
+            plt.imshow(self.MIP, cmap = 'Reds', origin='lower')
+        else : #pet 
+            plt.imshow(self.MIP, cmap = 'Greys', origin='lower', vmin = vmin, vmax = vmax)
+        f.savefig(os.path.join(directory, filename), bbox_inches='tight')
         plt.close()
         return os.path.join(directory, filename)
 
