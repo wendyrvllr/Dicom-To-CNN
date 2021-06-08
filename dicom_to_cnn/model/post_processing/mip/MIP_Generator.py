@@ -35,23 +35,6 @@ class MIP_Generator :
         self.MIP = MIP
         return MIP
 
-    def show(self, vmin:int=0, vmax:int=7):
-        """method to show MIP in a matplotlib.Figure
-
-        Args:
-            vmin (int, optional): [minimum value of the MIP. If mask, vmin=None]. Defaults to 0.
-            vmax (int, optional): [maximum value of the MIP, If mask, vmax=None]. Defaults to 7.
-        """
-        f = plt.figure(figsize=(10,10))
-        axes = plt.gca()
-        axes.set_axis_off()
-        if vmin is None or vmax is None : #mask
-            self.figure=f
-            return plt.imshow(self.MIP, cmap = 'Reds', origin='lower')
-        else : #pet 
-            self.figure = f
-            return plt.imshow(self.MIP, cmap = 'Greys', origin='lower', vmin = vmin, vmax = vmax)
-        
 
     def save(self, filename:str, directory:str, vmin:int=0, vmax:int=7):
         """method to save matplotlib.Figure of the generated MIP as png image
@@ -75,7 +58,13 @@ class MIP_Generator :
         return os.path.join(directory, filename)
 
     def create_mip_gif(self, filename:str, directory:str, vmin:int=0, vmax:int=7):
-        """return a gif of a numpy_array MIP 
+        """method to create mip GIF and save it as .gif
+
+        Args:
+            filename (str): [name of the gif]
+            directory (str): [directory's path of the generated gif]
+            vmin (int, optional): [mimimum value of the MIP]. Defaults to 0.
+            vmax (int, optional): [maximum value of the MIP]. Defaults to 7.
 
         """
         duration = 0.1
@@ -85,13 +74,11 @@ class MIP_Generator :
         for angle in angles:
             MIP = self.projection(angle)
             mip_filename=str(angle)+'.png'
-            self.show(vmin, vmax)
-            path = self.save(mip_filename, directory)
+            path = self.save(mip_filename, directory, vmin, vmax)
             angle_filenames.append(path)
         self.create_gif(angle_filenames, duration, filename, directory)
         for image in angle_filenames : 
             os.remove(image)
-        return None 
 
     @classmethod
     def create_gif(cls, filenames:list, duration:float, name:str, directory:str):
