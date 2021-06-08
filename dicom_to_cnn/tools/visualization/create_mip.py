@@ -3,7 +3,7 @@ import imageio
 import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
-from library_dicom.model.MIP_Generator import MIP_Generator
+from dicom_to_cnn.model.post_processing.mip.MIP_Generator import MIP_Generator
 
 def transform_to_nan(MIP:np.ndarray):
     """[summary]
@@ -15,7 +15,7 @@ def transform_to_nan(MIP:np.ndarray):
     nan_MIP[:] = np.NaN
     y,x = np.where(MIP>0)
     nan_MIP[y,x] = MIP[y,x]
-    
+
 
 
 def projection_two_modality(pet_array:np.ndarray, mask_array:np.ndarray, angle:int, vmin:int=0, vmax:int=7):
