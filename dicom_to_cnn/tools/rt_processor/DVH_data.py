@@ -20,7 +20,7 @@ def convert_str_list_to_float_list(str_liste:list) -> list :
 
 
 def generate_x_y_cumul(liste:list) -> list:
-    """generate list of x and y coordonates from DVHData cumulative list (from DHVSequence in RTDOSE file)
+    """generate list of x and y coordonates (DVH) from DVHData cumulative list (from DHVSequence in RTDOSE file)
 
     Args:
         liste (list): [ [x,y,x,y,x,y,...] ]

@@ -23,12 +23,12 @@ class Instance_RTDose(Instance):
         """get 3d matrix of rt dose 
 
         Returns:
-            [np.ndarray]: [return the 3D array from a RTDose file ]
+            [np.ndarray]: [return the 3D array from a RTDose file, shape (z,y,x) ]
         """
-        return np.transpose(self.dicomData.pixel_array, axes = (1,2,0))
+        return self.dicomData.pixel_array
 
 
-    def wrap_DHVSequence_in_dict(self) -> dict: 
+    def wrap_DHVSequence_in_dict(self, rtss_file:str) -> dict: 
         """wrap in dictionnary DVH Sequence of each ROI 
         dict = { (roi) 1 : {'ReferencedROINumber' : value
                                 'DVHType' : value
@@ -54,6 +54,8 @@ class Instance_RTDose(Instance):
         Returns:
             [dict]: [return a dictionnary, with, for each ROI, DVHSequence in the RTDose file]
         """
+
+        instance_rtss_object = Instance_RTSS(rtss_file)
         dictionnary = {}
         for i in range(len(self.dicomData.DVHSequence)) : 
             referenced_roi = int(self.dicomData.DVHSequence[i].DVHReferencedROISequence[0].ReferencedROINumber)
@@ -68,23 +70,7 @@ class Instance_RTDose(Instance):
             dataset['DVHMaximumDose'] = self.dicomData.DVHSequence[i].DVHMaximumDose
             dataset['DVHMeanDose'] = self.dicomData.DVHSequence[i].DVHMeanDose
             dataset['DVHData'] = self.dicomData.DVHSequence[i].DVHData 
+            dataset['ReferencedROIName'] = instance_rtss_object.get_ROI_name(referenced_roi)
             dictionnary[referenced_roi] = dataset 
 
         return dictionnary
- 
-    def add_ROIName_from_RTSS_to_dict(self, dictionnary:dict, rtss_file:str) -> dict:
-        """From the RTSS file associated, add the roi's name in the dictionnary of DVH Sequence
-
-        Args:
-            dictionnary (dict): [dictionnary from  wrap_DHVSequence_in_dict function]
-            rtss_file (str): [file path of the rtss file associated]
-
-        Returns:
-            [dict]: [same dict as input, with ROI name in it]
-        """
-        instance_rtss_object = Instance_RTSS(rtss_file)
-        keys = list(dictionnary.keys())
-        for key in keys : 
-            referenced_number = int(dictionnary[key]['ReferencedROINumber'])
-            dictionnary[key]['ReferencedROIName'] = instance_rtss_object.get_ROI_name(referenced_number)
-        return dictionnary 
