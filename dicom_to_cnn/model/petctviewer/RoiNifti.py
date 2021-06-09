@@ -1,4 +1,4 @@
-from library_dicom.model.petctviewer.Roi import Roi
+from dicom_to_cnn.model.petctviewer.Roi import Roi
 
 class RoiNifti(Roi):
     """Derivated Class for automatic Nifti ROI of PetCtViewer.org
@@ -18,7 +18,7 @@ class RoiNifti(Roi):
         super().__init__(1, 0, 0, roi_number, 0, list_point, volume_dimension)
         self.list_points = self.calculateMaskPoint()
 
-    def calculateMaskPoint(self):
+    def calculateMaskPoint(self) -> list:
         """Return [x,y,z] coordonates/voxel of nifti ROI (already in CSV file)
 
         Returns:

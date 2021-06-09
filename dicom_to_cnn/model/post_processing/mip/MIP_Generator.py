@@ -16,7 +16,7 @@ class MIP_Generator :
         """
         self.numpy_array = numpy_array
 
-    def projection(self, angle:int):
+    def projection(self, angle:int) -> np.ndarray:
         """function to generate 2D MIP of a 3D (or 4D) ndarray of shape (z,y,x) (or shape (z,y,x,C)) 
 
         Args:
@@ -36,7 +36,7 @@ class MIP_Generator :
         return MIP
 
 
-    def save(self, filename:str, directory:str, vmin:int=0, vmax:int=7):
+    def save(self, filename:str, directory:str, vmin:int=0, vmax:int=7) -> str:
         """method to save matplotlib.Figure of the generated MIP as png image
 
         Args:
@@ -44,6 +44,9 @@ class MIP_Generator :
             directory (str): [directory's path where to save the new png image]
             vmin (int, optional): [minimum value of the MIP. If mask, vmin=None]. Defaults to 0.
             vmax (int, optional): [maximum value of the MIP, If mask, vmax=None]. Defaults to 7.
+
+        Returns : 
+            (str) : [return the abs path of the saved MIP]
         """
         filename = filename+'.png'
         f = plt.figure(figsize=(10,10))
@@ -95,7 +98,6 @@ class MIP_Generator :
             images.append(imageio.imread(filename))
         output_file = directory+'/' + name +'.gif'
         imageio.mimwrite(output_file, images, duration=duration)
-        return None
 
     @classmethod
     def create_pdf_mip(cls, angle_filenames:list, filename:str, directory:str) : 
@@ -114,7 +116,6 @@ class MIP_Generator :
             pdf.set_font("Arial", size=12)
             pdf.cell(200, 0, txt= str(mip[2]), ln=2, align="C")
         pdf.output(os.path.join(directory, filename))
-        return None 
 
 
     

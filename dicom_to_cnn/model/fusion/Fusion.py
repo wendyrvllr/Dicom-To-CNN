@@ -28,14 +28,24 @@ class Fusion:
         self.target_spacing = target_spacing
         self.target_direction = target_direction
 
-    def get_feature_pet_img(self):
+    def get_feature_pet_img(self) -> tuple :
+        """get pet spacing, size, direction, origin
+
+        Returns:
+            tuple: [return spacing, size, direction, origin value]
+        """
         original_pixel_spacing = self.pet_objet.GetSpacing()
         original_direction = self.pet_objet.GetDirection()
         original_origin = self.pet_objet.GetOrigin()
         original_size = self.pet_objet.GetSize()
         return original_pixel_spacing, original_direction, original_origin, original_size
 
-    def get_feature_ct_img(self):
+    def get_feature_ct_img(self) -> tuple :
+        """get ct spacing, size, direction, origin
+
+        Returns:
+            tuple: [return spacing, size, direction, origin value]
+        """
         original_pixel_spacing = self.ct_objet.GetSpacing()
         original_direction = self.ct_objet.GetDirection()
         original_origin = self.ct_objet.GetOrigin()
@@ -43,7 +53,7 @@ class Fusion:
         return original_pixel_spacing, original_direction, original_origin, original_size
 
 
-    def calculate_new_origin(self, mode:str = 'head'):
+    def calculate_new_origin(self, mode:str = 'head') -> tuple:
         """method to calculate new origin for both PET and CT 
 
         Args:
@@ -55,7 +65,7 @@ class Fusion:
         if mode == 'head' : return self.compute_new_origin_head2hips()
         elif mode == 'center' : return self.compute_new_origin_center()
 
-    def compute_new_origin_head2hips(self):
+    def compute_new_origin_head2hips(self) -> tuple :
         """method to compute new_origin from head
 
         Returns:
@@ -72,7 +82,7 @@ class Fusion:
                       pet_origin[2] + 1.0 * pet_size[2] * pet_spacing[2] - 1.0 * new_size[2] * new_spacing[2])
         return new_origin
 
-    def compute_new_origin_center(self):
+    def compute_new_origin_center(self) -> tuple:
         """method to commpute new origin from center
 
         Returns:
@@ -88,7 +98,7 @@ class Fusion:
 
         
 
-    def resample(self, mode:str ='head'): 
+    def resample(self, mode:str ='head') -> sitk.Image: 
         """resample pet and ct sitk.Image with a target spacing, size, direction, and origin
 
         Args:
@@ -124,7 +134,7 @@ class Fusion:
        
         return new_pet_img, new_ct_img
 
-    def save_nifti_fusion(self, filename:str, directory:str, mode:str ='head'):
+    def save_nifti_fusion(self, filename:str, directory:str, mode:str ='head') -> sitk.Image:
         """save merged PT/CT nifti after resample reshape 
 
         Args:
@@ -133,7 +143,7 @@ class Fusion:
             mode (str, optional): [description]. Defaults to 'head'.
 
         Returns:
-            [type]: 4D matrix, concatenate PT/CT 
+            [sitk.Image]: 4D matrix, concatenate PT/CT 
         """
         pet_img, ct_img = self.resample(mode=mode) #[c, z, y, x]
         s = []

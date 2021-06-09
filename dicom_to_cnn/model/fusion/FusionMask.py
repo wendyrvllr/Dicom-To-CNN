@@ -1,4 +1,4 @@
-from library_dicom.model.fusion.Fusion import Fusion 
+from dicom_to_cnn.model.fusion.Fusion import Fusion 
 import SimpleITK as sitk 
 
 class FusionMask(Fusion):
@@ -21,7 +21,7 @@ class FusionMask(Fusion):
         self.mask_objet = self.ct_objet
 
 
-    def resample(self): 
+    def resample(self) -> sitk.Image: 
         """"resample mask sitk.Image with same spacing, size, direction, origin than PET sitk.Image
 
         Returns:

@@ -29,14 +29,14 @@ class Roi():
         self.z = volume_dimension[2]
         
     
-    def __get_min_max_of_roi(self):
+    def __get_min_max_of_roi(self) -> tuple:
         """Compute extrema of ROI in which we will loop to find included voxel
 
         Arguments:
             point_list {np.ndarray} -- numpy point list
 
         Returns:
-            [minx, miny, maxx, maxy] -- X/Y extremas
+            [tuple] -- X/Y extremas
         """
         points_array = self.list_point_np
         all_x = points_array[:][:,0]
@@ -57,7 +57,7 @@ class Roi():
             return xmin , xmax , ymin, ymax
 
 
-    def mask_roi_in_slice(self, patch:matplotlib.patches):
+    def mask_roi_in_slice(self, patch:matplotlib.patches) -> list:
         """get ROI x and y limits in which we will loop, to gather [x,y] pixel which are in the patch
 
         Args:
@@ -75,15 +75,15 @@ class Roi():
 
         return points
     
-    def get_empty_np_array(self):
+    def get_empty_np_array(self) -> np.ndarray:
         """Return numpy array to fill given the current dimension and axis
 
         Returns:
-            numpy array -- zero filled numpy array
+            [np.ndarray] -- zero filled numpy array
         """
         return (np.zeros((self.x, self.y, self.z)))
 
-    def coronal_to_axial(self, np_array_3D:np.ndarray):
+    def coronal_to_axial(self, np_array_3D:np.ndarray) -> np.ndarray:
         """transform coronal 3d ndarray to 3d axial ndarray
 
         Args:
@@ -94,7 +94,7 @@ class Roi():
         """
         return np.transpose(np_array_3D, (2,1,0))
 
-    def sagittal_to_axial(self, np_array_3D:np.ndarray):
+    def sagittal_to_axial(self, np_array_3D:np.ndarray) -> np.ndarray:
         """transform saggital 3d ndarray to 3d axial ndarray
 
         Args:
@@ -105,7 +105,7 @@ class Roi():
         """
         return np.transpose(np_array_3D, (0,2,1))
 
-    def get_mask(self, list_points:list): #list_points = [[x,y,z], [x,y,z], ...]
+    def get_mask(self, list_points:list) -> np.ndarray : #list_points = [[x,y,z], [x,y,z], ...]
         """generate an empty ndarray and fill up with ROI coordonates
 
         Args:

@@ -2,7 +2,7 @@ import pydicom_seg
 import pydicom 
 import numpy as np 
 import os
-from library_dicom.tools.export_segmentation.generate_dict import *
+from dicom_to_cnn.tools.export_segmentation.generate_dict import *
 from dicom_to_cnn.model.segmentation.Abstract_Writer import Abstract_Writer
 import SimpleITK as sitk 
 
@@ -21,7 +21,7 @@ class DICOMSEG_Writer(Abstract_Writer):
         super().__init__(mask_img)
         self.serie_path = serie_path
 
-    def __generate_dict_json(self, directory_path:str):
+    def __generate_dict_json(self, directory_path:str) -> str:
         """method to generate dict with metainfo for DICOM SEG file and save it as json file
 
         Args:
@@ -37,7 +37,7 @@ class DICOMSEG_Writer(Abstract_Writer):
         json_path = save_dict_as_json(results, directory_path)
         return json_path 
 
-    def dicom_seg_writer(self, directory_path:str):
+    def dicom_seg_writer(self, directory_path:str) -> pydicom.FileDataset:
         """method to write a DICOMSEG file from a segmentation
 
         Args:
@@ -81,4 +81,3 @@ class DICOMSEG_Writer(Abstract_Writer):
         """
         dcm = self.dicom_seg_writer(directory_path)
         dcm.save_as(os.path.join(directory_path, filename))
-        return None 

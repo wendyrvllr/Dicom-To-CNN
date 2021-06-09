@@ -3,14 +3,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from dicom_to_cnn.model.post_processing.mip.MIP_Generator import MIP_Generator
 
-def transform_to_nan(MIP:np.ndarray):
+def transform_to_nan(MIP:np.ndarray) -> np.ndarray:
     """function to replace pixel with value 0 with np.NaN
 
     Args:
         MIP (np.ndarray): [2D np.ndarray of MIP]
 
     Returns:
-        (np.ndarray): [3D np.ndarray NaN of MIP]
+        (np.ndarray): [2D np.ndarray NaN of MIP]
     """
     nan_MIP = np.empty(MIP.shape)
     nan_MIP[:] = np.NaN
@@ -19,7 +19,7 @@ def transform_to_nan(MIP:np.ndarray):
     return nan_MIP 
 
 
-def save_projection_two_modality(pet_array:np.ndarray, mask_array:np.ndarray, angle:int, filename:str, directory:str, vmin:int=0, vmax:int=7):
+def save_projection_two_modality(pet_array:np.ndarray, mask_array:np.ndarray, angle:int, filename:str, directory:str, vmin:int=0, vmax:int=7) -> str :
     """function to generate a MIP of PET/MASK and save it as png image
 
     Args:

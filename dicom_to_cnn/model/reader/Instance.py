@@ -1,7 +1,7 @@
 import pydicom
-
-from library_dicom.enums.TagEnum import *
-from library_dicom.enums.SopClassUID import *
+import numpy as np
+from dicom_to_cnn.enums.TagEnum import *
+from dicom_to_cnn.enums.SopClassUID import *
 
 class Instance:
     """A class to represent a Dicom file 
@@ -28,7 +28,7 @@ class Instance:
         """
         self.dicomData = pydicom.dcmread(self.path, force=True)
   
-    def get_series_tags(self):
+    def get_series_tags(self) -> dict :
         """method to gather series tags 
 
         Returns:
@@ -43,7 +43,7 @@ class Instance:
         series_tags[PixelSpacing.PixelSpacing.name] = self.get_pixel_spacing()
         return series_tags
 
-    def get_patients_tags(self):
+    def get_patients_tags(self) -> dict :
         """method to gather patient tags 
 
         Returns:
@@ -59,7 +59,7 @@ class Instance:
             else : patient_tags[tag_address.name] = "Undefined"
         return patient_tags
 
-    def get_studies_tags(self):
+    def get_studies_tags(self) -> dict :
         """method to gather study tags 
 
         Returns:
@@ -71,7 +71,7 @@ class Instance:
             else : studies_tags[tag_address.name] = "Undefined"
         return studies_tags
 
-    def get_instance_tags(self):
+    def get_instance_tags(self) -> dict :
         """method to gather instance tags 
 
         Returns:
@@ -86,7 +86,7 @@ class Instance:
         instance_tags['SOPInstanceUID'] = self.get_SOPInstanceUID()
         return instance_tags
 
-    def get_radiopharmaceuticals_tags(self):
+    def get_radiopharmaceuticals_tags(self) -> dict :
         """method to gather radiopharmaceutical tags 
 
         Returns:
@@ -104,7 +104,7 @@ class Instance:
 
         return radiopharmaceuticals_tags
     
-    def get_philips_private_tags(self):
+    def get_philips_private_tags(self) -> dict :
         """method to gather philips private tags 
 
         Returns:
@@ -117,7 +117,7 @@ class Instance:
             else : philips_tags[tag_address.name] = "Undefined"
         return philips_tags
 
-    def get_pet_correction_tags(self):
+    def get_pet_correction_tags(self) -> dict :
         """method to gather pet correction tags 
 
         Returns:
@@ -127,7 +127,7 @@ class Instance:
             return list(self.dicomData[TagPTCorrection.CorrectedImage.value].value)
         else: return "Undefined"
 
-    def get_sop_class_uid(self):
+    def get_sop_class_uid(self) -> str :
         """method to get sop class uid 
 
         Raises:
@@ -139,7 +139,7 @@ class Instance:
         if 'SOPClassUID' in self.dicomData.dir() : return self.dicomData.SOPClassUID
         else : raise Exception('Undefined SOP Class UID')
 
-    def is_secondary_capture(self):
+    def is_secondary_capture(self) -> bool :
         """check if SOPClassUID in CapturesSOPClass list
 
         Returns:
@@ -147,92 +147,222 @@ class Instance:
         """
         return True if self.get_sop_class_uid in CapturesSOPClass else False
 
-    def get_SOPInstanceUID(self):
+    def get_SOPInstanceUID(self) -> str:
+        """get SOPInstanceUID value
+
+        Returns:
+            str: [description]
+        """
         return self.dicomData[TagsInstance.SOPInstanceUID.value].value
 
-    def get_rescale_slope(self):
+    def get_rescale_slope(self) -> str:
+        """get rescale slope value
+
+        Returns:
+            str: [description]
+        """
         return self.dicomData[TagsInstance.RescaleSlope.value].value
 
-    def get_rescale_intercept(self):
+    def get_rescale_intercept(self) -> str:
+        """get rescale intercept value
+
+        Returns:
+            str: [description]
+        """
         return self.dicomData[TagsInstance.RescaleIntercept.value].value
 
-    def get_image_orientation(self):
+    def get_image_orientation(self) -> list:
+        """get image orientation value x,y,z
+
+        Returns:
+            list: [description]
+        """
         return list(self.dicomData[TagsInstance.ImageOrientation.value].value)
     
-    def get_image_position(self):
+    def get_image_position(self) -> list:
+        """get image position value x,y,z
+
+        Returns:
+            list: [description]
+        """
         return list(self.dicomData[TagsInstance.ImagePosition.value].value)
 
-    def get_pixel_spacing(self):
+    def get_pixel_spacing(self) -> list:
+        """get pixel spacing value x,y
+
+        Returns:
+            list: [description]
+        """
         return list(self.dicomData[PixelSpacing.PixelSpacing.value].value)    
         
-    def get_image_type(self):
+    def get_image_type(self) -> list:
+        """get Image type value 
+
+        Returns:
+            list: [description]
+        """
         return list(self.dicomData[ImageType.ImageType.value].value)
 
-    def get_series_instance_uid(self):
+    def get_series_instance_uid(self) -> str:
+        """get Series Instance UID value
+
+        Returns:
+            str: [description]
+        """
         return self.dicomData[TagsSeries['SeriesInstanceUID'].value].value
     
-    def get_accession_number(self):
+    def get_accession_number(self) -> str:
+        """get Accession Number value
+
+        Returns:
+            str: [description]
+        """
         return self.dicomData[TagsStudy['AccessionNumber'].value].value 
 
-    def get_patient_name(self):
+    def get_patient_name(self) -> str:
+        """get Patient Name value
+
+        Returns:
+            str: [description]
+        """
         return self.dicomData[TagsPatient['PatientName'].value].value
 
-    def get_patient_id(self):
+    def get_patient_id(self) -> str:
+        """get patient ID value
+
+        Returns:
+            str: [description]
+        """
         return self.dicomData[TagsPatient['PatientID'].value].value
 
-    def get_patient_birth_date(self):
+    def get_patient_birth_date(self) -> str:
+        """get Patient Birth Date value
+
+        Returns:
+            str: [description]
+        """
         return self.dicomData[TagsPatient['PatientBirthDate'].value].value
 
-    def get_patient_sex(self):
+    def get_patient_sex(self) -> str:
+        """get Patient sex value
+
+        Returns:
+            str: [description]
+        """
         return self.dicomData[TagsPatient['PatientSex'].value].value 
 
-    def get_study_date(self):
+    def get_study_date(self) -> str:
+        """get study date value
+
+        Returns:
+            str: [description]
+        """
         return self.dicomData[TagsStudy['StudyDate'].value].value
 
-    def get_study_description(self):
+    def get_study_description(self) -> str:
+        """get Study Description value
+
+        Returns:
+            str: [description]
+        """
         return self.dicomData[TagsStudy['StudyDescription'].value].value 
 
-    def get_study_id(self):
+    def get_study_id(self) -> str:
+        """get study id value
+
+        Returns:
+            str: [description]
+        """
         return self.dicomData[TagsStudy['StudyID'].value].value 
 
-    def get_study_instance_uid(self):
+    def get_study_instance_uid(self) -> str:
+        """get study instance uid value
+
+        Returns:
+            str: [description]
+        """
         return self.dicomData[TagsStudy['StudyInstanceUID'].value].value
 
-    def get_study_time(self):
+    def get_study_time(self) -> str:
+        """ get study time value 
+
+        Returns:
+            str: [description]
+        """
         return self.dicomData[TagsStudy['StudyTime'].value].value
 
-    def get_number_rows(self):
+    def get_number_rows(self) -> str:
+        """get number of rows value
+
+        Returns:
+            str: [description]
+        """
         return self.dicomData.Rows
 
-    def get_number_columns(self):
+    def get_number_columns(self) -> str:
+        """get number of columns value
+
+        Returns:
+            str: [description]
+        """
         return self.dicomData.Columns
 
-    def get_frame_of_reference_uid(self):
+    def get_frame_of_reference_uid(self) -> str:
+        """get frame of reference uid value
+
+        Returns:
+            str: [description]
+        """
         return self.dicomData.FrameOfReferenceUID
 
-    def get_acquisition_date(self):
+    def get_acquisition_date(self) -> str:
+        """get acquisition date value
+
+        Returns:
+            str: [description]
+        """
         if "AcquisitionDate" in self.dicomData : 
             return self.dicomData.AcquisitionDate
         else : return "Undefined"
         
-    def get_acquisition_time(self):
+    def get_acquisition_time(self) -> str:
+        """get acquisition time value
+
+        Returns:
+            str: [description]
+        """
         if 'AcquisitionTime' in self.dicomData : 
             return self.dicomData.AcquisitionTime
         else : return "Undefined"
 
-    def get_referring_physician_name(self):
+    def get_referring_physician_name(self) -> str:
+        """get referring physician name value
+
+        Returns:
+            str: [description]
+        """
         if "ReferringPhysicianName" in self.dicomData : return self.dicomData.ReferringPhysicianName
         else : return "Undefined"
 
-    def get_specific_character_set(self):
+    def get_specific_character_set(self) -> str:
+        """get specific chracter set value
+
+        Returns:
+            str: [description]
+        """
         if "SpecificCharacterSet" in self.dicomData : return self.dicomData.SpecificCharacterSet
         else : return "Undefined"
 
-    def get_physicians_of_record(self):
+    def get_physicians_of_record(self) -> str:
+        """geet physicians of record value
+
+        Returns:
+            str: [description]
+        """
         if "PhysiciansOfRecord" in self.dicomData : return self.dicomData.PhysiciansOfRecord
         else : return "Undefined"
  
-    def is_image_modality(self):
+    def is_image_modality(self) -> bool :
         """check if SOPClassUID in sop values list 
 
         Returns:
@@ -241,7 +371,7 @@ class Instance:
         sop_values = set(item.value for item in ImageModalitiesSOPClass)
         return True if self.get_sop_class_uid() in sop_values else False
 
-    def get_image_nparray(self):
+    def get_image_nparray(self) -> np.ndarray:
         """get instance image ndarray 
 
         Raises:

@@ -14,7 +14,7 @@ class Nifti :
         self.nifti_img_path = nifti_img_path
         self.nifti_img = sitk.ReadImage(self.nifti_img_path) #shape (x,y,z)
 
-    def resample_and_normalize(self, mode:str='ct'):
+    def resample_and_normalize(self, mode:str='ct') -> np.ndarray:
         """function to resample nifti_img and put it in a (1024,256,256) np.ndarray and normalize the array
 
         Args:

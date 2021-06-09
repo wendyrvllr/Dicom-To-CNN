@@ -1,5 +1,5 @@
-from library_dicom.model.reader.Series import Series
-from library_dicom.model.reader.Instance import Instance 
+from dicom_to_cnn.model.reader.Series import Series
+from dicom_to_cnn.model.reader.Instance import Instance 
 import os 
 from math import exp, log, pow
 from datetime import datetime, timedelta
@@ -27,7 +27,7 @@ class SeriesPT(Series):
         super().__init__(path)
         
 
-    def get_minimum_acquisition_datetime(self):
+    def get_minimum_acquisition_datetime(self) -> datetime:
         """Get earlier acquisition datetime of the PET serie
 
         Returns : 
@@ -48,7 +48,7 @@ class SeriesPT(Series):
         
 
 
-    def get_series_details(self):
+    def get_series_details(self) -> dict:
         """Add Pharmaceuticals data to common series details
 
         Returns:
@@ -70,7 +70,7 @@ class SeriesPT(Series):
         
 
     @classmethod
-    def __parse_datetime(cls, date_time:str):
+    def __parse_datetime(cls, date_time:str) -> datetime:
         """class method to parse date time 
 
         Args:
@@ -87,7 +87,7 @@ class SeriesPT(Series):
 
 
 
-    def __calculateSUVFactor(self):
+    def __calculateSUVFactor(self) -> float:
         """
         Calcul of  SUV factor
 
@@ -164,7 +164,7 @@ class SeriesPT(Series):
         else : return suv_conversion_factor
 
 
-    def calculateSULFactor(self):
+    def calculateSULFactor(self) -> float:
         """Calcul SUL Factor
 
         Returns:
@@ -185,7 +185,7 @@ class SeriesPT(Series):
             raise Exception('Unknown Sex String')
     
 
-    def is_corrected_attenuation(self):
+    def is_corrected_attenuation(self) -> bool :
         """If PET Series is attenuation corrected
 
         Returns:
@@ -198,7 +198,7 @@ class SeriesPT(Series):
 
 
     
-    def get_numpy_array(self):
+    def get_numpy_array(self) -> np.ndarray:
         """method to get 3D numpy array 
 
         Returns:
@@ -208,7 +208,6 @@ class SeriesPT(Series):
         return numpy_array 
 
 
-
     def set_ExportType(self, export_type:str = 'suv'):
         """set the export value for PET array
 
@@ -216,7 +215,7 @@ class SeriesPT(Series):
             export_value (str, optional): ['raw', 'suv', 'sul']. Defaults to 'suv'.
         """
         self.export_type = export_type
-        return None 
+
 
     def export_nifti(self, file_path:str):
         """method to export/save ndarray of series to nifti format
@@ -227,17 +226,7 @@ class SeriesPT(Series):
         pet_array = super().get_numpy_array()
 
         if self.export_type == 'raw' : 
-            sitk_img = sitk.GetImageFromArray( np.transpose(pet_array, (2,0,1) ))
-            sitk_img = sitk.Cast(sitk_img, sitk.sitkFloat16)              
-            original_pixel_spacing = self.instance_array[0].get_pixel_spacing()                
-            original_direction = self.instance_array[0].get_image_orientation()
-            sitk_img.SetDirection( (float(original_direction[0]), float(original_direction[1]), float(original_direction[2]), 
-                                        float(original_direction[3]), float(original_direction[4]), float(original_direction[5]), 
-                                        0.0, 0.0, 1.0) )
-            sitk_img.SetOrigin( self.instance_array[0].get_image_position() )
-            sitk_img.SetSpacing( (original_pixel_spacing[0], original_pixel_spacing[1], self.get_z_spacing()) )
-            sitk.WriteImage(sitk_img, file_path)
-            return None 
+            pass
 
         elif self.export_type == 'suv' : 
             try : 
@@ -262,6 +251,5 @@ class SeriesPT(Series):
         sitk_img.SetOrigin( self.instance_array[0].get_image_position() )
         sitk_img.SetSpacing( (original_pixel_spacing[0], original_pixel_spacing[1], self.get_z_spacing()) )
         sitk.WriteImage(sitk_img, file_path)
-        return None 
 
 

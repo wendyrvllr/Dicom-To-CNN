@@ -21,7 +21,7 @@ class ROIContourSequence :
         self.number_of_roi = number_of_roi
 
 
-    def __define_contour_img(self, number_roi:int):
+    def __define_contour_img(self, number_roi:int) -> sitk.Image :
         """method to extract mask img per ROI number
 
         Args:
@@ -37,15 +37,14 @@ class ROIContourSequence :
         return roi_img 
 
 
-    def get_spatial_coordonate(self, number_roi:int, list_all_SOPInstanceUID:list):
+    def get_spatial_coordonate(self, number_roi:int, list_all_SOPInstanceUID:list) -> tuple:
         """Per ROI number, gather spatial coordonates per slices (when there is a contour)
         Args:
             number_roi (int): [a ROI number, start at 1]
             list_all_SOPInstanceUID (list): [list of every SOPInstanceUID from associated dicom serie]
 
         Returns:
-            results [list]: [list of spatial coordonates [ [contour 1 : [x, y, z, x, y, z...] ], [contour 2 : [x, y, z, x, y, z...]], ... ]
-            list_SOPInstance [list] : [SOPInstanceUID_contour1, SOPINStanceUID_contour2, ...]
+            [tuple]: [list of spatial coordonates [ [contour 1 : [x, y, z, x, y, z...] ], [contour 2 : [x, y, z, x, y, z...]], ... ] and list of SOPInstanceUID [SOPInstanceUID_contour1, SOPINStanceUID_contour2, ...]
 
         """
         img_roi = self.__define_contour_img(number_roi)
@@ -73,7 +72,7 @@ class ROIContourSequence :
 
     
 
-    def __create_ContourImageSequence(self, ReferencedSOPClassUID:str, ReferencedSOPInstanceUID:str):
+    def __create_ContourImageSequence(self, ReferencedSOPClassUID:str, ReferencedSOPInstanceUID:str) -> pydicom.Sequence:
         """method to generate ContourImageSequence from ROIContourSequence 
 
         Args:
@@ -90,7 +89,7 @@ class ROIContourSequence :
         ContourImageSequence.append(dataset)
         return ContourImageSequence 
 
-    def __create_ContourSequence(self, ReferencedSOPClassUID:str, list_ReferencedSOPInstanceUID:list, list_ContourData:list):
+    def __create_ContourSequence(self, ReferencedSOPClassUID:str, list_ReferencedSOPInstanceUID:list, list_ContourData:list) -> pydicom.Sequence:
         """method to generate ContourSequence from ROIContourSequence
 
         Args:
@@ -116,7 +115,7 @@ class ROIContourSequence :
 
 
     @classmethod
-    def get_random_colour(cls):
+    def get_random_colour(cls) -> list:
         """a class method to generate random color for ROI
 
         Returns:
@@ -126,7 +125,7 @@ class ROIContourSequence :
         return [randrange(max), randrange(max), randrange(max)]
 
 
-    def create_ROIContourSequence(self, ReferencedSOPClassUID:str, list_all_SOPInstanceUID:list):
+    def create_ROIContourSequence(self, ReferencedSOPClassUID:str, list_all_SOPInstanceUID:list) -> pydicom.Sequence:
         """method to generate ROIContourSequence from RTSTRUCT file 
 
         Args:

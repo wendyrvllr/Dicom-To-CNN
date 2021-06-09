@@ -1,5 +1,5 @@
-from library_dicom.model.reader.Series import Series
-from library_dicom.model.reader.Instance import Instance
+from dicom_to_cnn.model.reader.Series import Series
+from dicom_to_cnn.model.reader.Instance import Instance
 import numpy as np 
 import sys 
 
@@ -24,7 +24,7 @@ class Instance_RTSS(Instance):
         sys.exit('Cannot get image numpy array from RTSTRUCT FILE')
 
 
-    def get_list_all_SOP_Instance_UID_RTSS(self):
+    def get_list_all_SOP_Instance_UID_RTSS(self) -> list:
         """method to get all SOPInstanceUID referenced in RTSTRUCT File
 
         Returns:
@@ -36,7 +36,7 @@ class Instance_RTSS(Instance):
             liste.append(str(self.dicomData[0x30060010][0].RTReferencedStudySequence[0].RTReferencedSeriesSequence[0].ContourImageSequence[i].ReferencedSOPInstanceUID))
         return liste
 
-    def get_number_of_roi(self):
+    def get_number_of_roi(self) -> int:
         """method to count number of ROI in RTSTRUCT File
 
         Returns:
@@ -46,7 +46,7 @@ class Instance_RTSS(Instance):
 
 
     #info from ReferencedFrameOfReferenceSequence
-    def get_number_of_referenced_series(self):
+    def get_number_of_referenced_series(self) -> int:
         """method to count the series referenced in ReferencedFrameOfReference Sequence
 
         Returns:
@@ -55,7 +55,7 @@ class Instance_RTSS(Instance):
         return len(self.dicomData.ReferencedFrameOfReferenceSequence)
 
 
-    def get_frame_of_reference_uid(self):
+    def get_frame_of_reference_uid(self) -> list:
         """method to get FrameOfReferenceUID for each series referenced in ReferencedFrameOfReference Sequence.
             Usually, only one serie referenced.
 
@@ -69,7 +69,7 @@ class Instance_RTSS(Instance):
         return liste 
 
 
-    def is_frame_of_reference_same(self, frame_of_ref_uid_serie:str):
+    def is_frame_of_reference_same(self, frame_of_ref_uid_serie:str) -> bool:
         """check if FrameOfReferenceUID in RTSS == FrameOfReferenceUID in associated serie 
 
         Args:
@@ -85,7 +85,7 @@ class Instance_RTSS(Instance):
         return True 
 
 
-    def get_referenced_series_instance_uid(self):
+    def get_referenced_series_instance_uid(self) -> list:
         """method to get a list of SeriesInstanceUID for each series referenced in ReferencedFrameOfReference Sequence.
             Usually, only one serie referenced.
             Has to be the same SeriesInstanceUID in the associated serie. 
@@ -100,7 +100,7 @@ class Instance_RTSS(Instance):
         return liste
 
 
-    def get_referenced_study_SOP_instance_uid(self):
+    def get_referenced_study_SOP_instance_uid(self) -> list :
         """method to get a list of StudyInstanceUID for each series referenced in ReferencedFrameOfReference Sequence.
             Usually, only one serie referenced.
             Has to be the same StudyInstanceUID in the associated serie. 
@@ -115,7 +115,7 @@ class Instance_RTSS(Instance):
         return liste
 
 
-    def get_referenced_SOP_class_UID(self):
+    def get_referenced_SOP_class_UID(self) -> list :
         """method to get a list of SOPClassUID for each series referenced in ReferencedFrameOfReference Sequence.
             Usually, only one serie referenced.
             Has to be the same SOPCLassUID in the associated serie. 
@@ -131,7 +131,7 @@ class Instance_RTSS(Instance):
 
  
     #info from StructureSetROISequence
-    def get_ROI_name(self, number_roi:int):
+    def get_ROI_name(self, number_roi:int) -> str:
         """method to get ROI name from StructureSetROI Sequence
 
         Args:
@@ -142,7 +142,7 @@ class Instance_RTSS(Instance):
         """
         return self.dicomData[0x30060020][number_roi - 1].ROIName 
 
-    def get_ROI_volume(self, number_roi:int):
+    def get_ROI_volume(self, number_roi:int) -> str:
         """method to get ROI volume from StructureSetROI Sequence
 
         Args:
@@ -153,7 +153,7 @@ class Instance_RTSS(Instance):
         """
         return self.dicomData[0x30060020][number_roi - 1].ROIVolume 
 
-    def get_ROI_generation_algorithm(self, number_roi:int):
+    def get_ROI_generation_algorithm(self, number_roi:int) -> str :
         """method to get ROIGenerationAlgorithm value from StructureSetROI Sequence
         Args:
             number_roi (int): [ROI number; start at 1. ]
@@ -165,7 +165,7 @@ class Instance_RTSS(Instance):
 
 
     #info from ROIContourSequence
-    def get_roi_display_color(self, number_roi:int):
+    def get_roi_display_color(self, number_roi:int) -> str :
         """method to get ROI color representation from ROIContour Sequence
 
         Args:
@@ -177,7 +177,7 @@ class Instance_RTSS(Instance):
         return self.dicomData[0x30060039][number_roi - 1].ROIDisplayColor 
 
 
-    def get_list_contour_SOP_Instance_UID(self, roi_number:int): 
+    def get_list_contour_SOP_Instance_UID(self, roi_number:int) -> list: 
         """method to get a list of every contour SOPINstanceUID  from ROIContour Sequence
 
         Args:
@@ -193,7 +193,7 @@ class Instance_RTSS(Instance):
         return liste 
 
     
-    def is_referenced_SOP_Instance_UID_in_all_SOP_Instance(self):
+    def is_referenced_SOP_Instance_UID_in_all_SOP_Instance(self) -> bool :
         """check if every  SOPInstanceUID contour is referenced in the SOPINstanceUID of the associated serie
 
         Raises:
@@ -210,7 +210,7 @@ class Instance_RTSS(Instance):
         return True 
 
 
-    def get_number_of_contour_points(self, roi_number:int):
+    def get_number_of_contour_points(self, roi_number:int) -> list:
         """method to get a list of every NumberOfContourPoint in each contours  from ROIContour Sequence
 
         Args:
@@ -225,7 +225,7 @@ class Instance_RTSS(Instance):
             liste.append(self.dicomData[0x30060039][roi_number - 1].ContourSequence[i].NumberOfContourPoints)
         return liste
 
-    def get_list_contour_geometric_type(self, roi_number:int):
+    def get_list_contour_geometric_type(self, roi_number:int) -> list :
         """method to get a list of every ContourGeomtricType value of each contour  from ROIContour Sequence
 
         Args:
@@ -240,7 +240,7 @@ class Instance_RTSS(Instance):
             liste.append(self.dicomData[0x30060039][roi_number - 1].ContourSequence[i].ContourGeometricType)
         return liste
 
-    def is_closed_planar(self, roi_number:int):
+    def is_closed_planar(self, roi_number:int) -> bool :
         """check if every contour is CLOSED_PLANAR  from ROIContour Sequence
 
         Args:
@@ -255,7 +255,7 @@ class Instance_RTSS(Instance):
                 return False
         return True 
 
-    def get_contour_data(self, roi_number:int):
+    def get_contour_data(self, roi_number:int) -> list :
         """method to get contour data of contours  from ROIContour Sequence
 
         Args:

@@ -1,6 +1,6 @@
 import numpy as np
 
-def threshold_matrix(mask_array:np.ndarray, pet_array:np.ndarray, threshold:float):
+def threshold_matrix(mask_array:np.ndarray, pet_array:np.ndarray, threshold:float) -> np.ndarray:
     """function to threshold a ndarray mask
 
     Args:

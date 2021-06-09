@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np 
 
 
-def convert_str_list_to_float_list(str_liste:list):
+def convert_str_list_to_float_list(str_liste:list) -> list :
     """function to convert a list with str to a list with float
 
     Args:
@@ -19,7 +19,7 @@ def convert_str_list_to_float_list(str_liste:list):
     return empty_list 
 
 
-def generate_x_y_cumul(liste:list):
+def generate_x_y_cumul(liste:list) -> list:
     """generate list of x and y coordonates from DVHData cumulative list (from DHVSequence in RTDOSE file)
 
     Args:
@@ -125,7 +125,6 @@ def generate_plot(dictionnary, mode = 'cumulative', dose_mode = 'Gray', volume_m
     fig = px.line(df, x="dose_{}".format(dose_mode), y="volume_{}".format(volume_mode), color='ROIName', title=mode, width = 750, height = 550)
     fig.show()
 
-    return None 
 
     
 

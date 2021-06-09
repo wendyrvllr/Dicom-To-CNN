@@ -1,5 +1,5 @@
-from library_dicom.model.reader.Series import Series
-from library_dicom.model.reader.Instance_RTSS import Instance_RTSS
+from dicom_to_cnn.model.reader.Series import Series
+from dicom_to_cnn.model.reader.Instance_RTSS import Instance_RTSS
 import cv2 as cv2
 import numpy as np 
 
@@ -29,11 +29,11 @@ class MaskBuilder_RTSS :
         self.number_of_roi = self.rtss.get_number_of_roi()
 
 
-    def is_sop_instance_uid_same(self):
+    def is_sop_instance_uid_same(self) -> bool:
         """check if every SOPInstanceUID from RTSTRUCT correspond to SOPINstanceUID from associated serie
 
         Returns:
-            [type]: [description]
+            [bool]: [description]
         """
         uid_rtss = self.rtss.get_list_all_SOP_Instance_UID_RTSS()
         for uid in uid_rtss : 
@@ -42,7 +42,7 @@ class MaskBuilder_RTSS :
 
         return True
 
-    def __spatial_to_pixels(self, number_roi:int):
+    def __spatial_to_pixels(self, number_roi:int) -> dict:
         """Transform spatial contour data to matrix coordonate contour
 
         Arguments :
@@ -77,7 +77,7 @@ class MaskBuilder_RTSS :
             list_pixels[number_item + 1] = contour_item
         return list_pixels
 
-    def get_list_points(self, number_roi:int):
+    def get_list_points(self, number_roi:int) -> list:
         """transform a list of pixels of a ROI to a list nx2 (n points, coordonate (x,y)) for each contour and list of corresponding z slices
 
         Arguments:
@@ -104,7 +104,7 @@ class MaskBuilder_RTSS :
         return list_points, slice 
     
 
-    def rtss_to_3D_mask(self, number_roi:int, matrix_size:list):
+    def rtss_to_3D_mask(self, number_roi:int, matrix_size:list) -> np.ndarray:
         """method to generate 3D segmentation mask per ROI number
 
         Args:
@@ -123,11 +123,10 @@ class MaskBuilder_RTSS :
         liste_points, slice = self.get_list_points(number_roi)
         for item in range(len(slice)):
             np_array_3D[:,:,slice[item]] = cv2.drawContours(np.float32(np_array_3D[:,:,slice[item]]), [np.asarray(liste_points[item])], -1, number_roi , -1)
-
         return np_array_3D.astype(np.uint8)
 
 
-    def rtss_to_4D_mask(self):
+    def rtss_to_4D_mask(self) -> np.ndarray:
         """method to generate 3d ndarray for each ROI, and stack them in a 4D ndarray
 
         Returns:
@@ -138,5 +137,4 @@ class MaskBuilder_RTSS :
         for number_roi in range(1, self.number_of_roi +1):
             np_array_3D.append(self.rtss_to_3D_mask(number_roi, matrix_size))
         np_array_4D = np.stack((np_array_3D), axis = 3)
-
         return np_array_4D.astype(np.uint8)

@@ -31,7 +31,7 @@ class Watershed:
         self.labelled_array = sitk.GetArrayFromImage(self.labelled_img) #(z,y,x)
         self.number_of_cc = int(np.max(self.labelled_array))
 
-    def get_suv_values_matrix(self, label:int):
+    def get_suv_values_matrix(self, label:int) -> np.ndarray:
         """method to get a new SUV ndarray for a chosen label
 
         Args:
@@ -44,20 +44,20 @@ class Watershed:
         new_matrix_pet[np.where(self.labelled_array == label)] = self.pet_array[np.where(self.labelled_array== label)]
         return new_matrix_pet
 
-    def get_mask_roi_matrix(self, label:int):
+    def get_mask_roi_matrix(self, label:int) -> np.ndarray:
         """method to get a new ROI ndarray for a chosen label
 
         Args:
             label (int): [a choosen label]
 
         Returns:
-            [type]: [description]
+            [np.ndarray]: [description]
         """
         new_matrix_roi = np.zeros(self.labelled_array.shape)
         new_matrix_roi[np.where(self.labelled_array == label)] = 1
         return new_matrix_roi.astype(np.uint8)
 
-    def get_distance_map(self, array:np.ndarray):
+    def get_distance_map(self, array:np.ndarray) -> np.ndarray:
         """generate distance map of a given array
 
         Args:
@@ -68,7 +68,7 @@ class Watershed:
         """
         return scipy.ndimage.distance_transform_edt(array)
 
-    def get_local_peak(self, distance_map:np.ndarray):
+    def get_local_peak(self, distance_map:np.ndarray) -> np.ndarray:
         """calculate local peak from a given distance map (np.ndarray)
 
         Args:
@@ -86,21 +86,20 @@ class Watershed:
         return peak_local_max(distance_map, indices = False, min_distance=min_dist)
 
 
-    def define_marker_array(self, localMax:np.ndarray):
+    def define_marker_array(self, localMax:np.ndarray) -> tuple:
         """method to attribute a label on every local peak points
 
         Args:
             localMax (np.ndarray): [a np.ndarray with local peak points (z,y,x)]
 
         Returns:
-            [np.ndarray]: [return a labelled local peak points np.ndarray]
-            [int]: [return the number of local peak points]
+            [tuple]: [return a labelled local peak points np.ndarray and the number of local peak points]
         """
         marker_array, num_features = scipy.ndimage.label(localMax) 
         return marker_array.astype(np.uint8), num_features
  
 
-    def applied_watershed_model(self) : 
+    def applied_watershed_model(self) -> sitk.Image : 
         """applied watershed model process
 
         Returns:
@@ -136,7 +135,7 @@ class Watershed:
 
 
     @classmethod
-    def remove_small_roi(cls, binary_img:sitk.Image, pet_img:sitk.Image):
+    def remove_small_roi(cls, binary_img:sitk.Image, pet_img:sitk.Image) -> sitk.Image:
         """function to remove ROI under 30 ml on a binary sitk.Image
 
         Args:

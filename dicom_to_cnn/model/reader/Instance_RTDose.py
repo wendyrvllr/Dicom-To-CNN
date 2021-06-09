@@ -1,6 +1,6 @@
 import numpy as np 
-from library_dicom.model.reader.Instance import Instance
-from library_dicom.model.reader.Instance_RTSS import Instance_RTSS
+from dicom_to_cnn.model.reader.Instance import Instance
+from dicom_to_cnn.model.reader.Instance_RTSS import Instance_RTSS
 
 
 
@@ -19,18 +19,18 @@ class Instance_RTDose(Instance):
         """
         super().__init__(path_dose, load_image=True)
 
-    def get_image_nparray(self):
+    def get_image_nparray(self) -> np.ndarray:
         """get 3d matrix of rt dose 
 
         Returns:
-            [ndarray]: []
+            [np.ndarray]: [return the 3D array from a RTDose file ]
         """
         return np.transpose(self.dicomData.pixel_array, axes = (1,2,0))
 
 
-    def wrap_DHVSequence_in_dict(self): 
+    def wrap_DHVSequence_in_dict(self) -> dict: 
         """wrap in dictionnary DVH Sequence of each ROI 
-        dict = { (roi) 1) : {'ReferencedROINumber' : value
+        dict = { (roi) 1 : {'ReferencedROINumber' : value
                                 'DVHType' : value
                                 'DoseUnits' : value
                                 'DVHDoseScaling' : value
@@ -72,7 +72,7 @@ class Instance_RTDose(Instance):
 
         return dictionnary
  
-    def add_ROIName_from_RTSS_to_dict(self, dictionnary:dict, rtss_file:str):
+    def add_ROIName_from_RTSS_to_dict(self, dictionnary:dict, rtss_file:str) -> dict:
         """From the RTSS file associated, add the roi's name in the dictionnary of DVH Sequence
 
         Args:

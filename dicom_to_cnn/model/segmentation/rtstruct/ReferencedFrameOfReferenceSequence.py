@@ -1,6 +1,6 @@
 import pydicom 
 
-def create_ContourImageSequence(ReferencedSOPClassUID:str, list_all_SOPInstanceUID:list):
+def create_ContourImageSequence(ReferencedSOPClassUID:str, list_all_SOPInstanceUID:list) -> pydicom.Sequence:
     """function to generate ContourImageSequence from ReferencedFrameOfReferenceSequence
 
     Args:
@@ -19,7 +19,7 @@ def create_ContourImageSequence(ReferencedSOPClassUID:str, list_all_SOPInstanceU
         ContourImageSequence.append(dataset)
     return ContourImageSequence 
 
-def create_RTReferencedSeriesSequence(ReferencedSOPClassUID:str, list_all_SOPInstanceUID:list, SeriesInstanceUID:str):
+def create_RTReferencedSeriesSequence(ReferencedSOPClassUID:str, list_all_SOPInstanceUID:list, SeriesInstanceUID:str) -> pydicom.Sequence:
     """function to generate RTReferencedSeriesSequence from ReferencedFrameOfReferenceSequence
 
     Args:
@@ -38,7 +38,7 @@ def create_RTReferencedSeriesSequence(ReferencedSOPClassUID:str, list_all_SOPIns
     RTReferencedSeriesSequence.append(dataset)
     return RTReferencedSeriesSequence
 
-def create_RTReferencedStudySequence(ReferencedSOPClassUID:str, list_all_SOPInstanceUID:list, SeriesInstanceUID:str, StudyInstanceUID:str):
+def create_RTReferencedStudySequence(ReferencedSOPClassUID:str, list_all_SOPInstanceUID:list, SeriesInstanceUID:str, StudyInstanceUID:str) -> pydicom.Sequence:
     """function to generate RTReferencedStudySequence from ReferencedFrameOfReferenceSequence
 
     Args:
@@ -58,7 +58,7 @@ def create_RTReferencedStudySequence(ReferencedSOPClassUID:str, list_all_SOPInst
     RTReferencedStudySequence.append(dataset)
     return RTReferencedStudySequence
 
-def create_ReferencedFrameOfReferenceSequence(FrameOfReferenceUID:str, ReferencedSOPClassUID:str, list_all_SOPInstanceUID:list, SeriesInstanceUID:str, StudyInstanceUID:str): 
+def create_ReferencedFrameOfReferenceSequence(FrameOfReferenceUID:str, ReferencedSOPClassUID:str, list_all_SOPInstanceUID:list, SeriesInstanceUID:str, StudyInstanceUID:str) -> pydicom.Sequence: 
     """function to generate ReferencedFrameOfReferenceSequence
 
     Args:

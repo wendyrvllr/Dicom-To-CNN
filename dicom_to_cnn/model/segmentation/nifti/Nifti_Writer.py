@@ -1,6 +1,6 @@
 import SimpleITK as sitk 
 import os
-from library_dicom.model.reader.SeriesPT import SeriesPT
+from dicom_to_cnn.model.reader.SeriesPT import SeriesPT
 from dicom_to_cnn.model.segmentation.Abstract_Writer import Abstract_Writer
 
 class Nifti_Writer(Abstract_Writer):

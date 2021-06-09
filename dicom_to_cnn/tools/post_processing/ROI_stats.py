@@ -1,12 +1,12 @@
 import numpy as np 
 import SimpleITK as sitk 
 
-def label_stat_results(labelled_img:sitk.Image, pet_img:sitk.Image) :
+def label_stat_results(labelled_img:sitk.Image, pet_img:sitk.Image) -> dict :
     """a function to gather stats about each ROI
 
     Args:
-        labelled_img (sitk.Image): []
-        pet_img (sitk.Image): [description]
+        labelled_img (sitk.Image): [3D segmentation sitk.Image with label]
+        pet_img (sitk.Image): [3D pet sitk.Image]
 
     Returns:
         [type]: [description]

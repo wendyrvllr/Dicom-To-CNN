@@ -1,12 +1,12 @@
 import numpy as np 
 import SimpleITK as sitk 
-from library_dicom.model.reader.Series import Series
+from dicom_to_cnn.model.reader.Series import Series
 
-def convert_array_to_img(numpy_array:np.ndarray, serie_object:Series):
+def convert_array_to_img(numpy_array:np.ndarray, serie_object:Series) -> sitk.Image:
         """method to convert np.ndarray of shape (z,y,x,c) into pixel vector sitk Image of shape (x,y,z), associated with a PET Series
 
         Returns:
-            [sitk.Image]: [description]
+            [sitk.Image]: [return the corresponding sitk.Image from numpy_array]
         """
         instance_array = serie_object.get_instances_ordered()
         sitk_img = sitk.GetImageFromArray(numpy_array, isVector = True) # [z,y,x,c] tjrs de taille 4, si une seule roi=> dernier channel =1

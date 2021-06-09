@@ -3,11 +3,11 @@ import os
 from os.path import basename,splitext
 import SimpleITK as sitk 
 
-from library_dicom.model.reader.Instance import Instance
-from library_dicom.enums.TagEnum import *
-from library_dicom.enums.SopClassUID import *
-from library_dicom.model.reader.SeriesCT import SeriesCT 
-from library_dicom.model.reader.SeriesPT import SeriesPT 
+from dicom_to_cnn.model.reader.Instance import Instance
+from dicom_to_cnn.enums.TagEnum import *
+from dicom_to_cnn.enums.SopClassUID import *
+from dicom_to_cnn.model.reader.SeriesCT import SeriesCT 
+from dicom_to_cnn.model.reader.SeriesPT import SeriesPT 
 
 class Series():
     """ A class representing a series Dicom
@@ -24,7 +24,7 @@ class Series():
         self.file_names = os.listdir(path)
         self.number_of_files = len(self.file_names)
 
-    def get_number_of_files(self):
+    def get_number_of_files(self) -> int:
         """method to get number of instance in serie folder
 
         Returns:
@@ -32,7 +32,7 @@ class Series():
         """
         return self.number_of_files
     
-    def get_first_instance_metadata(self):
+    def get_first_instance_metadata(self) -> Instance:
         """method to read the first dicom instance in the folder
 
         Returns:
@@ -42,7 +42,7 @@ class Series():
         return Instance(os.path.join(self.path,firstFileName), load_image=True)
 
 
-    def get_series_details(self):
+    def get_series_details(self) -> dict:
         """Read the first dicom in the folder and store Patient / Study / Series
         informations
 
@@ -71,7 +71,7 @@ class Series():
             'instance' : self.instance_details
         }
 
-    def is_series_valid(self):
+    def is_series_valid(self) -> bool:
         """check if the number of slice is wrong, or if the Series Instance UID is the same
 
         Returns:
@@ -91,7 +91,7 @@ class Series():
         
         return True
         
-    def is_image_modality(self):
+    def is_image_modality(self) -> bool :
         """check if SOPClassUID from the first dicom is in sop values list
 
         Returns:
@@ -99,7 +99,7 @@ class Series():
         """
         return self.get_first_instance_metadata().is_image_modality()
 
-    def is_primary_image(self):
+    def is_primary_image(self) -> bool :
         """check if "PRIMARY" in ImageType tag values
 
         Returns:
@@ -107,7 +107,7 @@ class Series():
         """
         return ( "PRIMARY" in self.series_details['ImageType'])
 
-    def is_localizer_series(self):
+    def is_localizer_series(self) -> bool :
         """check if "LOCALIZER" in ImageType tag values
 
         Returns:
@@ -115,7 +115,7 @@ class Series():
         """
         return ( "LOCALIZER" in self.series_details['ImageType'])
 
-    def get_instances_ordered(self):
+    def get_instances_ordered(self) -> list:
         """function to sort instances array by z positions
 
         Returns:
@@ -127,7 +127,7 @@ class Series():
         return instance_array 
 
 
-    def get_numpy_array(self):
+    def get_numpy_array(self) -> np.ndarray:
         """method to get 3d numpy array of the serie 
 
         Returns:
@@ -140,7 +140,7 @@ class Series():
         return np_array
 
 
-    def get_z_positions(self):
+    def get_z_positions(self) -> list :
         """method to gather z positions of each dicom in serie
 
         Returns:
@@ -150,7 +150,7 @@ class Series():
         return Z_positions
 
     
-    def get_z_spacing(self):
+    def get_z_spacing(self) -> float:
         """method to calculate z_spacing 
 
         Raises:
@@ -175,7 +175,7 @@ class Series():
         
 
 
-    def calculate_z_spacing(self, round_:bool = False): 
+    def calculate_z_spacing(self, round_:bool = False) -> list : 
         """method to calculate the z_spacing between slice and gather in list
 
         Args:
@@ -203,7 +203,7 @@ class Series():
             return spacing 
 
 
-    def get_all_SOPInstanceIUD(self):
+    def get_all_SOPInstanceIUD(self)-> list:
         """method to gather all SOPInstanceUID of every Instance in serie
 
         Returns:
@@ -215,7 +215,7 @@ class Series():
         return liste 
 
 
-    def get_all_acquisition_time(self):
+    def get_all_acquisition_time(self) -> list :
         """method to gather all AcquisitionTime of every Instance in serie
 
         Returns:
@@ -228,7 +228,7 @@ class Series():
         return sorted(liste)
 
 
-    def get_size_matrix(self):
+    def get_size_matrix(self) -> list :
         """method to get size of PET matrix/array 
 
         Returns:
@@ -259,7 +259,6 @@ class Series():
         sitk_img.SetOrigin( self.instance_array[0].get_image_position() )
         sitk_img.SetSpacing( (original_pixel_spacing[0], original_pixel_spacing[1], self.get_z_spacing()) )
         sitk.WriteImage(sitk_img, file_path)
-        return None 
 
     @classmethod 
     def get_series_object(cls, path:str):

@@ -1,6 +1,7 @@
-from library_dicom.model.petctviewer.RoiPolygon import RoiPolygon
-from library_dicom.model.petctviewer.RoiElipse import RoiElipse
-from library_dicom.model.petctviewer.RoiNifti import RoiNifti
+from dicom_to_cnn.model.petctviewer.RoiPolygon import RoiPolygon
+from dicom_to_cnn.model.petctviewer.RoiElipse import RoiElipse
+from dicom_to_cnn.model.petctviewer.RoiNifti import RoiNifti
+from dicom_to_cnn.model.petctviewer.Roi import Roi 
 
 
 class RoiFactory():
@@ -22,7 +23,7 @@ class RoiFactory():
        self.volume_dimension = volume_dimension
        self.roi_number = roi_number
     
-    def read_roi(self):
+    def read_roi(self) -> Roi:
         """Instanciate the Correct ROI type according to data
 
         Returns:

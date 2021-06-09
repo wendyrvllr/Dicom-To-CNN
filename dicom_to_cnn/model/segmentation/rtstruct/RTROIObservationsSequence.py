@@ -15,7 +15,7 @@ class RTROIObservationsSequence :
         self.results = results
 
 
-    def create_RTROIObservationsSequence(self):
+    def create_RTROIObservationsSequence(self) -> pydicom.Sequence:
         """method to generate RTROIObservationsSequence
 
         Returns:

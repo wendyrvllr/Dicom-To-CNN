@@ -1,7 +1,7 @@
 import numpy as np
-from library_dicom.model.petctviewer.CsvReader import CsvReader 
-from library_dicom.model.petctviewer.RoiFactory import RoiFactory
-from library_dicom.model.reader.SeriesPT import SeriesPT
+from dicom_to_cnn.model.petctviewer.CsvReader import CsvReader 
+from dicom_to_cnn.model.petctviewer.RoiFactory import RoiFactory
+from dicom_to_cnn.model.reader.SeriesPT import SeriesPT
 
 
 class MaskBuilder(CsvReader):
@@ -24,7 +24,7 @@ class MaskBuilder(CsvReader):
         self.mask_array = self.build_mask()
 
 
-    def build_mask(self):
+    def build_mask(self) -> np.ndarray:
         """build 3D numpy array mask, for each ROI, with ROI coordonates from a CSV, stack them in a 4D matrix
 
         Returns : 
@@ -77,7 +77,7 @@ class MaskBuilder(CsvReader):
         return mask_array.astype(np.uint8) #liste
 
 
-    def coronal_list_points_to_axial(self, list_points:list):
+    def coronal_list_points_to_axial(self, list_points:list) -> list:
         """ Change the list_points in coronal to axial 
         coronal           axial 
           x                 x
@@ -103,7 +103,7 @@ class MaskBuilder(CsvReader):
 
 
 
-    def saggital_list_points_to_axial(self, list_points:list) : 
+    def saggital_list_points_to_axial(self, list_points:list) -> list : 
         """ Change the list_points in saggital to axial
         saggital           axial 
           x                 z
@@ -128,7 +128,7 @@ class MaskBuilder(CsvReader):
 
 
 
-    def calcul_suv(self, nifti_array:np.ndarray):
+    def calcul_suv(self, nifti_array:np.ndarray) -> dict :
         """calcul SUV Mean, SUV Max and SD from the mask, for each ROI, and put results in a dict
 
         Arguments : 
@@ -180,7 +180,7 @@ class MaskBuilder(CsvReader):
         return max_mean
 
 
-    def is_correct_suv(self, nifti_array:np.ndarray):
+    def is_correct_suv(self, nifti_array:np.ndarray) -> bool:
         """check if calculated SUV Mean, SUV Max and SD is correct 
 
         Arguments : 
@@ -204,7 +204,7 @@ class MaskBuilder(CsvReader):
         return True 
 
 
-    def ecart_suv_max(self, nifti_array:np.ndarray):
+    def ecart_suv_max(self, nifti_array:np.ndarray) -> list:
         """calculate the difference between calculate_SUV_MAX and csv_SUV_MAX for each ROI 
 
         Arguments : 
@@ -227,7 +227,7 @@ class MaskBuilder(CsvReader):
                 liste.append(float(abs(calculated_suv_max_mean[number_roi]['SUV_max'] - float(self.details_rois[number_roi]['suv_max']))))
         return liste 
 
-    def ecart_suv_mean(self, nifti_array:np.ndarray) : 
+    def ecart_suv_mean(self, nifti_array:np.ndarray) -> list : 
         """calculate the difference between calculate_SUV_MEAN and csv_SUV_MEAN for each ROI 
 
         Arguments : 
@@ -251,7 +251,7 @@ class MaskBuilder(CsvReader):
         return liste 
 
 
-    def ecart_SD(self, nifti_array:np.ndarray):
+    def ecart_SD(self, nifti_array:np.ndarray) -> list:
         """calculate the difference between calculate_SD and csv_SD for each ROI 
 
         Arguments : 
@@ -281,7 +281,7 @@ class MaskBuilder(CsvReader):
 
 
 
-    def flip_z(self, nifti_array:np.ndarray): 
+    def flip_z(self, nifti_array:np.ndarray) -> np.ndarray: 
         """flip z axis in the mask matrix 
 
         Arguments : 
@@ -306,7 +306,7 @@ class MaskBuilder(CsvReader):
         return self.mask_array
           
 
-    def is_calcul_sul_correct(self, series_path:str):
+    def is_calcul_sul_correct(self, series_path:str) -> bool:
         """check if the SUL in the CSV file and the calculated SUL is the same 
 
         Arguments :

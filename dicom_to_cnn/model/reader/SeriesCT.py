@@ -1,4 +1,4 @@
-from library_dicom.model.reader.Series import Series
+from dicom_to_cnn.model.reader.Series import Series
 import numpy as np
 import SimpleITK as sitk 
 
@@ -17,7 +17,7 @@ class SeriesCT(Series):
         """
         super().__init__(path)
 
-    def get_numpy_array(self):
+    def get_numpy_array(self) -> np.ndarray:
         numpy_array = super().get_numpy_array()
         return numpy_array.astype(np.int16)
 
@@ -37,4 +37,3 @@ class SeriesCT(Series):
         sitk_img.SetOrigin( self.instance_array[0].get_image_position() )
         sitk_img.SetSpacing((original_pixel_spacing[0], original_pixel_spacing[1], self.get_z_spacing()) )
         sitk.WriteImage(sitk_img, file_path)
-        return None 

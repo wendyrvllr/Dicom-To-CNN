@@ -18,7 +18,7 @@ class StructureSetROISequence :
         self.results = results
 
 
-    def create_StructureSetROISequence(self, pixel_spacing:list, ReferencedFrameOfReferenceUID:str):
+    def create_StructureSetROISequence(self, pixel_spacing:list, ReferencedFrameOfReferenceUID:str) -> pydicom.Sequence:
         """method to generate StructureSetROISequence from RTSTRUCT file
 
         Args:
@@ -41,7 +41,7 @@ class StructureSetROISequence :
         return StructureSetROISequence 
         
      
-    def get_roi_volume(self, number_roi:int, pixel_spacing:list):
+    def get_roi_volume(self, number_roi:int, pixel_spacing:list) -> float:
         """method to calculate ROI volume in ml 
 
         Args:

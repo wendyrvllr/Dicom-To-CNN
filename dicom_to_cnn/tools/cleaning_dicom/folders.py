@@ -1,7 +1,7 @@
 import os
 import json
 
-def get_series_path(path:str):
+def get_series_path(path:str) -> list :
     """Go through all the folder to find every series path
 
     Arguments:

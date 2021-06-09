@@ -1,7 +1,7 @@
-import matplotlib
+import matplotlib.patches
 import numpy as np
 import math
-from library_dicom.model.petctviewer.Roi import Roi
+from dicom_to_cnn.model.petctviewer.Roi import Roi
 
 
 class RoiElipse(Roi):
@@ -56,7 +56,7 @@ class RoiElipse(Roi):
             list_points.extend(point)
         return list_points
 
-    def __create_elipse(self, width:float, height:float): 
+    def __create_elipse(self, width:float, height:float) -> matplotlib.patches.Ellipse: 
         """generate an ellipse patches from matplotlib
 
         Args:

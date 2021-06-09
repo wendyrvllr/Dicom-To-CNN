@@ -36,18 +36,18 @@ class CsvReader():
 
         self.csv_data = csv_data
 
-    def get_rois_results(self):
+    def get_rois_results(self) -> list:
         """Return CSV lines containing ROIs results
         """
         return self.csv_data[1 : self.csv_data.index([]) - 2 ]
 
-    def get_sum_row(self) :
+    def get_sum_row(self)  -> list:
         """ return csv line containing sum rois volume 
         """
 
         return self.csv_data[self.csv_data.index([]) - 2 ]
     
-    def get_date(self):
+    def get_date(self) -> str:
         """return date in csv file
 
         Returns:
@@ -55,7 +55,7 @@ class CsvReader():
         """
         return self.csv_data[self.csv_data.index([]) - 1 ][1]
 
-    def get_time(self):
+    def get_time(self) -> str :
         """return time in csv file
 
         Returns:
@@ -66,7 +66,7 @@ class CsvReader():
         except Exception : 
             return ('No time in this csv')
 
-    def get_patient_id(self):
+    def get_patient_id(self) -> str :
         """return patient id in csv file
 
         Returns:
@@ -74,7 +74,7 @@ class CsvReader():
         """
         return self.csv_data[self.csv_data.index([]) - 1 ][13]
 
-    def get_manual_rois(self):
+    def get_manual_rois(self) -> list:
         """return manual rois block
         """
 
@@ -86,7 +86,7 @@ class CsvReader():
         last_manual_row =  first_manual_roi + self.number_of_manual_roi
         return self.csv_data[ first_manual_roi : last_manual_row ]
 
-    def get_nifti_rois(self):
+    def get_nifti_rois(self) -> list:
         """ return automatic (nifti) roi block
         """
         try :
@@ -110,21 +110,21 @@ class CsvReader():
         return nifti_roi_list
 
 
-    def get_SUL(self):
+    def get_SUL(self) -> str:
         """return the SUL value of the CSV
         """
         sul =  self.csv_data[0 :  self.csv_data.index([])]
         return float(sul[-1][3])
 
 
-    def get_SUVlo(self):
+    def get_SUVlo(self) -> str:
         """ return the SUVlo value of the CSV
         """
         last_row = self.csv_data[-1]
         return last_row[0]
 
     @classmethod 
-    def convert_manual_row_to_object(cls, manual_row:list, results_row:list):
+    def convert_manual_row_to_object(cls, manual_row:list, results_row:list) -> dict:
         """Return a row manual row in an object with ROI details
 
         Arguments:
@@ -156,7 +156,7 @@ class CsvReader():
 
 
     @classmethod
-    def convert_nifti_row_to_object(cls, nifti_row:list, results_row:list):
+    def convert_nifti_row_to_object(cls, nifti_row:list, results_row:list) -> dict:
         """Return list of point included in the roi
 
         Arguments:
@@ -182,7 +182,7 @@ class CsvReader():
         return result_answer
 
     @classmethod
-    def list_string_to_point_list_int(cls, point_list_string:list):
+    def list_string_to_point_list_int(cls, point_list_string:list) -> list:
         """
         Transforms point string into list of coordinate (int)
 
@@ -201,7 +201,7 @@ class CsvReader():
         return point_list
 
 
-    def get_csv_roi_details(self):
+    def get_csv_roi_details(self) -> dict:
         """return a dict with each ROI information to build the mask
 
         Returns:

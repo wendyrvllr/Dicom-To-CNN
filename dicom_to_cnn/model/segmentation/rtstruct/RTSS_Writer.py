@@ -7,12 +7,12 @@ import tempfile
 import SimpleITK as sitk 
 from skimage.measure import label 
 from dicom_to_cnn.model.segmentation.Abstract_Writer import Abstract_Writer
-from library_dicom.model.reader.Series import Series
-from library_dicom.model.segmentation.rtstruct.StructureSetROISequence import StructureSetROISequence
-from library_dicom.model.segmentation.rtstruct.RTROIObservationsSequence import RTROIObservationsSequence
-from library_dicom.model.segmentation.rtstruct.ROIContourSequence import ROIContourSequence
-from library_dicom.model.segmentation.rtstruct.ReferencedFrameOfReferenceSequence import *
-from library_dicom.tools.export_segmentation.generate_dict import *
+from dicom_to_cnn.model.reader.Series import Series
+from dicom_to_cnn.model.segmentation.rtstruct.StructureSetROISequence import StructureSetROISequence
+from dicom_to_cnn.model.segmentation.rtstruct.RTROIObservationsSequence import RTROIObservationsSequence
+from dicom_to_cnn.model.segmentation.rtstruct.ROIContourSequence import ROIContourSequence
+from dicom_to_cnn.model.segmentation.rtstruct.ReferencedFrameOfReferenceSequence import *
+from dicom_to_cnn.tools.export_segmentation.generate_dict import *
 
 
 class RTSS_Writer(Abstract_Writer):
@@ -64,7 +64,7 @@ class RTSS_Writer(Abstract_Writer):
         self.dataset.is_little_endian = True
         self.dataset.is_implicit_VR = False 
 
-    def __clean_mask(self):
+    def __clean_mask(self) -> np.ndarray:
         """a function to clean mask : remove pixel (=1) when there is less than 3 pixels (=1) in slice
 
         Args:
@@ -105,7 +105,7 @@ class RTSS_Writer(Abstract_Writer):
                 label_ += 1 
         return matrix
 
-    def generates_file_meta(self):
+    def generates_file_meta(self) -> tuple:
         """
             Generates required values for file meta information
             List of tags :
@@ -115,6 +115,9 @@ class RTSS_Writer(Abstract_Writer):
                   - MediaStorageSOPInstanceUID'    :
                   - TransferSyntaxUID'             :
                   - ImplementationClassUID'        :
+
+        Returns: 
+            (tuple): [return file_meta and MediaStorageSOPInstanceUID of the new RTSTRUCT]
         """
 
 
@@ -184,9 +187,6 @@ class RTSS_Writer(Abstract_Writer):
         self.dataset.StructureSetLabel = self.results["SeriesDescription"]
         self.dataset.StructureSetTime = dt.strftime('%H%M%S.%f')
 
-        return None 
-
-
     #StructureSetROISequence
     def set_StructureSetROISequence(self):
         """method to set StructureSetROISequence from RTSTRUCT file 
@@ -227,7 +227,6 @@ class RTSS_Writer(Abstract_Writer):
 
         """
         self.dataset.save_as(os.path.join(directory_path, filename), write_like_original=False)
-        return None 
 
 
         

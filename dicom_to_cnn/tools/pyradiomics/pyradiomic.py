@@ -2,14 +2,14 @@ from radiomics.featureextractor import RadiomicsFeatureExtractor
 import SimpleITK as sitk 
 from itertools import combinations
 import numpy as np
-from library_dicom.tools.pre_processing.threshold_mask import *
+from dicom_to_cnn.tools.pre_processing.threshold_mask import *
 
 
 """Tools to extract metrics from PET/MASK using pyradiomics
 """
 
 
-def get_center_of_mass(mask_path:str, thresh:float = 0.41, pet_path:str = None):
+def get_center_of_mass(mask_path:str, thresh:float = 0.41, pet_path:str = None)-> list :
     """Get the list of every ROIs center
 
     Args:
@@ -128,7 +128,7 @@ def get_center_of_mass(mask_path:str, thresh:float = 0.41, pet_path:str = None):
     return center 
 
 
-def distance(coord_A:list, coord_B:list):
+def distance(coord_A:list, coord_B:list) -> float:
     """calcul euclidian distance between 2 points in 3D 
 
     Args:
@@ -141,7 +141,7 @@ def distance(coord_A:list, coord_B:list):
     return np.sqrt((coord_A[0]-coord_B[0])**2 + (coord_A[1]-coord_B[1])**2 + (coord_A[2]-coord_B[2])**2)
 
 
-def calcul_distance_max(list_center:list):
+def calcul_distance_max(list_center:list) -> float:
     """Calcul the maximum distance between two ROIs
 
     Args:
@@ -165,7 +165,7 @@ def calcul_distance_max(list_center:list):
 
 
 
-def get_bigger_roi_number(mask_path:str, pet_path:str):
+def get_bigger_roi_number(mask_path:str, pet_path:str) -> tuple:
     """function to find the biggest ROI (volume) in mask
 
     Args:
@@ -173,8 +173,8 @@ def get_bigger_roi_number(mask_path:str, pet_path:str):
         pet_path (str): [path of nifti PET]
 
     Returns:
-        [int]: [Return number of the biggest ROI]
-        [float] :[Return the SUV max value of the biggest ROI]
+        [tuple]: [Return number of the biggest ROI and  the SUV max value of the biggest ROI]
+
     """
     img_mask = sitk.ReadImage(mask_path) #(x,y,z)
     img_pet = sitk.ReadImage(pet_path) #(x,y,z)
@@ -222,7 +222,7 @@ def get_bigger_roi_number(mask_path:str, pet_path:str):
 
 
 
-def get_diameter(mask_path:str, pet_path:str, number_bigger_roi:int) : 
+def get_diameter(mask_path:str, pet_path:str, number_bigger_roi:int) -> tuple : 
     """get 2D and 3D diameter of the biggest ROI in MASK
 
     Args:

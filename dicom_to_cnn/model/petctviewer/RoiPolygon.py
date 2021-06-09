@@ -1,5 +1,5 @@
 import matplotlib.patches
-from library_dicom.model.petctviewer.Roi import Roi
+from dicom_to_cnn.model.petctviewer.Roi import Roi
 
 
 class RoiPolygon(Roi):
@@ -24,7 +24,7 @@ class RoiPolygon(Roi):
         super().__init__(axis, first_slice, last_slice, roi_number, type_number, list_point, volume_dimension)
         self.list_points = self.calculateMaskPoint()
 
-    def calculateMaskPoint(self):
+    def calculateMaskPoint(self) -> list:
         """  calculate [x,y,z] coordonates/voxel which belong to the ROI in polygon patches
 
         Returns:
@@ -39,7 +39,7 @@ class RoiPolygon(Roi):
             list_points.extend(point)
         return list_points
 
-    def __create_closed_polygon(self):
+    def __create_closed_polygon(self) -> matplotlib.patches.Polygon:
         """generate an polygon patches from matplotlib
 
         Returns:

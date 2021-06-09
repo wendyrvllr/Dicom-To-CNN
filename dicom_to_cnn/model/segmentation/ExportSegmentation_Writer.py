@@ -1,7 +1,7 @@
 import SimpleITK as sitk 
-from library_dicom.model.segmentation.rtstruct.RTSS_Writer import RTSS_Writer
-from library_dicom.model.segmentation.dicom_seg.DICOMSEG_Writer import DICOMSEG_Writer
-from library_dicom.model.segmentation.nifti.Nifti_Writer import Nifti_Writer
+from dicom_to_cnn.model.segmentation.rtstruct.RTSS_Writer import RTSS_Writer
+from dicom_to_cnn.model.segmentation.dicom_seg.DICOMSEG_Writer import DICOMSEG_Writer
+from dicom_to_cnn.model.segmentation.nifti.Nifti_Writer import Nifti_Writer
 
 class ExportSegmentation_Writer : 
     """a class to export segmentation sitk img in RTSTRUCT or DICOMSEG format

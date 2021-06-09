@@ -14,4 +14,3 @@ def convert_format_nifti_mask(nifti_path:str, destination:str):
     img = sitk.Cast(img, sitk.sitkUInt32)
     filename = nifti_path.split('/')[-1][0]
     sitk.WriteImage(img, os.path.join(destination,  filename))
-    return None 
