@@ -6,153 +6,72 @@ import os
 #target_spacing = (4.0, 4.0, 4.0)
 #target_direction = (1,0,0,0,1,0,0,0,1)
 
-class Fusion: 
-    """A class to resample, reshape and align PET and CT sitk Image 
-    """
 
+class Fusion : 
 
-    def __init__(self, pet:sitk.Image, ct:sitk.Image, target_size:tuple, target_spacing:tuple, target_direction:tuple):
-        """constructor
+    def __init__(self):
+        pass 
 
-        Args:
-            pet ([sitk.Image]): SeriesPT object or nifti image path or dict 
-            ct([sitk.Image]): SeriesCT object or nifti image path or dict 
-            target_size ([tuple]): [size (x,y,z)]
-            target_spacing ([tuple]): [spacing (x,y,z)]
-            target_direction ([tuple]): [direction ( x x x , y y y, z z z)]
-            mode ([str]): 'serie' for serie object, 'img' if already PET and CT nifti path, 'dict' if dictionnary with img inside
-        """
-        self.pet_objet = pet
-        self.ct_objet = ct
-        self.target_size = target_size
-        self.target_spacing = target_spacing
-        self.target_direction = target_direction
-
-    def get_feature_pet_img(self) -> tuple :
-        """get pet spacing, size, direction, origin
-
-        Returns:
-            tuple: [return spacing, size, direction, origin value]
-        """
-        original_pixel_spacing = self.pet_objet.GetSpacing()
-        original_direction = self.pet_objet.GetDirection()
-        original_origin = self.pet_objet.GetOrigin()
-        original_size = self.pet_objet.GetSize()
-        return original_pixel_spacing, original_direction, original_origin, original_size
-
-    def get_feature_ct_img(self) -> tuple :
-        """get ct spacing, size, direction, origin
-
-        Returns:
-            tuple: [return spacing, size, direction, origin value]
-        """
-        original_pixel_spacing = self.ct_objet.GetSpacing()
-        original_direction = self.ct_objet.GetDirection()
-        original_origin = self.ct_objet.GetOrigin()
-        original_size = self.ct_objet.GetSize()
-        return original_pixel_spacing, original_direction, original_origin, original_size
-
-
-    def calculate_new_origin(self, mode:str = 'head') -> tuple:
-        """method to calculate new origin for both PET and CT 
+    def set_origin_image(self, origin_img:sitk.Image) -> None : 
+        """method to set the origin sitk.Image on which we want to resample 
 
         Args:
-            mode (str, optional): [calculate center from head or from center]. Defaults to 'head'.
-
-        Returns:
-            [tuple]: [return new calculated center in 'head' or 'center' format]
+            origin_img (sitk.Image): []
         """
-        if mode == 'head' : return self.compute_new_origin_head2hips()
-        elif mode == 'center' : return self.compute_new_origin_center()
+        self.origin_img = origin_img 
+        self.origin_size = origin_img.GetSize()
+        self.origin_spacing = origin_img.GetSpacing()
+        self.origin_direction = origin_img.GetDirection()
+        self.origin_origin = origin_img.GetOrigin()
 
-    def compute_new_origin_head2hips(self) -> tuple :
+    def set_target_volume(self, target_size: tuple, target_spacing: tuple, target_direction:tuple) -> None : 
+        """method to set the target size, spacing and direction 
+
+        Args:
+            target_size (tuple): [(x,y,z)]
+            target_spacing (tuple): [(x,y,z)]
+            target_direction (tuple): [(x,x,x,y,y,y,z,z,z)]
+        """
+        self.target_size = target_size 
+        self.target_spacing = target_spacing 
+        self.target_direction = target_direction 
+
+    def __compute_new_origin_head2hips(self) -> None :
         """method to compute new_origin from head
 
         Returns:
             [tuple]: [return new origin]
         """
-        new_size = self.target_size
-        new_spacing = self.target_spacing
-        pet_spacing, _, pet_origin, pet_size = self.get_feature_pet_img()
-        pet_origin = np.asarray(pet_origin)
-        pet_size = np.asarray(pet_size)
-        pet_spacing = np.asarray(pet_spacing)
-        new_origin = (pet_origin[0] + 0.5 * pet_size[0] * pet_spacing[0] - 0.5 * new_size[0] * new_spacing[0],
-                      pet_origin[1] + 0.5 * pet_size[1] * pet_spacing[1] - 0.5 * new_size[1] * new_spacing[1],
-                      pet_origin[2] + 1.0 * pet_size[2] * pet_spacing[2] - 1.0 * new_size[2] * new_spacing[2])
-        return new_origin
-
-    def compute_new_origin_center(self) -> tuple:
-        """method to commpute new origin from center
-
-        Returns:
-            [tuple]: [return new origin]
-        """
-        pet_spacing, _, pet_origin, pet_size = self.get_feature_pet_img()
-        pet_origin = np.asarray(pet_origin)
-        pet_size = np.asarray(pet_size)
-        pet_spacing = np.asarray(pet_spacing)
-        new_size = np.asarray(self.target_size)
-        new_spacing = np.asarray(self.target_spacing)
-        return tuple(pet_origin + 0.5 * (pet_size * pet_spacing - new_size * new_spacing))
-
+        origin_origin = np.asarray(self.origin_origin)
+        origin_size = np.asarray(self.origin_size)
+        origin_spacing = np.asarray(self.origin_spacing)
+        new_origin = (origin_origin[0] + 0.5 * origin_size[0] * origin_spacing[0] - 0.5 * self.target_size[0] * self.target_spacing[0],
+                      origin_origin[1] + 0.5 * origin_size[1] * origin_spacing[1] - 0.5 * self.target_size[1] * self.target_spacing[1],
+                      origin_origin[2] + 1.0 * origin_size[2] * origin_spacing[2] - 1.0 * self.target_size[2] * self.target_spacing[2])
+        return new_origin 
         
-
-    def resample(self, mode:str ='head') -> sitk.Image: 
-        """resample pet and ct sitk.Image with a target spacing, size, direction, and origin
+    def resample(self, image_to_resample:sitk.Image, defaultValuePixel:float) -> sitk.Image:
+        """method to resample a sitk.Image with defined size, target, spacing and origin
 
         Args:
-            mode (str, optional): [Choose new origin method]. Defaults to 'head'.
+            image_to_resample (sitk.Image): [shape (x,y,z)]
+            defaultValuePixel (float): [Set the pixel value when a transformed pixel is outside of the image, pet and mask =0.0, ct = -1000.0]
 
         Returns:
-            [sitk.Image]: [return resampled pet sitk.Image and ct sitk.Image]
+            sitk.Image: [return the resampled sitk.Image]
         """
-        
-        pet_img, ct_img = self.pet_objet, self.ct_objet
-        
-        new_origin = self.calculate_new_origin(mode=mode)
-        
-        #pet
+        target_origin = self.__compute_new_origin_head2hips()
         transformation = sitk.ResampleImageFilter()
         transformation.SetOutputDirection(self.target_direction)
-        transformation.SetOutputOrigin(new_origin)
+        transformation.SetOutputOrigin(target_origin)
         transformation.SetOutputSpacing(self.target_spacing)
         transformation.SetSize(self.target_size)
-        transformation.SetDefaultPixelValue(0.0)
+        transformation.SetDefaultPixelValue(defaultValuePixel)
         transformation.SetInterpolator(sitk.sitkLinear)
-        new_pet_img = transformation.Execute(pet_img) 
-
-        #ct 
-        transformation = sitk.ResampleImageFilter()
-        transformation.SetOutputDirection(self.target_direction)
-        transformation.SetOutputOrigin(new_origin)
-        transformation.SetOutputSpacing(self.target_spacing)
-        transformation.SetSize(self.target_size)
-        transformation.SetDefaultPixelValue(-1000.0)
-        transformation.SetInterpolator(sitk.sitkLinear)
-        new_ct_img = transformation.Execute(ct_img) 
-       
-        return new_pet_img, new_ct_img
-
-    def save_nifti_fusion(self, filename:str, directory:str, mode:str ='head') -> sitk.Image:
-        """save merged PT/CT nifti after resample reshape 
-
-        Args:
-            filename ([str]): [name of the merged image]
-            directory ([str]): [directory's path where to save the merged image]
-            mode (str, optional): [description]. Defaults to 'head'.
-
-        Returns:
-            [sitk.Image]: 4D matrix, concatenate PT/CT 
-        """
-        pet_img, ct_img = self.resample(mode=mode) #[c, z, y, x]
-        s = []
-        s.append(pet_img)
-        s.append(ct_img)
-        concat_img = sitk.JoinSeries(s)
-        sitk.WriteImage(concat_img, os.path.join(directory,filename))
-        return concat_img
+        resampled_img = transformation.Execute(image_to_resample)
+        return resampled_img 
 
 
 
 
+    
