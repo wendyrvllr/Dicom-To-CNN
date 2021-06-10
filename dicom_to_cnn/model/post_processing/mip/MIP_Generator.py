@@ -36,7 +36,7 @@ class MIP_Generator :
         return MIP
 
 
-    def save(self, filename:str, directory:str, vmin:int=0, vmax:int=7) -> str:
+    def save_as_png(self, filename:str, directory:str, vmin:int=0, vmax:int=7) -> str:
         """method to save matplotlib.Figure of the generated MIP as png image
 
         Args:
@@ -77,7 +77,7 @@ class MIP_Generator :
         for angle in angles:
             MIP = self.project(angle)
             mip_filename=str(angle)+'.png'
-            path = self.save(mip_filename, directory, vmin, vmax)
+            path = self.save_as_png(mip_filename, directory, vmin, vmax)
             angle_filenames.append(path)
         self.files_to_gif(angle_filenames, duration, filename, directory)
         for image in angle_filenames : 
