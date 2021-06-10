@@ -1,4 +1,4 @@
-# library-DICOM
+# Dicom2CNN
 
 Install : pip install dicom-to-cnn 
 
@@ -7,10 +7,12 @@ Features :
 - Conversion  :
   - Dicom to Nifti
   - Mask to RTSS and DICOMSeg
-  - RTSS / DICOMSeg to mask
+  - RTSS to mask
 - PET/CT
   - Conversion Bqml/Counts to SUV and SUL
   - Fusion
+
+TODO : DicomSeg To mask
 
 #Maintainer  : Salim Kanoun
 #Contributors : Thomas Trouillard, Wendy Revailler
