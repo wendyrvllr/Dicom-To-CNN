@@ -24,7 +24,7 @@ class Watershed:
         self.pet_array = sitk.GetArrayFromImage(self.pet_img) # (z,y,x)
         self.generated_connected_component_img()
 
-    def generated_connected_component_img(self):
+    def generated_connected_component_img(self) -> None :
         """method to generate a first labelled img and its np.ndarray by connected component
         """
         self.labelled_img = sitk.ConnectedComponent(self.binary_img)

@@ -15,7 +15,7 @@ class Nifti_Writer(Abstract_Writer):
         """
         super().__init__(mask_img)
 
-    def save_file(self, filename:str, directory_path:str):
+    def save_file(self, filename:str, directory_path:str) -> None :
         """method to save the new nifti file
 
         Args:

@@ -28,7 +28,7 @@ class ExportSegmentation_Writer :
             raise Exception ('Format not available')
 
 
-    def save_file(self, filename:str, directory_path:str):
+    def save_file(self, filename:str, directory_path:str) -> None:
         """method to generate and save a new DICOM file in RTSTRUCT or DICOMSEG format
 
         Args:
