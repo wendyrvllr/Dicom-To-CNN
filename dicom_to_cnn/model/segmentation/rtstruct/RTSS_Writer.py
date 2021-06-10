@@ -132,7 +132,7 @@ class RTSS_Writer(Abstract_Writer):
         return file_meta, file_meta.MediaStorageSOPInstanceUID
 
 
-    def set_tags(self):
+    def set_tags(self) -> None:
         """ generate required values from associated dicom serie
             
             List of tags :
@@ -188,27 +188,27 @@ class RTSS_Writer(Abstract_Writer):
         self.dataset.StructureSetTime = dt.strftime('%H%M%S.%f')
 
     #StructureSetROISequence
-    def set_StructureSetROISequence(self):
+    def set_StructureSetROISequence(self) -> None :
         """method to set StructureSetROISequence from RTSTRUCT file 
         """
         referenced_frame_of_reference_uid = self.instances[0].get_frame_of_reference_uid()
         self.dataset.StructureSetROISequence = StructureSetROISequence(self.mask_array, self.results, self.number_of_roi).create_StructureSetROISequence(self.pixel_spacing, referenced_frame_of_reference_uid)
         
     #RTROIObservationSequence
-    def set_RTROIObservationSequence(self):
+    def set_RTROIObservationSequence(self) -> None :
         """method to set RTROIObservationSequence from RTSTRUCT file
         """
         self.dataset.RTROIObservationsSequence = RTROIObservationsSequence(self.results, self.number_of_roi).create_RTROIObservationsSequence()
         
     #ROIContourSequence 
-    def set_ROIContourSequence(self):
+    def set_ROIContourSequence(self)-> None:
         """method to set ROIContourSequence from RTSTRUCT file 
         """
         referenced_sop_class_uid = self.instances[0].get_sop_class_uid()
         self.dataset.ROIContourSequence = ROIContourSequence(self.mask_array, self.mask_img, self.number_of_roi).create_ROIContourSequence(referenced_sop_class_uid, self.list_all_SOPInstanceUID)
 
     #ReferencedFrameOfReferenceSequence 
-    def set_ReferencedFrameOfReferenceSequence(self):
+    def set_ReferencedFrameOfReferenceSequence(self) -> None:
         """method to set ReferencedFrameOfReferenceSequence from RTSTRUCT file
         """
         frame_of_reference_uid = self.instances[0].get_frame_of_reference_uid()
@@ -218,7 +218,7 @@ class RTSS_Writer(Abstract_Writer):
         self.dataset.ReferencedFrameOfReferenceSequence = create_ReferencedFrameOfReferenceSequence(frame_of_reference_uid, sop_class_uid, self.list_all_SOPInstanceUID, series_instance_uid, study_instance_uid)
 
 
-    def save_file(self, filename:str, directory_path:str):
+    def save_file(self, filename:str, directory_path:str) -> None :
         """method to save the RTSTRUCT file
 
         Args:

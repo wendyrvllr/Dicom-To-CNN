@@ -71,7 +71,7 @@ class DICOMSEG_Writer(Abstract_Writer):
         return dcm
 
 
-    def save_file(self, filename:str, directory_path:str):
+    def save_file(self, filename:str, directory_path:str) -> None :
         """method to save the new DICOMSEG file
 
         Args:

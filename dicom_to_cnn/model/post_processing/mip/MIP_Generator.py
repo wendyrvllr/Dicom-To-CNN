@@ -16,7 +16,7 @@ class MIP_Generator :
         """
         self.numpy_array = numpy_array
 
-    def projection(self, angle:int) -> np.ndarray:
+    def project(self, angle:int) -> np.ndarray:
         """function to generate 2D MIP of a 3D (or 4D) ndarray of shape (z,y,x) (or shape (z,y,x,C)) 
 
         Args:
@@ -60,7 +60,7 @@ class MIP_Generator :
         plt.close()
         return os.path.join(directory, filename)
 
-    def create_mip_gif(self, filename:str, directory:str, vmin:int=0, vmax:int=7):
+    def create_mip_gif(self, filename:str, directory:str, vmin:int=0, vmax:int=7) -> None :
         """method to create mip GIF and save it as .gif
 
         Args:
@@ -75,16 +75,16 @@ class MIP_Generator :
         angle_filenames = []
         angles = np.linspace(0, 360, number_images)
         for angle in angles:
-            MIP = self.projection(angle)
+            MIP = self.project(angle)
             mip_filename=str(angle)+'.png'
             path = self.save(mip_filename, directory, vmin, vmax)
             angle_filenames.append(path)
-        self.create_gif(angle_filenames, duration, filename, directory)
+        self.files_to_gif(angle_filenames, duration, filename, directory)
         for image in angle_filenames : 
             os.remove(image)
 
     @classmethod
-    def create_gif(cls, filenames:list, duration:float, name:str, directory:str):
+    def files_to_gif(cls, filenames:list, duration:float, name:str, directory:str) -> None :
         """From a list of images, create gif
 
         Args:
@@ -100,7 +100,7 @@ class MIP_Generator :
         imageio.mimwrite(output_file, images, duration=duration)
 
     @classmethod
-    def create_pdf_mip(cls, angle_filenames:list, filename:str, directory:str) : 
+    def create_pdf_mip(cls, angle_filenames:list, filename:str, directory:str)-> None : 
         """function generate pdf file of PET MIP and MASK MIP 
         
             Arguments : 

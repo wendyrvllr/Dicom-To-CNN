@@ -9,6 +9,6 @@ class Abstract_Writer(abc.ABCMeta) :
         self.mask_img = mask_img
 
     @abc.abstractmethod
-    def save_file(self, filename:str, directory_path:str):
+    def save_file(self, filename:str, directory_path:str) -> None :
         pass 
 
