@@ -1,4 +1,4 @@
-# Dicom2CNN
+# Dicom-To-CNN
 
 Install : pip install dicom-to-cnn 
 
