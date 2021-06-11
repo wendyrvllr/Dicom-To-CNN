@@ -1,0 +1,223 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>dicom_to_cnn package &#8212; dicom_to_cnn 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="dicom-to-cnn-package">
+<h1>dicom_to_cnn package<a class="headerlink" href="#dicom-to-cnn-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dicom_to_cnn.enums.html">dicom_to_cnn.enums package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dicom_to_cnn.enums.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dicom_to_cnn.enums.html#module-dicom_to_cnn.enums.SopClassUID">dicom_to_cnn.enums.SopClassUID module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dicom_to_cnn.enums.html#module-dicom_to_cnn.enums.TagEnum">dicom_to_cnn.enums.TagEnum module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dicom_to_cnn.enums.html#module-dicom_to_cnn.enums">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dicom_to_cnn.model.html">dicom_to_cnn.model package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dicom_to_cnn.model.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dicom_to_cnn.model.fusion.html">dicom_to_cnn.model.fusion package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.fusion.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.fusion.html#module-dicom_to_cnn.model.fusion.Fusion">dicom_to_cnn.model.fusion.Fusion module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.fusion.html#module-dicom_to_cnn.model.fusion">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dicom_to_cnn.model.petctviewer.html">dicom_to_cnn.model.petctviewer package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.petctviewer.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.petctviewer.html#module-dicom_to_cnn.model.petctviewer.CsvReader">dicom_to_cnn.model.petctviewer.CsvReader module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.petctviewer.html#module-dicom_to_cnn.model.petctviewer.MaskBuilder">dicom_to_cnn.model.petctviewer.MaskBuilder module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.petctviewer.html#module-dicom_to_cnn.model.petctviewer.Roi">dicom_to_cnn.model.petctviewer.Roi module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.petctviewer.html#module-dicom_to_cnn.model.petctviewer.RoiElipse">dicom_to_cnn.model.petctviewer.RoiElipse module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.petctviewer.html#module-dicom_to_cnn.model.petctviewer.RoiFactory">dicom_to_cnn.model.petctviewer.RoiFactory module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.petctviewer.html#module-dicom_to_cnn.model.petctviewer.RoiNifti">dicom_to_cnn.model.petctviewer.RoiNifti module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.petctviewer.html#module-dicom_to_cnn.model.petctviewer.RoiPolygon">dicom_to_cnn.model.petctviewer.RoiPolygon module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.petctviewer.html#module-dicom_to_cnn.model.petctviewer.csv_volume">dicom_to_cnn.model.petctviewer.csv_volume module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.petctviewer.html#module-dicom_to_cnn.model.petctviewer">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dicom_to_cnn.model.post_processing.html">dicom_to_cnn.model.post_processing package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.post_processing.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.post_processing.html#module-dicom_to_cnn.model.post_processing">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dicom_to_cnn.model.reader.html">dicom_to_cnn.model.reader package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.reader.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.reader.html#module-dicom_to_cnn.model.reader.Instance">dicom_to_cnn.model.reader.Instance module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.reader.html#module-dicom_to_cnn.model.reader.Instance_RTDose">dicom_to_cnn.model.reader.Instance_RTDose module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.reader.html#module-dicom_to_cnn.model.reader.Instance_RTSS">dicom_to_cnn.model.reader.Instance_RTSS module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.reader.html#module-dicom_to_cnn.model.reader.Nifti">dicom_to_cnn.model.reader.Nifti module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.reader.html#module-dicom_to_cnn.model.reader.Series">dicom_to_cnn.model.reader.Series module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.reader.html#module-dicom_to_cnn.model.reader.SeriesCT">dicom_to_cnn.model.reader.SeriesCT module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.reader.html#module-dicom_to_cnn.model.reader.SeriesPT">dicom_to_cnn.model.reader.SeriesPT module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.reader.html#module-dicom_to_cnn.model.reader">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dicom_to_cnn.model.segmentation.html">dicom_to_cnn.model.segmentation package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.segmentation.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.segmentation.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.segmentation.html#module-dicom_to_cnn.model.segmentation.Abstract_Writer">dicom_to_cnn.model.segmentation.Abstract_Writer module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.segmentation.html#dicom-to-cnn-model-segmentation-exportsegmentation-writer-module">dicom_to_cnn.model.segmentation.ExportSegmentation_Writer module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.segmentation.html#module-dicom_to_cnn.model.segmentation.MaskBuilder_DICOMSEG">dicom_to_cnn.model.segmentation.MaskBuilder_DICOMSEG module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.segmentation.html#module-dicom_to_cnn.model.segmentation.MaskBuilder_RTSS">dicom_to_cnn.model.segmentation.MaskBuilder_RTSS module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.model.segmentation.html#module-dicom_to_cnn.model.segmentation">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dicom_to_cnn.model.html#module-dicom_to_cnn.model">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dicom_to_cnn.tools.html">dicom_to_cnn.tools package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dicom_to_cnn.tools.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dicom_to_cnn.tools.cleaning_dicom.html">dicom_to_cnn.tools.cleaning_dicom package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.cleaning_dicom.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.cleaning_dicom.html#module-dicom_to_cnn.tools.cleaning_dicom.cleaning_series">dicom_to_cnn.tools.cleaning_dicom.cleaning_series module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.cleaning_dicom.html#module-dicom_to_cnn.tools.cleaning_dicom.folders">dicom_to_cnn.tools.cleaning_dicom.folders module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.cleaning_dicom.html#module-dicom_to_cnn.tools.cleaning_dicom">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dicom_to_cnn.tools.export_segmentation.html">dicom_to_cnn.tools.export_segmentation package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.export_segmentation.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.export_segmentation.html#module-dicom_to_cnn.tools.export_segmentation.generate_dict">dicom_to_cnn.tools.export_segmentation.generate_dict module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.export_segmentation.html#module-dicom_to_cnn.tools.export_segmentation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dicom_to_cnn.tools.post_processing.html">dicom_to_cnn.tools.post_processing package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.post_processing.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.post_processing.html#module-dicom_to_cnn.tools.post_processing.ROI_stats">dicom_to_cnn.tools.post_processing.ROI_stats module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.post_processing.html#module-dicom_to_cnn.tools.post_processing">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dicom_to_cnn.tools.pre_processing.html">dicom_to_cnn.tools.pre_processing package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.pre_processing.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.pre_processing.html#module-dicom_to_cnn.tools.pre_processing.array_convertor">dicom_to_cnn.tools.pre_processing.array_convertor module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.pre_processing.html#module-dicom_to_cnn.tools.pre_processing.convert_format">dicom_to_cnn.tools.pre_processing.convert_format module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.pre_processing.html#module-dicom_to_cnn.tools.pre_processing.series">dicom_to_cnn.tools.pre_processing.series module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.pre_processing.html#module-dicom_to_cnn.tools.pre_processing.threshold_mask">dicom_to_cnn.tools.pre_processing.threshold_mask module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.pre_processing.html#module-dicom_to_cnn.tools.pre_processing">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dicom_to_cnn.tools.pyradiomics.html">dicom_to_cnn.tools.pyradiomics package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.pyradiomics.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.pyradiomics.html#module-dicom_to_cnn.tools.pyradiomics.pyradiomic">dicom_to_cnn.tools.pyradiomics.pyradiomic module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.pyradiomics.html#module-dicom_to_cnn.tools.pyradiomics">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dicom_to_cnn.tools.rt_processor.html">dicom_to_cnn.tools.rt_processor package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.rt_processor.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.rt_processor.html#module-dicom_to_cnn.tools.rt_processor.DVH_data">dicom_to_cnn.tools.rt_processor.DVH_data module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.rt_processor.html#module-dicom_to_cnn.tools.rt_processor">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dicom_to_cnn.tools.visualization.html">dicom_to_cnn.tools.visualization package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.visualization.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.visualization.html#module-dicom_to_cnn.tools.visualization.create_mip">dicom_to_cnn.tools.visualization.create_mip module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dicom_to_cnn.tools.visualization.html#module-dicom_to_cnn.tools.visualization">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dicom_to_cnn.tools.html#module-dicom_to_cnn.tools">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="module-dicom_to_cnn">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dicom_to_cnn" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">dicom_to_cnn</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Salim Kanoun, Wendy Revailler.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/dicom_to_cnn.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
