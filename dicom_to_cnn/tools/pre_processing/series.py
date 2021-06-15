@@ -6,7 +6,7 @@ from dicom_to_cnn.model.reader.SeriesCT import SeriesCT
 from dicom_to_cnn.model.reader.SeriesPT import SeriesPT 
 from dicom_to_cnn.model.reader.Instance import Instance  
 
-def get_series_object(cls, path:str):
+def get_series_object(path:str):
     """
     class method to generate a Series object
 
