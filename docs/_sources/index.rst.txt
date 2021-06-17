@@ -1,5 +1,5 @@
 .. dicom_to_cnn documentation master file, created by
-   sphinx-quickstart on Thu Jun 17 10:55:00 2021.
+   sphinx-quickstart on Thu Jun 17 14:27:01 2021.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
