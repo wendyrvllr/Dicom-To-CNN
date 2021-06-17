@@ -55,7 +55,7 @@ class MIP_Generator :
         if vmin is None or vmax is None : #mask
             plt.imshow(self.MIP, cmap = 'Reds', origin='lower')
         else : #pet 
-            plt.imshow(self.MIP, cmap = 'Greys', origin='lower', vmin = vmin, vmax = vmax)
+            plt.imshow(self.MIP, cmap = 'gray', origin='lower', vmin = vmin, vmax = vmax)
         f.savefig(os.path.join(directory, filename), bbox_inches='tight')
         plt.close()
         return os.path.join(directory, filename)
