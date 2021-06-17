@@ -193,10 +193,10 @@ class Series():
             return spacing
 
         else : 
-            initial_z_spacing = round(abs(Z_positions[0] - Z_positions[1]), 1)
+            initial_z_spacing = np.round(abs(Z_positions[0] - Z_positions[1]), 1)
             spacing.append(initial_z_spacing)
             for i in range(2,len(Z_positions)):
-                z_spacing = round(abs(Z_positions[i - 1] - Z_positions[i]), 1)
+                z_spacing = np.round(abs(Z_positions[i - 1] - Z_positions[i]), 1)
                 spacing.append(z_spacing)  
             return spacing 
 
