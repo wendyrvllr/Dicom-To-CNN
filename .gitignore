@@ -1,4 +1,5 @@
 .vscode
 .ipynb_checkpoints
+dicom_to_cnn.egg-info
 *.pyc
 dist

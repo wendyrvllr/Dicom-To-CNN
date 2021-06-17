@@ -12,8 +12,12 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('.'))
-sys.path.append('dicom_to_cnn')
+
+sys.path.insert(0, os.path.abspath('..'))
+print(os.path.abspath('..'))
+
+import dicom_to_cnn
+import sphinx_rtd_theme
 
 
 # -- Project information -----------------------------------------------------
