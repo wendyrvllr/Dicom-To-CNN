@@ -1,0 +1,20 @@
+Dicom\-To\-CNN.dicom\_to\_cnn package
+=====================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Dicom-To-CNN.dicom_to_cnn.enums
+   Dicom-To-CNN.dicom_to_cnn.model
+   Dicom-To-CNN.dicom_to_cnn.tools
+
+Module contents
+---------------
+
+.. automodule:: Dicom-To-CNN.dicom_to_cnn
+   :members:
+   :undoc-members:
+   :show-inheritance:

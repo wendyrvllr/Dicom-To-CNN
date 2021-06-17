@@ -1,0 +1,24 @@
+Dicom\-To\-CNN.dicom\_to\_cnn.tools package
+===========================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   Dicom-To-CNN.dicom_to_cnn.tools.cleaning_dicom
+   Dicom-To-CNN.dicom_to_cnn.tools.export_segmentation
+   Dicom-To-CNN.dicom_to_cnn.tools.post_processing
+   Dicom-To-CNN.dicom_to_cnn.tools.pre_processing
+   Dicom-To-CNN.dicom_to_cnn.tools.pyradiomics
+   Dicom-To-CNN.dicom_to_cnn.tools.rt_processor
+   Dicom-To-CNN.dicom_to_cnn.tools.visualization
+
+Module contents
+---------------
+
+.. automodule:: Dicom-To-CNN.dicom_to_cnn.tools
+   :members:
+   :undoc-members:
+   :show-inheritance:

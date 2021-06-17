@@ -1,0 +1,69 @@
+Dicom\-To\-CNN.dicom\_to\_cnn.model.reader package
+==================================================
+
+Submodules
+----------
+
+Dicom\-To\-CNN.dicom\_to\_cnn.model.reader.Instance module
+----------------------------------------------------------
+
+.. automodule:: Dicom-To-CNN.dicom_to_cnn.model.reader.Instance
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Dicom\-To\-CNN.dicom\_to\_cnn.model.reader.Instance\_RTDose module
+------------------------------------------------------------------
+
+.. automodule:: Dicom-To-CNN.dicom_to_cnn.model.reader.Instance_RTDose
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Dicom\-To\-CNN.dicom\_to\_cnn.model.reader.Instance\_RTSS module
+----------------------------------------------------------------
+
+.. automodule:: Dicom-To-CNN.dicom_to_cnn.model.reader.Instance_RTSS
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Dicom\-To\-CNN.dicom\_to\_cnn.model.reader.Nifti module
+-------------------------------------------------------
+
+.. automodule:: Dicom-To-CNN.dicom_to_cnn.model.reader.Nifti
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Dicom\-To\-CNN.dicom\_to\_cnn.model.reader.Series module
+--------------------------------------------------------
+
+.. automodule:: Dicom-To-CNN.dicom_to_cnn.model.reader.Series
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Dicom\-To\-CNN.dicom\_to\_cnn.model.reader.SeriesCT module
+----------------------------------------------------------
+
+.. automodule:: Dicom-To-CNN.dicom_to_cnn.model.reader.SeriesCT
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Dicom\-To\-CNN.dicom\_to\_cnn.model.reader.SeriesPT module
+----------------------------------------------------------
+
+.. automodule:: Dicom-To-CNN.dicom_to_cnn.model.reader.SeriesPT
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: Dicom-To-CNN.dicom_to_cnn.model.reader
+   :members:
+   :undoc-members:
+   :show-inheritance:
