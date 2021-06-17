@@ -2,7 +2,7 @@ import SimpleITK as sitk
 import numpy as np 
 
 class Nifti : 
-    """a class to read a nifti image, normalize et resample it 
+    """a class to read a nifti image, resample it 
     """
 
     def __init__(self, nifti_img_path:str):
@@ -14,31 +14,31 @@ class Nifti :
         self.nifti_img_path = nifti_img_path
         self.nifti_img = sitk.ReadImage(self.nifti_img_path) #shape (x,y,z)
 
-    def resample_and_normalize(self, mode:str='ct') -> np.ndarray:
-        """function to resample nifti_img and put it in a (1024,256,256) np.ndarray and normalize the array
+    def resample(self, shape:tuple = (256, 256, 1024)) -> np.ndarray:
+        """function to resample sitk image of shape (x,y,z), put it in a bigger and empty np.ndarray
 
         Args:
-            mode (str, optional): ['ct' or other. If CT exam, keep only bones]. Defaults to 'ct'.
+            shape (tuple) : [shape of the new sitk image, shape (x,y,z)].
 
         Returns:
-            [np.ndarray]: [return corresponding resampled and normalized np.ndarray]
+            [np.ndarray]: [return corresponding resampled np.ndarray]
         """
         spacing = self.nifti_img.GetSpacing()
         origin = self.nifti_img.GetOrigin()
         direction = self.nifti_img.GetDirection()
         size = self.nifti_img.GetSize()
         #target spacing, and size
-        spacing_x = 700/256 #mm
-        spacing_z = 2000/1024 #mm
-        spacing_y = 700/256 #mm 
+        spacing_x = 700/shape[0] #mm
+        spacing_y = 700/shape[1] #mm 
+        spacing_z = 2000/shape[2] #mm
 
         true_x = size[0] * spacing[0] #mm
         true_y = size[1] * spacing[1] #mm 
         true_z = size[2] * spacing[2] #mm
 
-        new_size_x = int((true_x * 256) / 700) #pixel
-        new_size_y = int((true_y * 256) / 700) #pixel
-        new_size_z = int((true_z * 1024) / 2000) #pixel
+        new_size_x = int((true_x * shape[0]) / 700) #pixel
+        new_size_y = int((true_y * shape[1]) / 700) #pixel
+        new_size_z = int((true_z * shape[2]) / 2000) #pixel
 
         #applied transformation
         transformation = sitk.ResampleImageFilter()
@@ -48,25 +48,19 @@ class Nifti :
         transformation.SetOutputSpacing((spacing_x, spacing_y, spacing_z))
         transformation.SetInterpolator(sitk.sitkLinear)
         new_img = transformation.Execute(self.nifti_img)
- 
         result = sitk.GetArrayFromImage(new_img) #[z,y,x]
-        if mode == 'ct' : 
-            result[np.where(result < 500)] = 0 #garder le squelette
-            result= ((result - result.min()) * (1/(result.max() - result.min()) * 255)).astype('uint8')
-
-        result = result[:,:,:]/255
-       
-        center = [512, 127, 127]
+        center = [int(shape[2]/2), int(shape[1]/2),  int(shape[1]/2)]
         z = int(result.shape[0]/2)
         y = int(result.shape[1]/2)
         x = int(result.shape[0]/2)
-
         sommet_x = center[2] - x 
         sommet_y = center[1] - y 
         sommet_z = center[0] - z
-        new_array = np.zeros((1024, 256, 256))
-        if result.shape[1] != 256 : 
+        new_array = np.zeros((shape[2], shape[1], shape[0]))
+        if result.shape[1] != shape[1] : 
             new_array[sommet_z:sommet_z+result.shape[0], sommet_y:sommet_y + result.shape[1], sommet_x:sommet_x + result.shape[2]] = result
         else : 
-            new_array[sommet_z:sommet_z+result.shape[0],0:256, 0:256] = result
+            new_array[sommet_z:sommet_z+result.shape[0],0:shape[1], 0:shape[0]] = result
         return new_array
+
+
