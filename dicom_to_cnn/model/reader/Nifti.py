@@ -47,12 +47,12 @@ class Nifti :
         transformation.SetSize((new_size_x, new_size_y, new_size_z))
         transformation.SetOutputSpacing((spacing_x, spacing_y, spacing_z))
         transformation.SetInterpolator(sitk.sitkLinear)
-        new_img = transformation.Execute(self.nifti_img)
+        new_img = transformation.Execute(self.nifti_img) 
         result = sitk.GetArrayFromImage(new_img) #[z,y,x]
         center = [int(shape[2]/2), int(shape[1]/2),  int(shape[1]/2)]
         z = int(result.shape[0]/2)
         y = int(result.shape[1]/2)
-        x = int(result.shape[0]/2)
+        x = int(result.shape[2]/2)
         sommet_x = center[2] - x 
         sommet_y = center[1] - y 
         sommet_z = center[0] - z
