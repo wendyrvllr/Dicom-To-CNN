@@ -18,7 +18,7 @@ class DICOMSEG_Writer(Abstract_Writer):
             img_mask ([sitk.Image]): [sitk img of segmentation, [x,y,z]]
             serie_path ([str]): [Serie path related to DICOMSEG file]
         """
-        super().__init__(mask_img)
+        self.mask_img = mask_img
         self.serie_path = serie_path
 
     def __generate_dict_json(self, directory_path:str) -> str:

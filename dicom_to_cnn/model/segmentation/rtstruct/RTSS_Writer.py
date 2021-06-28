@@ -26,7 +26,7 @@ class RTSS_Writer(Abstract_Writer):
             serie_path ([str]): [Serie path related to RTSTRUCT file ]
         """
         #SERIE
-        super().__init__(mask_img)#GetSize() = [x,y,z]
+        self.mask_img = mask_img#GetSize() = [x,y,z]
         serie = Series(serie_path)
         self.instances = serie.get_instances_ordered()
 
@@ -35,7 +35,7 @@ class RTSS_Writer(Abstract_Writer):
 
         #MASKs
         self.mask_array = sitk.GetArrayFromImage(self.mask_img) #shape = [z,x,y]
-        self.mask_array = self.__clean_mask(self.mask_array)
+        self.mask_array = self.__clean_mask()
         self.image_position = self.mask_img.GetOrigin()
         self.pixel_spacing = self.mask_img.GetSpacing()
         self.image_direction = self.mask_img.GetDirection()
@@ -73,13 +73,13 @@ class RTSS_Writer(Abstract_Writer):
         Returns:
             [ndarray]: [return the cleaned mask in shape [z,y,x]]
         """
-        if int(np.max(self.mask_array)) != 1 : #binarize the mask 
-            mask = np.where(self.mask_array>0, 1, 0)
-            number_of_roi = int(np.max(self.mask_array))
+        number_of_roi = int(np.max(self.mask_array))
+        binary_mask = np.where(self.mask_array>0, 1, 0)
+        
         empty_mask = np.zeros((self.mask_array.shape))
         for s in range(self.mask_array.shape[0]) : 
-            slice = self.mask_array[s, :, :]
-            if int(np.self.mask_array(slice)) == 0 : 
+            slice = binary_mask[s, :, :]
+            if int(np.max(binary_mask[s,:,:])) == 0 : 
                 empty_mask[s, :, :] = slice
             else : 
                 lw, num = label(slice, connectivity=2, return_num=True) #lw = 2D slice 
@@ -97,11 +97,11 @@ class RTSS_Writer(Abstract_Writer):
         #labelled again 
         label_ = 1
         for i in range(1, number_of_roi+1):
-            z,y,x = np.where((matrix > 0) & (mask == i))
+            z,y,x = np.where((matrix > 0) & (self.mask_array == i))
             if len(z) == 0 : 
                 pass 
             else : 
-                matrix[np.where((matrix > 0) & (mask == i))] = label_ 
+                matrix[np.where((matrix > 0) & (self.mask_array == i))] = label_ 
                 label_ += 1 
         return matrix
 
