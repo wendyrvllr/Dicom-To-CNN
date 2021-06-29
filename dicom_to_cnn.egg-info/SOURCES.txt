@@ -1,3 +1,4 @@
+LICENSE
 README.md
 setup.py
 dicom_to_cnn/__init__.py
