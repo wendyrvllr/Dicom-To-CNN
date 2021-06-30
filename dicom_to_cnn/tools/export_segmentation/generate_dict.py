@@ -3,7 +3,7 @@ import os
 from dicom_to_cnn.tools.cleaning_dicom.folders import *
 
 
-def generate_dict(name:str, serie_description:str, body_part:str, roi_name:dict, interpreted_type:dict=None) -> dict:
+def generate_dict(number_of_roi:int, name:str, serie_description:str, body_part:str, roi_name:dict, interpreted_type:dict=None) -> dict:
     """a function to generate a dict with informations to generate DICOM SEG or DICOM RTSTRUCT file
     ! no more than 16 characters for each informations ! 
 

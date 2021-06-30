@@ -86,7 +86,8 @@ class DICOMSEG_Writer(Abstract_Writer):
         Returns:
             [str]: [return the path of the json generated]
         """
-        results = generate_dict(self.dict_name, self.serie_description, self.body_part, self.roi_name_dict, interpreted_type=None)
+        number_of_roi = int(np.max(sitk.GetArrayFromImage(self.mask_img)))
+        results = generate_dict(number_of_roi, self.dict_name, self.serie_description, self.body_part, self.roi_name_dict, interpreted_type=None)
         self.results = results
         json_path = save_dict_as_json(results, directory_path)
         return json_path 
@@ -122,6 +123,7 @@ class DICOMSEG_Writer(Abstract_Writer):
             )
 
         dcm = writer.write(segmentation, source_images)
+        os.remove(json_path)
         return dcm
 
 

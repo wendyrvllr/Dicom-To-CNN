@@ -60,8 +60,8 @@ class RTSS_Writer(Abstract_Writer):
             name (str): [name of the body part]
 
         """
-        if len(name) > 16 : self.dict_name =  name[0:16]
-        else : self.dict_name = name 
+        if len(name) > 16 : self.body_part =  name[0:16]
+        else : self.body_part = name 
 
     def setSeriesDescription(self, description:str) -> str : 
         """set the study description of the exam
@@ -124,7 +124,7 @@ class RTSS_Writer(Abstract_Writer):
         self.roi_name_dict =  dictionnary
 
     def __generate_dict_json(self) -> str:
-        results = generate_dict(self.dict_name, self.serie_description, self.body_part, self.roi_name_dict, interpreted_type=None)
+        results = generate_dict(self.number_of_roi, self.dict_name, self.serie_description, self.body_part, self.roi_name_dict, interpreted_type=self.roi_type_dict)
         self.results = results
 
     def __clean_mask(self) -> np.ndarray:
@@ -283,7 +283,7 @@ class RTSS_Writer(Abstract_Writer):
 
     def rtstruct_writer(self):
         #generate dictionnary with parameter inside from 'generate_dict.py'
-        self.results = self.__generate_dict_json()
+        self.__generate_dict_json()
 
         #RTSTRUCT FILE 
         #creation file_meta 
@@ -311,6 +311,7 @@ class RTSS_Writer(Abstract_Writer):
             directory_path (str): [directory's path where to save the RTSTRUCT file]
 
         """
+        self.rtstruct_writer()
         self.dataset.save_as(os.path.join(directory_path, filename), write_like_original=False)
 
 
