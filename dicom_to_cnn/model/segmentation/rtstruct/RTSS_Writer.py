@@ -43,26 +43,89 @@ class RTSS_Writer(Abstract_Writer):
         #get number of ROI 
         self.number_of_roi = int(np.max(self.mask_array))
 
-        #generate dictionnary with parameter inside from 'generate_dict.py'
-        self.results = generate_dict(self.number_of_roi, 'rtstruct')
 
-        #RTSTRUCT FILE 
-        #creation file_meta 
-        self.file_meta, self.file_meta.MediaStorageSOPInstanceUID = self.generates_file_meta()
-        suffix = '.dcm'
-        filename_little_endian = tempfile.NamedTemporaryFile(suffix=suffix).name
-        self.dataset = pydicom.dataset.FileDataset(filename_little_endian, {}, file_meta=self.file_meta, preamble=b"\0" * 128)
+    def setDictName(self, name:str) -> str : 
+        """set the dict name 
 
-        #Add the data element in FileDataset
-        self.set_tags()
-        self.set_StructureSetROISequence()
-        self.set_RTROIObservationSequence()
-        self.set_ROIContourSequence()
-        self.set_ReferencedFrameOfReferenceSequence()
-        
-        # Set the transfer syntax
-        self.dataset.is_little_endian = True
-        self.dataset.is_implicit_VR = False 
+        Args:
+            name (str): [dict name]
+
+        """
+        self.dict_name = name
+
+    def setBodyPartExaminated(self, name:str) -> str : 
+        """set the body part examinated
+
+        Args:
+            name (str): [name of the body part]
+
+        """
+        if len(name) > 16 : self.dict_name =  name[0:16]
+        else : self.dict_name = name 
+
+    def setSeriesDescription(self, description:str) -> str : 
+        """set the study description of the exam
+
+        Args:
+            description (str): [study description]
+
+
+        """
+        if len(description) > 16 : self.serie_description =  description[0:16]
+        else : self.serie_description = description 
+
+    def setRTROIInterpretedType(self, dictionnary:dict) -> dict : 
+        """set a dict for the RTROIInterpretedType value for each ROI
+
+        Args:
+            dictionnary (dict): [{1 : value,
+                                  2 : value, 
+                                  etc }]
+
+        """ 
+        self.roi_type_dict = dictionnary
+
+    def setAutoRTROIInterpretedType(self)-> dict : 
+        """set an auto dict with RTROIINterpretedType value 
+
+            generated dict  {1 : '', 
+                            2 : '', 
+                            etc }]
+        """
+        number_of_roi = int(np.max(self.mask_array))
+        dictionnary = {}
+        for i in range(1, number_of_roi+1):
+            dictionnary[i] = str('')
+        self.roi_type_dict = dictionnary
+
+    def setRoiName(self, dictionnary:dict) -> dict : 
+        """set a dict for ROI Name, for each ROI
+
+        Args:
+            dictionnary (dict): [{1 : 'name roi 1', 
+                                  2:'name roi 2', 
+                                 etc }]
+
+        """
+        self.roi_name_dict = dictionnary
+
+    def setAutoRoiName(self) -> dict : 
+        """set an auto dict with ROI Name value 
+
+            generated dict  {1 : 'ROI 1', 
+                            2 : 'ROI 2', 
+                                etc }]
+        """
+        mask_array = sitk.GetArrayFromImage(self.mask_img)
+        number_of_roi = int(np.max(mask_array))
+        dictionnary = {}
+        for i in range(1, number_of_roi+1):
+            dictionnary[i] = str("ROI {}".format(i+1))
+        self.roi_name_dict =  dictionnary
+
+    def __generate_dict_json(self) -> str:
+        results = generate_dict(self.dict_name, self.serie_description, self.body_part, self.roi_name_dict, interpreted_type=None)
+        self.results = results
 
     def __clean_mask(self) -> np.ndarray:
         """a function to clean mask : remove pixel (=1) when there is less than 3 pixels (=1) in slice
@@ -217,6 +280,28 @@ class RTSS_Writer(Abstract_Writer):
         sop_class_uid = self.instances[0].get_sop_class_uid()
         self.dataset.ReferencedFrameOfReferenceSequence = create_ReferencedFrameOfReferenceSequence(frame_of_reference_uid, sop_class_uid, self.list_all_SOPInstanceUID, series_instance_uid, study_instance_uid)
 
+
+    def rtstruct_writer(self):
+        #generate dictionnary with parameter inside from 'generate_dict.py'
+        self.results = self.__generate_dict_json()
+
+        #RTSTRUCT FILE 
+        #creation file_meta 
+        self.file_meta, self.file_meta.MediaStorageSOPInstanceUID = self.generates_file_meta()
+        suffix = '.dcm'
+        filename_little_endian = tempfile.NamedTemporaryFile(suffix=suffix).name
+        self.dataset = pydicom.dataset.FileDataset(filename_little_endian, {}, file_meta=self.file_meta, preamble=b"\0" * 128)
+
+        #Add the data element in FileDataset
+        self.set_tags()
+        self.set_StructureSetROISequence()
+        self.set_RTROIObservationSequence()
+        self.set_ROIContourSequence()
+        self.set_ReferencedFrameOfReferenceSequence()
+        
+        # Set the transfer syntax
+        self.dataset.is_little_endian = True
+        self.dataset.is_implicit_VR = False 
 
     def save_file(self, filename:str, directory_path:str) -> None :
         """method to save the RTSTRUCT file
